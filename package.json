@@ -1,0 +1,26 @@
+{
+  "name": "did-siop-lib",
+  "version": "1.0.0",
+  "description": "A library containing core functionality for DID based Self Issued OpenID Connect authentication, written in typescript.",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest --runInBand"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RadicalLedger/did-siop-lib.git"
+  },
+  "keywords": [
+    "DID_SIOP",
+    "OpenID_SIOP",
+    "Identity_Wallet",
+    "OpenIDConnect"
+  ],
+  "author": "SanujaLW",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RadicalLedger/did-siop-lib/issues"
+  },
+  "homepage": "https://github.com/RadicalLedger/did-siop-lib#readme"
+}
