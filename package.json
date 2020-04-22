@@ -24,8 +24,10 @@
   },
   "homepage": "https://github.com/RadicalLedger/did-siop-lib#readme",
   "devDependencies": {
+    "@types/jest": "^25.2.1",
     "jest": "^25.4.0",
-    "nock": "^12.0.3"
+    "nock": "^12.0.3",
+    "ts-jest": "^25.4.0"
   },
   "dependencies": {
     "@types/jquery": "^3.3.35",
