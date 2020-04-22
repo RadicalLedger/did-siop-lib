@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/RadicalLedger/did-siop-lib/issues"
   },
-  "homepage": "https://github.com/RadicalLedger/did-siop-lib#readme"
+  "homepage": "https://github.com/RadicalLedger/did-siop-lib#readme",
+  "devDependencies": {
+    "jest": "^25.4.0"
+  }
 }
