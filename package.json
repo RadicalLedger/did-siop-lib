@@ -32,6 +32,7 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "axios": "^0.19.2"
+    "axios": "^0.19.2",
+    "ethereum-checksum-address": "0.0.5"
   }
 }
