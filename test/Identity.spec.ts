@@ -50,9 +50,11 @@ const testResolutionResult = {
     content: null,
     contentType: null
 }
+const testKID = 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner';
+const testPublicKey = '0xB07Ead9717b44B6cF439c474362b9B0877CBBF83';
 
 describe("Identity functions", function () {
-    beforeAll(() => {
+    beforeEach(() => {
         nock('https://uniresolver.io/1.0/identifiers').get('/'+testDID).reply(200, testResolutionResult).get('/'+invalidDID).reply(404, 'Not found');
     });
 
@@ -66,6 +68,21 @@ describe("Identity functions", function () {
         expect(resolvedDID).toEqual(testDID);
 
         let didPromise = identity.resolve(invalidDID);
-        await expect(didPromise).rejects.toEqual(ERRORS.DOCUMENT_RESOLUTION_ERROR);
+        await expect(didPromise).rejects.toEqual(new Error(ERRORS.DOCUMENT_RESOLUTION_ERROR));
+    });
+    test("Tests getPublicKey(kid)", async () => {
+        let identity = new Identity();
+        expect(() => {
+            identity.getPublicKey(testKID);
+        }).toThrow(new Error(ERRORS.UNRESOLVED_DOCUMENT));
+
+        await identity.resolve(testDID);
+
+        let publicKey = identity.getPublicKey(testKID);
+        expect(publicKey).toEqual(testPublicKey);
+
+        expect(() => {
+            publicKey = identity.getPublicKey('invalid_kid');
+        }).toThrow(ERRORS.NO_MATCHING_PUBLIC_KEY);
     });
 });
