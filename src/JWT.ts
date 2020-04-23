@@ -2,7 +2,7 @@ import { JWT, JWK } from 'jose';
 import base64url from 'base64url';
 import { createHash } from 'crypto';
 import { ec as EC } from 'elliptic';
-//const publicKeyToAddress = require('ethereum-public-key-to-address');   
+const publicKeyToAddress = require('ethereum-public-key-to-address');   
 
 export enum ALGORITHMS{
     'RS256',
@@ -13,6 +13,8 @@ export enum ALGORITHMS{
 
 export const ERRORS = Object.freeze({
     UNSUPPORTED_ALGORITHM: 'Unsupported algorithm',
+    INVALID_JWT_ES256KRecoverable: 'Invalid JWT for ES256K-R',
+    INVALID_SIGNATURE: 'Invalid signature',
 });
 
 export function sign(payload: any, kid: string, key: JWK.Key | string, algorithm: ALGORITHMS): string{
@@ -27,13 +29,28 @@ export function sign(payload: any, kid: string, key: JWK.Key | string, algorithm
     }
 }
 
+export function verify(jwt: string, key: JWK.Key | string, algorithm: ALGORITHMS): object{
+    if(typeof key === 'string'){
+        switch(algorithm){
+            case ALGORITHMS["ES256K-R"]: return verifyES256KRecoverable(jwt, key);
+            default: throw new Error(ERRORS.UNSUPPORTED_ALGORITHM)
+        }
+    }
+    else{
+        try {
+            return JWT.verify(jwt, key);
+        } catch (err) {
+            throw new Error(ERRORS.INVALID_SIGNATURE);
+        }
+    }
+}
 
 function leftpad(data: any, size: number = 64) {
     if (data.length === size) return data
     return '0'.repeat(size - data.length) + data
 }
 
-function signES256KRecoverable(payload: any, privateKey: string, kid: string){
+function signES256KRecoverable(payload: any, privateKey: string, kid: string): string{
     let ec = new EC('secp256k1');
     let sha256 = createHash('sha256');
 
@@ -56,4 +73,30 @@ function signES256KRecoverable(payload: any, privateKey: string, kid: string){
     if (ec256k_signature.recoveryParam) jose[64] = ec256k_signature.recoveryParam;
 
     return unsigned + '.' + base64url.encode(jose);
+}
+
+function verifyES256KRecoverable(jwt: string, publicKey: string): object{
+    let sha256 = createHash('sha256');
+    let ec = new EC('secp256k1');
+
+    let input = jwt.split('.')[0] + '.' + jwt.split('.')[1];
+    let hash = sha256.update(input).digest();
+
+    let sigBuffer = Buffer.from(base64url.toBuffer(jwt.split('.')[2]));
+    if (sigBuffer.length !== 65) throw new Error(ERRORS.INVALID_JWT_ES256KRecoverable);
+    let signatureObj = {
+        r: sigBuffer.slice(0, 32).toString('hex'),
+        s: sigBuffer.slice(32, 64).toString('hex')
+    }
+    let recoveredKey = ec.recoverPubKey(hash, signatureObj, sigBuffer[64]);
+    if (
+        recoveredKey.encode('hex') === publicKey ||
+        recoveredKey.encode('hex', true) === publicKey ||
+        publicKeyToAddress(recoveredKey.encode('hex')) === publicKey
+    ){
+        return JSON.parse(base64url.decode(jwt.split('.')[1]));
+    }
+    else{
+        throw new Error(ERRORS.INVALID_SIGNATURE);
+    }
 }
