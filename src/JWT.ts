@@ -45,6 +45,29 @@ export function verify(jwt: string, key: JWK.Key | string, algorithm: ALGORITHMS
     }
 }
 
+export function checkKeyPair(privateKey: JWK.Key | string, publicKey: JWK.Key | string, algorithm: ALGORITHMS): boolean{
+    const jwtDecoded = {
+        header: {
+            "alg": "EdDSA",
+            "typ": "JWT"
+        },
+        payload: {
+            "sub": "1234567890",
+            "name": "John Doe",
+            "admin": true,
+        }
+    }
+    const kid = 'key_1'
+
+    try {
+        let signature = sign(jwtDecoded.payload, kid, privateKey, algorithm);
+        verify(signature, publicKey, algorithm);
+        return true;
+    } catch (err) {
+        return false;
+    }
+}
+
 function leftpad(data: any, size: number = 64) {
     if (data.length === size) return data
     return '0'.repeat(size - data.length) + data

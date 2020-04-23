@@ -1,4 +1,4 @@
-import { sign, verify, ALGORITHMS, ERRORS } from '../src/JWT'
+import { sign, verify, ALGORITHMS, checkKeyPair, ERRORS } from '../src/JWT'
 import { JWK } from 'jose';
 
 const rs256TestResource = {
@@ -200,5 +200,26 @@ describe('JWT functions', function() {
         expect(() => {
             validPayload = verify(signature, edDsaTestResources.publicKeyWrong, ALGORITHMS.EdDSA);
         }).toThrow(new Error(ERRORS.INVALID_SIGNATURE));
+    })
+    test('JWT check key pair', async () => {
+        let validity = checkKeyPair(rs256TestResource.privateKey, rs256TestResource.publicKey, ALGORITHMS.RS256);
+        expect(validity).toBeTruthy();
+        validity = checkKeyPair(rs256TestResource.privateKey, rs256TestResource.publicKeyWrong, ALGORITHMS.RS256);
+        expect(validity).toBeFalsy();
+
+        validity = checkKeyPair(es256kTestResource.privateKey, es256kTestResource.publicKey, ALGORITHMS.ES256K);
+        expect(validity).toBeTruthy();
+        validity = checkKeyPair(es256kTestResource.privateKey, es256kTestResource.publicKeyWrong, ALGORITHMS.ES256K);
+        expect(validity).toBeFalsy();
+
+        validity = checkKeyPair(es256kRecoverableResources.privateKey, es256kRecoverableResources.publicKey, ALGORITHMS["ES256K-R"]);
+        expect(validity).toBeTruthy();
+        validity = checkKeyPair(es256kRecoverableResources.privateKey, es256kRecoverableResources.publicKeyWrong, ALGORITHMS["ES256K-R"]);
+        expect(validity).toBeFalsy();
+
+        validity = checkKeyPair(edDsaTestResources.privateKey, edDsaTestResources.publicKey, ALGORITHMS.EdDSA);
+        expect(validity).toBeTruthy();
+        validity = checkKeyPair(edDsaTestResources.privateKey, edDsaTestResources.publicKeyWrong, ALGORITHMS.EdDSA);
+        expect(validity).toBeFalsy();
     })
 })
