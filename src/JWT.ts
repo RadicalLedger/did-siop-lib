@@ -1,0 +1,59 @@
+import { JWT, JWK } from 'jose';
+import base64url from 'base64url';
+import { createHash } from 'crypto';
+import { ec as EC } from 'elliptic';
+//const publicKeyToAddress = require('ethereum-public-key-to-address');   
+
+export enum ALGORITHMS{
+    'RS256',
+    'ES256K',
+    'ES256K-R',
+    'EdDSA',
+}
+
+export const ERRORS = Object.freeze({
+    UNSUPPORTED_ALGORITHM: 'Unsupported algorithm',
+});
+
+export function sign(payload: any, kid: string, key: JWK.Key | string, algorithm: ALGORITHMS): string{
+    if(typeof key === 'string'){
+        switch (algorithm) {
+            case ALGORITHMS["ES256K-R"]: return signES256KRecoverable(payload, key, kid);
+            default: throw new Error(ERRORS.UNSUPPORTED_ALGORITHM);
+        }
+    }
+    else{
+        return JWT.sign(payload, key, { algorithm: ALGORITHMS[algorithm], kid: true });
+    }
+}
+
+
+function leftpad(data: any, size: number = 64) {
+    if (data.length === size) return data
+    return '0'.repeat(size - data.length) + data
+}
+
+function signES256KRecoverable(payload: any, privateKey: string, kid: string){
+    let ec = new EC('secp256k1');
+    let sha256 = createHash('sha256');
+
+    let header = {
+        alg: "ES256K-R",
+        typ: "JWT",
+        kid: kid,
+    }
+
+    let unsigned = base64url.encode(JSON.stringify(header)) + '.' + base64url.encode(JSON.stringify(payload));
+    let hash = sha256.update(unsigned).digest('hex');
+
+    let signingKey = ec.keyFromPrivate(privateKey);
+
+    let ec256k_signature = signingKey.sign(hash);
+
+    let jose = Buffer.alloc(ec256k_signature.recoveryParam? 65 : 64);
+    Buffer.from(leftpad(ec256k_signature.r.toString('hex')), 'hex').copy(jose, 0);
+    Buffer.from(leftpad(ec256k_signature.s.toString('hex')), 'hex').copy(jose, 32);
+    if (ec256k_signature.recoveryParam) jose[64] = ec256k_signature.recoveryParam;
+
+    return unsigned + '.' + base64url.encode(jose);
+}
