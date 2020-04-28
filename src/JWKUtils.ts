@@ -2,7 +2,7 @@ import { JWK } from 'jose';
 import { eddsa as EdDSA, ec as EC } from 'elliptic';
 import * as base58 from 'bs58';
 import base64url from 'base64url';
-const rsaPemToJWk = require('rsa-pem-to-jwk');
+const NodeRSA = require('node-rsa');
 
 export const ERRORS = Object.freeze({
     INVALID_KEY_FORMAT: 'Invalid key format error',
@@ -104,12 +104,18 @@ export class RS256Key{
             return new RS256Key(key.kid, KTYS.RSA, ALGS.RS256, key.n, key.e, sig);
         }
         else{
-            let jwk = rsaPemToJWk(key);
-            return new RS256Key(kid, KTYS.RSA, ALGS.RS256, jwk.n, jwk.e, sig);
+            let rsaKey = new NodeRSA();
+            let format = key.indexOf('-----BEGIN RSA PUBLIC KEY-----') > -1 ? 'pkcs1-public-pem' : 'pkcs8-public-pem';
+            rsaKey.importKey(key, format);
+            let n = base64url.encode(rsaKey.keyPair.n.toBuffer().slice(1));
+            let e = rsaKey.keyPair.e.toString(16);
+            e = (e % 2 === 0) ? e : '0' + e;
+            e = Buffer.from(e, 'hex').toString('base64');
+            return new RS256Key(kid, KTYS.RSA, ALGS.RS256, n, e, sig);
         }
     }
 
-    static fromPrivateKey(key: string | KeyObjects.RSAPrivateKeyObject, kid: string, sig: boolean = false): RS256Key {
+    static fromPrivateKey(key: string| KeyObjects.RSAPrivateKeyObject, kid: string, sig: boolean = true): RS256Key {
         if (typeof key === 'object') {
             let rs256Key =  new RS256Key(key.kid, KTYS.RSA, ALGS.RS256, key.n, key.e, sig);
             rs256Key.isPrivate = true;
@@ -122,15 +128,22 @@ export class RS256Key{
             return rs256Key;
         }
         else {
-            let jwk = rsaPemToJWk(key);
-            let rs256Key = new RS256Key(kid, KTYS.RSA, ALGS.RS256, jwk.n, jwk.e, sig);
+            let rsaKey = new NodeRSA();
+            let format = key.indexOf('-----BEGIN RSA PRIVATE KEY-----') > -1 ? 'pkcs1-private-pem' : 'pkcs8-private-pem';
+            rsaKey.importKey(key, format);
+            let n = base64url.encode(rsaKey.keyPair.n.toBuffer().slice(1));
+            let e = rsaKey.keyPair.e.toString(16);
+            e = (e % 2 === 0) ? e : '0' + e;
+            e = Buffer.from(e, 'hex').toString('base64');
+
+            let rs256Key = new RS256Key(kid, KTYS.RSA, ALGS.RS256, n, e, sig);
             rs256Key.isPrivate = true;
-            rs256Key.p = jwk.p;
-            rs256Key.q = jwk.q;
-            rs256Key.d = jwk.d;
-            rs256Key.qi = jwk.qi;
-            rs256Key.dp = jwk.dp;
-            rs256Key.dq = jwk.dq;
+            rs256Key.p = base64url.encode(rsaKey.keyPair.p.toBuffer().slice(1));
+            rs256Key.q = base64url.encode(rsaKey.keyPair.q.toBuffer().slice(1));
+            rs256Key.d = base64url.encode(rsaKey.keyPair.d.toBuffer());
+            rs256Key.qi = base64url.encode(rsaKey.keyPair.coeff.toBuffer());
+            rs256Key.dp = base64url.encode(rsaKey.keyPair.dmp1.toBuffer());
+            rs256Key.dq = base64url.encode(rsaKey.keyPair.dmq1.toBuffer());
             return rs256Key;
         }
     }
@@ -162,6 +175,31 @@ export class RS256Key{
                 n: this.n,
             }
         }
+    }
+
+    toPEM(format: string = 'pkcs8'): string {
+        let rsaKey = new NodeRSA();
+        if(this.isPrivate){
+            format = format + '-private-pem';
+            rsaKey.importKey({
+                n: base64url.toBuffer(this.n + ''),
+                e: base64url.toBuffer(this.e + ''),
+                p : base64url.toBuffer(this.p + ''),
+                q : base64url.toBuffer(this.q + ''),
+                d : base64url.toBuffer(this.d + ''),
+                coeff : base64url.toBuffer(this.qi + ''),
+                dmp1 : base64url.toBuffer(this.dp + ''),
+                dmq1 : base64url.toBuffer(this.dq + ''),
+            }, 'components');
+        }
+        else{
+            format = format + '-public-pem'; rsaKey.importKey({
+                n: base64url.toBuffer(this.n + ''),
+                e: base64url.toBuffer(this.e + ''),
+            }, 'components-public');
+        }
+
+        return rsaKey.exportKey(format);
     }
 }
 
