@@ -102,11 +102,21 @@ enum ALGS{
     'EdDSA',
 }
 
-export class RSAKey{
-    private kty: string;
-    private alg: string;
-    private kid: string;
-    private use: 'enc'|'sig'; 
+export class Key{
+    protected kty: string;
+    protected alg: string;
+    protected kid: string;
+    protected use: 'enc' | 'sig'; 
+
+    protected constructor(kid: string, kty: KTYS, alg: ALGS, use: 'enc' | 'sig'){
+        this.kid = kid;
+        this.kty = KTYS[kty];
+        this.alg = ALGS[alg];
+        this.use = use;
+    }
+}
+
+export class RSAKey extends Key{
     private p?: string;
     private q?: string;
     private d?: string;
@@ -118,10 +128,7 @@ export class RSAKey{
     private private: boolean;
 
     private constructor(kid: string, kty: KTYS, alg: ALGS, n: string, e: string, use: 'enc'|'sig'){
-        this.kid = kid;
-        this.kty = KTYS[kty];
-        this.alg = ALGS[alg];
-        this.use = use;
+        super(kid, kty, alg, use);
         this.n = n;
         this.e = e;
         this.private = false;
@@ -254,11 +261,7 @@ export class RSAKey{
     }
 }
 
-export class ECKey {
-    private kty: string;
-    private alg: string;
-    private kid: string;
-    private use: 'enc' | 'sig';
+export class ECKey extends Key{
     private crv: string;
     private x: string;
     private y: string;
@@ -266,10 +269,7 @@ export class ECKey {
     private private: boolean;
 
     private constructor(kid: string, kty: KTYS, alg: ALGS, crv: string, x: string, y: string, use: 'enc' | 'sig'){
-        this.kid = kid;
-        this.kty = KTYS[kty];
-        this.alg = ALGS[alg];
-        this.use = use;
+        super(kid, kty, alg, use);
         this.crv = crv;
         this.x = x;
         this.y = y;
@@ -422,21 +422,14 @@ export class ECKey {
     }
 }
 
-export class OKP {
-    private kty: string;
-    private alg: string;
-    private kid: string;
-    private use: 'enc' | 'sig';
+export class OKP extends Key{
     private crv: string;
     private x: string;
     private d?: string;
     private private: boolean;
 
     private constructor(kid: string, kty: KTYS, alg: ALGS, crv: string, x: string, use: 'enc' | 'sig') {
-        this.kid = kid;
-        this.kty = KTYS[kty];
-        this.alg = ALGS[alg];
-        this.use = use;
+        super(kid, kty, alg, use);
         this.crv = crv;
         this.x = x;
         this.private = false;
