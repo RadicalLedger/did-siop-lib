@@ -1,5 +1,5 @@
 import { JWK } from 'jose';
-import {KeyObjects, RS256Key, getECKey, getOKP, KeyInputs} from '../src/JWKUtils'
+import {KeyObjects, RSAKey, getECKey, getOKP, KeyInputs} from '../src/JWKUtils'
 
 describe('JWK functions', function () {
     test('RS256Key functions', async ()=>{
@@ -64,7 +64,7 @@ vcuWBbGQw5wnN1cJjWTElITN0FTCJpK2KOuQbQnBtOV9T7hUkGKFmhyDqeclBcDo
 pwIDAQAB
 -----END PUBLIC KEY-----
 `
-        let key = RS256Key.fromPublicKey({
+        let key = RSAKey.fromPublicKey({
             key: publicPem,
             kid: kid,
             use: 'enc',
@@ -74,7 +74,7 @@ pwIDAQAB
         let pem = key.toPEM();
         expect(pem.split('\n').join('')).toEqual(publicPem.split('\n').join(''));
 
-        key = RS256Key.fromPrivateKey({
+        key = RSAKey.fromPrivateKey({
             key: privatePem,
             kid: kid,
             use: 'enc',

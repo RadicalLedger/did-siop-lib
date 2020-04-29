@@ -98,7 +98,7 @@ enum ALGS{
     'EdDSA',
 }
 
-export class RS256Key{
+export class RSAKey{
     private kty: string;
     private alg: string;
     private kid: string;
@@ -113,7 +113,7 @@ export class RS256Key{
     private n: string;
     private isPrivate: boolean;
 
-    constructor(kid: string, kty: KTYS, alg: ALGS, n: string, e: string, use: 'enc'|'sig'){
+    private constructor(kid: string, kty: KTYS, alg: ALGS, n: string, e: string, use: 'enc'|'sig'){
         this.kid = kid;
         this.kty = KTYS[kty];
         this.alg = ALGS[alg];
@@ -123,9 +123,9 @@ export class RS256Key{
         this.isPrivate = false;
     }
 
-    static fromPublicKey(keyInput: KeyInputs.RSAPublicKeyInput): RS256Key{
+    static fromPublicKey(keyInput: KeyInputs.RSAPublicKeyInput): RSAKey{
         if('kty' in keyInput){
-            return new RS256Key(keyInput.kid, KTYS.RSA, ALGS.RS256, keyInput.n, keyInput.e, keyInput.use);
+            return new RSAKey(keyInput.kid, KTYS.RSA, ALGS.RS256, keyInput.n, keyInput.e, keyInput.use);
         }
         else{
             let rsaKey = new NodeRSA();
@@ -135,13 +135,13 @@ export class RS256Key{
             let e = rsaKey.keyPair.e.toString(16);
             e = (e % 2 === 0) ? e : '0' + e;
             e = Buffer.from(e, 'hex').toString('base64');
-            return new RS256Key(keyInput.kid, KTYS.RSA, ALGS.RS256, n, e, keyInput.use);
+            return new RSAKey(keyInput.kid, KTYS.RSA, ALGS.RS256, n, e, keyInput.use);
         }
     }
 
-    static fromPrivateKey(keyInput: KeyInputs.RSAPrivateKeyInput): RS256Key {
+    static fromPrivateKey(keyInput: KeyInputs.RSAPrivateKeyInput): RSAKey {
         if ('kty' in keyInput) {
-            let rs256Key =  new RS256Key(keyInput.kid, KTYS.RSA, ALGS.RS256, keyInput.n, keyInput.e, keyInput.use);
+            let rs256Key =  new RSAKey(keyInput.kid, KTYS.RSA, ALGS.RS256, keyInput.n, keyInput.e, keyInput.use);
             rs256Key.isPrivate = true;
             rs256Key.p = keyInput.p;
             rs256Key.q = keyInput.q;
@@ -160,7 +160,7 @@ export class RS256Key{
             e = (e % 2 === 0) ? e : '0' + e;
             e = Buffer.from(e, 'hex').toString('base64');
 
-            let rs256Key = new RS256Key(keyInput.kid, KTYS.RSA, ALGS.RS256, n, e, keyInput.use);
+            let rs256Key = new RSAKey(keyInput.kid, KTYS.RSA, ALGS.RS256, n, e, keyInput.use);
             rs256Key.isPrivate = true;
             rs256Key.p = base64url.encode(rsaKey.keyPair.p.toBuffer().slice(1));
             rs256Key.q = base64url.encode(rsaKey.keyPair.q.toBuffer().slice(1));
