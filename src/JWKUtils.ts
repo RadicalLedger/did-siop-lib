@@ -115,8 +115,8 @@ export abstract class Key{
         this.private = false;
     }
 
-    getAlgorithm(): ALGORITHMS{
-        return this.alg;
+    getAlgorithm(): string{
+        return ALGORITHMS[this.alg];
     }
 
     isPrivate(): boolean{
@@ -124,7 +124,7 @@ export abstract class Key{
     }
 
     abstract sign(msg: string): string | Buffer;
-    abstract verify(msg: string, signature: string | Buffer): boolean;
+    abstract verify(msg: string, signature: Buffer): boolean;
     abstract toJWK(): KeyObjects.BasicKeyObject;
     abstract exportKey(format: FORMATS): string;
 }
@@ -229,20 +229,20 @@ export class RSAKey extends Key{
         if(this.private){
             exportFormat = format + '-private-pem';
             rsaKey.importKey({
-                n: base64url.toBuffer(this.n + ''),
-                e: base64url.toBuffer(this.e + ''),
-                p : base64url.toBuffer(this.p + ''),
-                q : base64url.toBuffer(this.q + ''),
-                d : base64url.toBuffer(this.d + ''),
-                coeff : base64url.toBuffer(this.qi + ''),
-                dmp1 : base64url.toBuffer(this.dp + ''),
-                dmq1 : base64url.toBuffer(this.dq + ''),
+                n: base64url.toBuffer(this.n || ' '),
+                e: base64url.toBuffer(this.e || ' '),
+                p : base64url.toBuffer(this.p || ' '),
+                q : base64url.toBuffer(this.q || ' '),
+                d : base64url.toBuffer(this.d || ' '),
+                coeff : base64url.toBuffer(this.qi || ' '),
+                dmp1 : base64url.toBuffer(this.dp || ' '),
+                dmq1 : base64url.toBuffer(this.dq || ' '),
             }, 'components');
         }
         else{
             exportFormat = format + '-public-pem'; rsaKey.importKey({
-                n: base64url.toBuffer(this.n + ''),
-                e: base64url.toBuffer(this.e + ''),
+                n: base64url.toBuffer(this.n || ' '),
+                e: base64url.toBuffer(this.e || ' '),
             }, 'components-public');
         }
 
@@ -261,19 +261,19 @@ export class RSAKey extends Key{
         }
     }
 
-    sign(msg: string): string{
+    sign(msg: string): Buffer{
         if(this.private){
             let signature = rs256.sign(msg, this.toPEM());
-            return signature;
+            return base64url.toBuffer(signature);
         }
         else{
             throw new Error(ERRORS.NO_PRIVATE_KEY);
         }
     }
 
-    verify(msg: string, signature: string): boolean{
+    verify(msg: string, signature: Buffer): boolean{
         try {
-            return rs256.verify(msg, signature, this.toPEM());
+            return rs256.verify(msg, base64url.encode(signature), this.toPEM());
         } catch (err) {
             throw new Error(ERRORS.INVALID_SIGNATURE);
         }
@@ -381,7 +381,7 @@ export class ECKey extends Key{
         let ec = new EC('secp256k1');
         let keyString: Buffer;
         if (this.private) {
-            keyString = ec.keyFromPrivate(base64url.toBuffer(this.d + '')).getPrivate().toArrayLike(Buffer);
+            keyString = ec.keyFromPrivate(base64url.toBuffer(this.d || ' ')).getPrivate().toArrayLike(Buffer);
         }
         else {
             let pub = {
@@ -541,7 +541,7 @@ export class OKP extends Key{
         let ed = new EdDSA('ed25519');
         let keyString: Buffer;
         if (this.private) {
-            keyString = ed.keyFromSecret(base64url.toBuffer(this.d + '')).getSecret();
+            keyString = ed.keyFromSecret(base64url.toBuffer(this.d || ' ')).getSecret();
         }
         else {
             keyString = ed.keyFromPublic(base64url.toBuffer(this.x)).getPublic();

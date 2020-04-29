@@ -197,7 +197,7 @@ describe('Signing and verifying', function () {
         let message = 'RSA test message';
 
         let signature = privateKey.sign(message);
-        let validity = publicKey.verify(message, signature);
+        let validity = publicKey.verify(message, Buffer.from(signature));
         expect(validity).toBeTruthy();
     });
     test('EC sign/verify', async () => {
@@ -230,7 +230,7 @@ describe('Signing and verifying', function () {
         let validity = publicKey.verify(message, signature);
         expect(validity).toBeTruthy();
     });
-    test('EC sign/verify', async () => {
+    test('OKP sign/verify', async () => {
         let publicJWK: KeyObjects.OKPPublicKeyObject = {
             "kty": "OKP",
             "use": "enc",
