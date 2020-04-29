@@ -1,4 +1,4 @@
-import { KeyObjects, RSAKey, ECKey, OKP, KeyInputs} from '../src/JWKUtils'
+import { KeyObjects, RSAKey, ECKey, OKP, FORMATS} from '../src/JWKUtils'
 
 describe('JWK functions', function () {
     test('RSAKey functions', async ()=>{
@@ -67,20 +67,20 @@ pwIDAQAB
             key: publicPem,
             kid: kid,
             use: 'enc',
-            format: KeyInputs.FORMATS.PEM,
+            format: FORMATS.PKCS8_PEM,
         });
         expect(key.toJWK()).toMatchObject(publicJWK);
-        let pem = key.toPEM();
+        let pem = key.exportKey(FORMATS.PKCS8_PEM);
         expect(pem.split('\n').join('')).toEqual(publicPem.split('\n').join(''));
 
         key = RSAKey.fromPrivateKey({
             key: privatePem,
             kid: kid,
             use: 'enc',
-            format: KeyInputs.FORMATS.PEM,
+            format: FORMATS.PKCS1_PEM,
         });
         expect(key.toJWK()).toMatchObject(privateJWK);
-        pem = key.toPEM('pkcs1');
+        pem = key.exportKey(FORMATS.PKCS1_PEM);
         expect(pem.split('\n').join('')).toEqual(privatePem.split('\n').join(''));
     });
     test('ECKey functions', async () => {
@@ -106,22 +106,22 @@ pwIDAQAB
         }
 
         let key = ECKey.fromPrivateKey(privateJWK);
-        let privateHex = key.toHex();
+        let privateHex = key.exportKey(FORMATS.HEX);
         let retrievedJWK = ECKey.fromPrivateKey({
             key: privateHex,
             kid: kid,
             use: 'enc',
-            format: KeyInputs.FORMATS.HEX,
+            format: FORMATS.HEX,
         }).toJWK();
         expect(retrievedJWK).toMatchObject(privateJWK);
 
         key = ECKey.fromPublicKey(publicJWK);
-        let publicHex = key.toHex();
+        let publicHex = key.exportKey(FORMATS.HEX);
         retrievedJWK = ECKey.fromPublicKey({
             key: publicHex,
             kid: kid,
             use: 'enc',
-            format: KeyInputs.FORMATS.HEX,
+            format: FORMATS.HEX,
         }).toJWK();
         expect(retrievedJWK).toMatchObject(publicJWK);
     });
@@ -146,22 +146,22 @@ pwIDAQAB
         }
 
         let key = OKP.fromPrivateKey(privateJWK);
-        let privateBase58 = key.toBase58();
+        let privateBase58 = key.exportKey(FORMATS.BASE58);
         let retrievedJWK = OKP.fromPrivateKey({
             key: privateBase58,
             kid: kid,
             use: 'enc',
-            format: KeyInputs.FORMATS.BASE58,
+            format: FORMATS.BASE58,
         }).toJWK();
         expect(retrievedJWK).toMatchObject(privateJWK);
 
         key = OKP.fromPublicKey(publicJWK);
-        let publicBase58 = key.toBase58();
+        let publicBase58 = key.exportKey(FORMATS.BASE58);
         retrievedJWK = OKP.fromPublicKey({
             key: publicBase58,
             kid: kid,
             use: 'enc',
-            format: KeyInputs.FORMATS.BASE58,
+            format: FORMATS.BASE58,
         }).toJWK();
         expect(retrievedJWK).toMatchObject(publicJWK);
     });
