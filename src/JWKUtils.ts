@@ -2,9 +2,14 @@ import { eddsa as EdDSA, ec as EC} from 'elliptic';
 import * as base58 from 'bs58';
 import base64url from 'base64url';
 const NodeRSA = require('node-rsa');
+const rs256 = require('jwa')('RS256');
+import { createHash } from 'crypto';
+import { leftpad } from './Utils';
 
 export const ERRORS = Object.freeze({
     INVALID_KEY_FORMAT: 'Invalid key format error',
+    NO_PRIVATE_KEY: 'Not a private key',
+    INVALID_SIGNATURE: 'Invalid signature',
 });
 
 export namespace KeyObjects{
@@ -229,6 +234,24 @@ export class RSAKey{
     isPrivate(): boolean{
         return this.private;
     }
+
+    sign(msg: string): string{
+        if(this.private){
+            let signature = rs256.sign(msg, this.toPEM());
+            return signature;
+        }
+        else{
+            throw new Error(ERRORS.NO_PRIVATE_KEY);
+        }
+    }
+
+    verify(msg: string, signature: string): boolean{
+        try {
+            return rs256.verify(msg, signature, this.toPEM());
+        } catch (err) {
+            throw new Error(ERRORS.INVALID_SIGNATURE);
+        }
+    }
 }
 
 export class ECKey {
@@ -354,6 +377,49 @@ export class ECKey {
     isPrivate(): boolean{
         return this.private;
     }
+
+    sign(msg: string): Buffer{
+        if(this,this.private){
+            let ec = new EC('secp256k1');
+            let sha256 = createHash('sha256');
+
+            let hash = sha256.update(msg).digest('hex');
+
+            let key = ec.keyFromPrivate(this.toHex());
+
+            let ec256k_signature = key.sign(hash);
+
+            let signature = Buffer.alloc(64);
+            Buffer.from(leftpad(ec256k_signature.r.toString('hex')), 'hex').copy(signature, 0);
+            Buffer.from(leftpad(ec256k_signature.s.toString('hex')), 'hex').copy(signature, 32);
+
+            return signature;
+        }
+        else{
+            throw new Error(ERRORS.NO_PRIVATE_KEY);
+        }
+    }
+
+    verify(msg: string, signature: Buffer): boolean{
+        try {
+            let sha256 = createHash('sha256');
+            let ec = new EC('secp256k1');
+    
+            let hash = sha256.update(msg).digest();
+    
+            if (signature.length !== 64) throw new Error(ERRORS.INVALID_SIGNATURE);
+            let signatureObj = {
+                r: signature.slice(0, 32).toString('hex'),
+                s: signature.slice(32, 64).toString('hex')
+            }
+    
+            let key = ec.keyFromPublic(this.toHex(), 'hex');
+    
+            return key.verify(hash, signatureObj);
+        } catch (err) {
+            throw new Error(ERRORS.INVALID_SIGNATURE);
+        }
+    }
 }
 
 export class OKP {
@@ -478,5 +544,32 @@ export class OKP {
 
     isPrivate(): boolean {
         return this.private;
+    }
+
+    sign(msg: string): Buffer{
+        if(this.private){
+            let ec = new EdDSA('ed25519');
+
+            let key = ec.keyFromSecret(this.toHex());
+
+            let edDsa_signature = key.sign(Buffer.from(msg));
+
+            return edDsa_signature.toBytes();
+        }
+        else{
+            throw new Error(ERRORS.NO_PRIVATE_KEY);
+        }
+    }
+
+    verify(msg: string, signature: Buffer): boolean{
+        try {
+            let ec = new EdDSA('ed25519');
+    
+            let key = ec.keyFromPublic(this.toHex());
+    
+            return key.verify(Buffer.from(msg), signature);
+        } catch (err) {
+            throw new Error(ERRORS.INVALID_SIGNATURE);
+        }
     }
 }
