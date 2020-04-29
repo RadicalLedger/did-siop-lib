@@ -111,7 +111,7 @@ export class RSAKey{
     private dp?: string;
     private dq?: string;
     private n: string;
-    private isPrivate: boolean;
+    private private: boolean;
 
     private constructor(kid: string, kty: KTYS, alg: ALGS, n: string, e: string, use: 'enc'|'sig'){
         this.kid = kid;
@@ -120,7 +120,7 @@ export class RSAKey{
         this.use = use;
         this.n = n;
         this.e = e;
-        this.isPrivate = false;
+        this.private = false;
     }
 
     static fromPublicKey(keyInput: KeyInputs.RSAPublicKeyInput): RSAKey{
@@ -142,7 +142,7 @@ export class RSAKey{
     static fromPrivateKey(keyInput: KeyInputs.RSAPrivateKeyInput): RSAKey {
         if ('kty' in keyInput) {
             let rs256Key =  new RSAKey(keyInput.kid, KTYS.RSA, ALGS.RS256, keyInput.n, keyInput.e, keyInput.use);
-            rs256Key.isPrivate = true;
+            rs256Key.private = true;
             rs256Key.p = keyInput.p;
             rs256Key.q = keyInput.q;
             rs256Key.d = keyInput.d;
@@ -161,7 +161,7 @@ export class RSAKey{
             e = Buffer.from(e, 'hex').toString('base64');
 
             let rs256Key = new RSAKey(keyInput.kid, KTYS.RSA, ALGS.RS256, n, e, keyInput.use);
-            rs256Key.isPrivate = true;
+            rs256Key.private = true;
             rs256Key.p = base64url.encode(rsaKey.keyPair.p.toBuffer().slice(1));
             rs256Key.q = base64url.encode(rsaKey.keyPair.q.toBuffer().slice(1));
             rs256Key.d = base64url.encode(rsaKey.keyPair.d.toBuffer());
@@ -173,7 +173,7 @@ export class RSAKey{
     }
 
     toJWK(): KeyObjects.RSAPrivateKeyObject | KeyObjects.RSAPublicKeyObject{
-        if(this.isPrivate){
+        if(this.private){
             return {
                 kty: this.kty,
                 use: this.use,
@@ -204,7 +204,7 @@ export class RSAKey{
     toPEM(format: 'pkcs8'|'pkcs1' = 'pkcs8'): string {
         let rsaKey = new NodeRSA();
         let exportFormat;
-        if(this.isPrivate){
+        if(this.private){
             exportFormat = format + '-private-pem';
             rsaKey.importKey({
                 n: base64url.toBuffer(this.n + ''),
@@ -225,6 +225,10 @@ export class RSAKey{
         }
 
         return rsaKey.exportKey(exportFormat);
+    }
+
+    isPrivate(): boolean{
+        return this.private;
     }
 }
 
