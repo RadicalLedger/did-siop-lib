@@ -1,5 +1,5 @@
 import { JWK } from 'jose';
-import {KeyObjects, RS256Key, getECKey, getOKP, KEYFORMATS} from '../src/JWKUtils'
+import {KeyObjects, RS256Key, getECKey, getOKP, KeyInputs} from '../src/JWKUtils'
 
 describe('JWK functions', function () {
     test('RS256Key functions', async ()=>{
@@ -64,12 +64,22 @@ vcuWBbGQw5wnN1cJjWTElITN0FTCJpK2KOuQbQnBtOV9T7hUkGKFmhyDqeclBcDo
 pwIDAQAB
 -----END PUBLIC KEY-----
 `
-        let key = RS256Key.fromPublicKey(publicPem, kid, false);
+        let key = RS256Key.fromPublicKey({
+            key: publicPem,
+            kid: kid,
+            use: 'enc',
+            format: KeyInputs.FORMATS.PEM,
+        });
         expect(key.toJWK()).toMatchObject(publicJWK);
         let pem = key.toPEM();
         expect(pem.split('\n').join('')).toEqual(publicPem.split('\n').join(''));
 
-        key = RS256Key.fromPrivateKey(privatePem, kid, false);
+        key = RS256Key.fromPrivateKey({
+            key: privatePem,
+            kid: kid,
+            use: 'enc',
+            format: KeyInputs.FORMATS.PEM,
+        });
         expect(key.toJWK()).toMatchObject(privateJWK);
         pem = key.toPEM('pkcs1');
         expect(pem.split('\n').join('')).toEqual(privatePem.split('\n').join(''));
@@ -93,27 +103,27 @@ pwIDAQAB
         });
 
         let base58StrPublic = 'E1HXzEPZQ4LjFLwCeMArbFx4uEeuy6sgkTmkspaCHZCo';
-        let received = getOKP(base58StrPublic, kid, KEYFORMATS.publicKeyBase58);
+        let received = getOKP(base58StrPublic, kid, KeyInputs.FORMATS.BASE58);
         expect(received).toEqual(expectedPublic);
 
         let base64StrPublic = 'wTqgGR7jLFnH3Ypj+RilupLwu/JGO5k9kAPEVzGTSLw=';
-        received = getOKP(base64StrPublic, expectedPublic.kid, KEYFORMATS.publicKeyBase64);
+        received = getOKP(base64StrPublic, expectedPublic.kid, KeyInputs.FORMATS.BASE64);
         expect(received).toEqual(expectedPublic);
 
         let hexStrPublic = 'c13aa0191ee32c59c7dd8a63f918a5ba92f0bbf2463b993d9003c457319348bc';
-        received = getOKP(hexStrPublic, kid, KEYFORMATS.publicKeyHex);
+        received = getOKP(hexStrPublic, kid, KeyInputs.FORMATS.HEX);
         expect(received).toEqual(expectedPublic);
 
         let base58StrPrivate = '46yfMfV4FAH11pWEpggYxxtyUeunP9bfZZb5JYSr1u9T';
-        received = getOKP(base58StrPrivate, kid, KEYFORMATS.publicKeyBase58, false);
+        received = getOKP(base58StrPrivate, kid, KeyInputs.FORMATS.BASE58, false);
         expect(received).toEqual(expectedPrivate);
 
         let base64StrPrivate = 'LhsIL614LTGMp3zqD3dMnTTRhA4tUSYfovBJTnqH1io=';
-        received = getOKP(base64StrPrivate, kid, KEYFORMATS.publicKeyBase64, false);
+        received = getOKP(base64StrPrivate, kid, KeyInputs.FORMATS.BASE64, false);
         expect(received).toEqual(expectedPrivate);
 
         let hexStrPrivate = '2e1b082fad782d318ca77cea0f774c9d34d1840e2d51261fa2f0494e7a87d62a';
-        received = getOKP(hexStrPrivate, kid, KEYFORMATS.publicKeyHex, false);
+        received = getOKP(hexStrPrivate, kid, KeyInputs.FORMATS.HEX, false);
         expect(received).toEqual(expectedPrivate);
     });
     test('ECKey Retrieval', async () => {
@@ -137,11 +147,11 @@ pwIDAQAB
         });
 
         let hexStrPublic = '02764a7e60a205cfd0a0d3a0f4eeec0b2c78f72db8078efd478a28970895eb1359';
-        let received = getECKey(hexStrPublic, kid, KEYFORMATS.publicKeyHex);
+        let received = getECKey(hexStrPublic, kid, KeyInputs.FORMATS.HEX);
         expect(received).toEqual(expectedPublic);
 
         let hexStrPrivate = 'f5a00d627077d79864eaf9501a3293423fa329336361f994568796d2880b6968';
-        received = getECKey(hexStrPrivate, kid, KEYFORMATS.publicKeyHex, false);
+        received = getECKey(hexStrPrivate, kid, KeyInputs.FORMATS.HEX, false);
         expect(received).toEqual(expectedPrivate);
     });
 })
