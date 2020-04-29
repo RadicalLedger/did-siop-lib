@@ -1,4 +1,3 @@
-import { JWK } from 'jose';
 import { eddsa as EdDSA, ec as EC} from 'elliptic';
 import * as base58 from 'bs58';
 import base64url from 'base64url';
@@ -357,45 +356,127 @@ export class ECKey {
     }
 }
 
-export function getOKP(key_str: string, kid: string, keyFormat: KeyInputs.FORMATS, isPublic: boolean = true): JWK.OKPKey {
-    let key_buffer = Buffer.alloc(1);
-    try {
-        switch(keyFormat){
-            case KeyInputs.FORMATS.BASE58: key_buffer = base58.decode(key_str); break;
-            case KeyInputs.FORMATS.BASE64: key_buffer = base64url.toBuffer(base64url.fromBase64(key_str)); break;
-            case KeyInputs.FORMATS.HEX: key_buffer = Buffer.from(key_str, 'hex'); break;
-            default: throw new Error(ERRORS.INVALID_KEY_FORMAT);
-        }
-    } catch (err) {
-        throw new Error(ERRORS.INVALID_KEY_FORMAT);
+export class OKP {
+    private kty: string;
+    private alg: string;
+    private kid: string;
+    private use: 'enc' | 'sig';
+    private crv: string;
+    private x: string;
+    private d?: string;
+    private private: boolean;
+
+    private constructor(kid: string, kty: KTYS, alg: ALGS, crv: string, x: string, use: 'enc' | 'sig') {
+        this.kid = kid;
+        this.kty = KTYS[kty];
+        this.alg = ALGS[alg];
+        this.use = use;
+        this.crv = crv;
+        this.x = x;
+        this.private = false;
     }
 
-    let ed = new EdDSA('ed25519');
-    let edKey; 
+    static fromPublicKey(keyInput: KeyInputs.OKPPublicKeyInput): OKP {
+        if ('kty' in keyInput) {
+            return new OKP(keyInput.kid, KTYS.OKP, ALGS.EdDSA, keyInput.crv, keyInput.x, keyInput.use);
+        }
+        else {
+            let key_buffer = Buffer.alloc(1);
+            try {
+                switch (keyInput.format) {
+                    case KeyInputs.FORMATS.BASE58: key_buffer = base58.decode(keyInput.key); break;
+                    case KeyInputs.FORMATS.BASE64: key_buffer = base64url.toBuffer(base64url.fromBase64(keyInput.key)); break;
+                    case KeyInputs.FORMATS.HEX: key_buffer = Buffer.from(keyInput.key, 'hex'); break;
+                    default: throw new Error(ERRORS.INVALID_KEY_FORMAT);
+                }
+            } catch (err) {
+                throw new Error(ERRORS.INVALID_KEY_FORMAT);
+            }
 
-    try {
-        if (isPublic) {
-            edKey = ed.keyFromPublic(key_buffer);
-            return JWK.asKey({
-                "kty": "OKP",
-                "crv": "Ed25519",
-                "kid": kid,
-                "x": base64url.encode(edKey.getPublic()),
-                "alg": "EdDSA"
-            });
+            let ed = new EdDSA('ed25519');
+            let ellipticKey;
+            ellipticKey = ed.keyFromPublic(key_buffer);
+            let x = base64url.encode(ellipticKey.getPublic());
+            return new OKP(keyInput.kid, KTYS.OKP, ALGS.EdDSA, 'Ed25519', x, keyInput.use);
         }
-        else{
-            edKey = ed.keyFromSecret(key_buffer);
-            return JWK.asKey({
-                "kty": "OKP",
-                "d": base64url.encode(edKey.getSecret()),
-                "crv": "Ed25519",
-                "kid": kid,
-                "x": base64url.encode(edKey.getPublic()),
-                "alg": "EdDSA"
-            });
+    }
+
+    static fromPrivateKey(keyInput: KeyInputs.OKPPrivateKeyInput): OKP {
+        if ('kty' in keyInput) {
+            let ecKey = new OKP(keyInput.kid, KTYS.OKP, ALGS.EdDSA, keyInput.crv, keyInput.x, keyInput.use);
+            ecKey.private = true;
+            ecKey.d = keyInput.d;
+            return ecKey;
         }
-    } catch (err) {
-        throw new Error(ERRORS.INVALID_KEY_FORMAT);
+        else {
+            let key_buffer = Buffer.alloc(1);
+            try {
+                switch (keyInput.format) {
+                    case KeyInputs.FORMATS.BASE58: key_buffer = base58.decode(keyInput.key); break;
+                    case KeyInputs.FORMATS.BASE64: key_buffer = base64url.toBuffer(base64url.fromBase64(keyInput.key)); break;
+                    case KeyInputs.FORMATS.HEX: key_buffer = Buffer.from(keyInput.key, 'hex'); break;
+                    default: throw new Error(ERRORS.INVALID_KEY_FORMAT);
+                }
+            } catch (err) {
+                throw new Error(ERRORS.INVALID_KEY_FORMAT);
+            }
+
+            let ed = new EdDSA('ed25519');
+            let ellipticKey;
+            ellipticKey = ed.keyFromSecret(key_buffer);
+            let x = base64url.encode(ellipticKey.getPublic());
+            let ecKey = new OKP(keyInput.kid, KTYS.OKP, ALGS.EdDSA, 'Ed25519', x, keyInput.use);
+            ecKey.d = base64url.encode(ellipticKey.getSecret());
+            ecKey.private = true;
+            return ecKey;
+        }
+    }
+
+    toJWK(): KeyObjects.OKPPrivateKeyObject | KeyObjects.OKPPublicKeyObject {
+        if (this.private) {
+            return {
+                kty: this.kty,
+                use: this.use,
+                kid: this.kid,
+                alg: this.alg,
+                crv: this.crv,
+                x: this.x,
+                d: this.d,
+            }
+        }
+        else {
+            return {
+                kty: this.kty,
+                use: this.use,
+                kid: this.kid,
+                alg: this.alg,
+                crv: this.crv,
+                x: this.x,
+            }
+        }
+    }
+
+    toHex(): string {
+        let ed = new EdDSA('ed25519');
+        if (this.private) {
+            return ed.keyFromSecret(base64url.toBuffer(this.d + '')).getSecret().toString('hex');
+        }
+        else {
+            return ed.keyFromPublic(base64url.toBuffer(this.x)).getPublic().toString('hex');
+        }
+    }
+
+    toBase58(): string {
+        let ed = new EdDSA('ed25519');
+        if (this.private) {
+            return base58.encode(ed.keyFromSecret(base64url.toBuffer(this.d + '')).getSecret());
+        }
+        else {
+            return base58.encode(ed.keyFromPublic(base64url.toBuffer(this.x)).getPublic());
+        }
+    }
+
+    isPrivate(): boolean {
+        return this.private;
     }
 }

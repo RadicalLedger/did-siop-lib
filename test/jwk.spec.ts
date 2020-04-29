@@ -1,6 +1,4 @@
-import { ECKey } from './../src/JWKUtils';
-import { JWK } from 'jose';
-import {KeyObjects, RSAKey, getOKP, KeyInputs} from '../src/JWKUtils'
+import { KeyObjects, RSAKey, ECKey, OKP, KeyInputs} from '../src/JWKUtils'
 
 describe('JWK functions', function () {
     test('RSAKey functions', async ()=>{
@@ -127,46 +125,44 @@ pwIDAQAB
         }).toJWK();
         expect(retrievedJWK).toMatchObject(publicJWK);
     });
-    test('OKP retrieval', async () => {
-        let kid = "key_1";
-        let expectedPublic = JWK.asKey({
+    test('OKP functions', async () => {
+        let kid: string = 'key_1';
+        let publicJWK: KeyObjects.OKPPublicKeyObject = {
             "kty": "OKP",
+            "use": "enc",
             "crv": "Ed25519",
             "kid": "key_1",
-            "x": "wTqgGR7jLFnH3Ypj-RilupLwu_JGO5k9kAPEVzGTSLw",
+            "x": "5_uoVZOQ--9RfCfwZXV6al-jNyyr9fKJRmt56DEQ8LI",
             "alg": "EdDSA"
-        });
-        let expectedPrivate = JWK.asKey({
+        }
+        let privateJWK: KeyObjects.OKPPrivateKeyObject = {
             "kty": "OKP",
-            "d": "LhsIL614LTGMp3zqD3dMnTTRhA4tUSYfovBJTnqH1io",
+            "d": "5EX3-YZgi5H2T2eLs9ytK0GbFE2Qm4teiAultZxC29U",
+            "use": "enc",
             "crv": "Ed25519",
             "kid": "key_1",
-            "x": "wTqgGR7jLFnH3Ypj-RilupLwu_JGO5k9kAPEVzGTSLw",
+            "x": "5_uoVZOQ--9RfCfwZXV6al-jNyyr9fKJRmt56DEQ8LI",
             "alg": "EdDSA"
-        });
+        }
 
-        let base58StrPublic = 'E1HXzEPZQ4LjFLwCeMArbFx4uEeuy6sgkTmkspaCHZCo';
-        let received = getOKP(base58StrPublic, kid, KeyInputs.FORMATS.BASE58);
-        expect(received).toEqual(expectedPublic);
+        let key = OKP.fromPrivateKey(privateJWK);
+        let privateBase58 = key.toBase58();
+        let retrievedJWK = OKP.fromPrivateKey({
+            key: privateBase58,
+            kid: kid,
+            use: 'enc',
+            format: KeyInputs.FORMATS.BASE58,
+        }).toJWK();
+        expect(retrievedJWK).toMatchObject(privateJWK);
 
-        let base64StrPublic = 'wTqgGR7jLFnH3Ypj+RilupLwu/JGO5k9kAPEVzGTSLw=';
-        received = getOKP(base64StrPublic, expectedPublic.kid, KeyInputs.FORMATS.BASE64);
-        expect(received).toEqual(expectedPublic);
-
-        let hexStrPublic = 'c13aa0191ee32c59c7dd8a63f918a5ba92f0bbf2463b993d9003c457319348bc';
-        received = getOKP(hexStrPublic, kid, KeyInputs.FORMATS.HEX);
-        expect(received).toEqual(expectedPublic);
-
-        let base58StrPrivate = '46yfMfV4FAH11pWEpggYxxtyUeunP9bfZZb5JYSr1u9T';
-        received = getOKP(base58StrPrivate, kid, KeyInputs.FORMATS.BASE58, false);
-        expect(received).toEqual(expectedPrivate);
-
-        let base64StrPrivate = 'LhsIL614LTGMp3zqD3dMnTTRhA4tUSYfovBJTnqH1io=';
-        received = getOKP(base64StrPrivate, kid, KeyInputs.FORMATS.BASE64, false);
-        expect(received).toEqual(expectedPrivate);
-
-        let hexStrPrivate = '2e1b082fad782d318ca77cea0f774c9d34d1840e2d51261fa2f0494e7a87d62a';
-        received = getOKP(hexStrPrivate, kid, KeyInputs.FORMATS.HEX, false);
-        expect(received).toEqual(expectedPrivate);
+        key = OKP.fromPublicKey(publicJWK);
+        let publicBase58 = key.toBase58();
+        retrievedJWK = OKP.fromPublicKey({
+            key: publicBase58,
+            kid: kid,
+            use: 'enc',
+            format: KeyInputs.FORMATS.BASE58,
+        }).toJWK();
+        expect(retrievedJWK).toMatchObject(publicJWK);
     });
 })
