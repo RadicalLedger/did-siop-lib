@@ -2,7 +2,8 @@ import { JWT, JWK } from 'jose';
 import base64url from 'base64url';
 import { createHash } from 'crypto';
 import { ec as EC } from 'elliptic';
-const publicKeyToAddress = require('ethereum-public-key-to-address');   
+import { leftpad } from './Utils';
+const publicKeyToAddress = require('ethereum-public-key-to-address');
 
 export enum ALGORITHMS{
     'RS256',
@@ -66,11 +67,6 @@ export function checkKeyPair(privateKey: JWK.Key | string, publicKey: JWK.Key | 
     } catch (err) {
         return false;
     }
-}
-
-function leftpad(data: any, size: number = 64) {
-    if (data.length === size) return data
-    return '0'.repeat(size - data.length) + data
 }
 
 function signES256KRecoverable(payload: any, privateKey: string, kid: string): string{
