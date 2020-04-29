@@ -1,8 +1,9 @@
+import { ECKey } from './../src/JWKUtils';
 import { JWK } from 'jose';
-import {KeyObjects, RSAKey, getECKey, getOKP, KeyInputs} from '../src/JWKUtils'
+import {KeyObjects, RSAKey, getOKP, KeyInputs} from '../src/JWKUtils'
 
 describe('JWK functions', function () {
-    test('RS256Key functions', async ()=>{
+    test('RSAKey functions', async ()=>{
         let kid: string = 'key_1';
         let publicJWK: KeyObjects.RSAPublicKeyObject = {
             "kty": "RSA",
@@ -84,6 +85,48 @@ pwIDAQAB
         pem = key.toPEM('pkcs1');
         expect(pem.split('\n').join('')).toEqual(privatePem.split('\n').join(''));
     });
+    test('ECKey functions', async () => {
+        let kid: string = 'key_1';
+        let publicJWK: KeyObjects.ECPublicKeyObject = {
+            "kty": "EC",
+            "use": "enc",
+            "crv": "secp256k1",
+            "kid": "key_1",
+            "x": "oquPKizfRHuR3YyX6X1Dw22aIoKi1UiVyVx9xA1f-XQ",
+            "y": "luHPOmJDwPmr_BzTPN2fifkr6GZ-dmjm5TMrjBUvszQ",
+            "alg": "ES256K"
+        }
+        let privateJWK: KeyObjects.ECPrivateKeyObject = {
+            "kty": "EC",
+            "d": "bnTMs3lArTEVvYUIyHXWbXOk_0GlDG__CkKaB4e-lm0",
+            "use": "enc",
+            "crv": "secp256k1",
+            "kid": "key_1",
+            "x": "oquPKizfRHuR3YyX6X1Dw22aIoKi1UiVyVx9xA1f-XQ",
+            "y": "luHPOmJDwPmr_BzTPN2fifkr6GZ-dmjm5TMrjBUvszQ",
+            "alg": "ES256K"
+        }
+
+        let key = ECKey.fromPrivateKey(privateJWK);
+        let privateHex = key.toHex();
+        let retrievedJWK = ECKey.fromPrivateKey({
+            key: privateHex,
+            kid: kid,
+            use: 'enc',
+            format: KeyInputs.FORMATS.HEX,
+        }).toJWK();
+        expect(retrievedJWK).toMatchObject(privateJWK);
+
+        key = ECKey.fromPublicKey(publicJWK);
+        let publicHex = key.toHex();
+        retrievedJWK = ECKey.fromPublicKey({
+            key: publicHex,
+            kid: kid,
+            use: 'enc',
+            format: KeyInputs.FORMATS.HEX,
+        }).toJWK();
+        expect(retrievedJWK).toMatchObject(publicJWK);
+    });
     test('OKP retrieval', async () => {
         let kid = "key_1";
         let expectedPublic = JWK.asKey({
@@ -124,34 +167,6 @@ pwIDAQAB
 
         let hexStrPrivate = '2e1b082fad782d318ca77cea0f774c9d34d1840e2d51261fa2f0494e7a87d62a';
         received = getOKP(hexStrPrivate, kid, KeyInputs.FORMATS.HEX, false);
-        expect(received).toEqual(expectedPrivate);
-    });
-    test('ECKey Retrieval', async () => {
-        let kid = "key_1";
-        let expectedPublic = JWK.asKey({
-            "kty": "EC",
-            "crv": "secp256k1",
-            "kid": "key_1",
-            "x": "dkp-YKIFz9Cg06D07uwLLHj3LbgHjv1HiiiXCJXrE1k",
-            "y": "3QQZB8pJjP7FNoZ19EQjGSorXmxGtj4bs4clyoeB_fY",
-            "alg": "ES256K"
-        });
-        let expectedPrivate = JWK.asKey({
-            "kty": "EC",
-            "d": "9aANYnB315hk6vlQGjKTQj-jKTNjYfmUVoeW0ogLaWg",
-            "crv": "secp256k1",
-            "kid": "key_1",
-            "x": "dkp-YKIFz9Cg06D07uwLLHj3LbgHjv1HiiiXCJXrE1k",
-            "y": "3QQZB8pJjP7FNoZ19EQjGSorXmxGtj4bs4clyoeB_fY",
-            "alg": "ES256K"
-        });
-
-        let hexStrPublic = '02764a7e60a205cfd0a0d3a0f4eeec0b2c78f72db8078efd478a28970895eb1359';
-        let received = getECKey(hexStrPublic, kid, KeyInputs.FORMATS.HEX);
-        expect(received).toEqual(expectedPublic);
-
-        let hexStrPrivate = 'f5a00d627077d79864eaf9501a3293423fa329336361f994568796d2880b6968';
-        received = getECKey(hexStrPrivate, kid, KeyInputs.FORMATS.HEX, false);
         expect(received).toEqual(expectedPrivate);
     });
 })

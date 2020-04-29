@@ -1,5 +1,5 @@
 import { JWK } from 'jose';
-import { eddsa as EdDSA, ec as EC } from 'elliptic';
+import { eddsa as EdDSA, ec as EC} from 'elliptic';
 import * as base58 from 'bs58';
 import base64url from 'base64url';
 const NodeRSA = require('node-rsa');
@@ -232,6 +232,131 @@ export class RSAKey{
     }
 }
 
+export class ECKey {
+    private kty: string;
+    private alg: string;
+    private kid: string;
+    private use: 'enc' | 'sig';
+    private crv: string;
+    private x: string;
+    private y: string;
+    private d?: string;
+    private private: boolean;
+
+    private constructor(kid: string, kty: KTYS, alg: ALGS, crv: string, x: string, y: string, use: 'enc' | 'sig'){
+        this.kid = kid;
+        this.kty = KTYS[kty];
+        this.alg = ALGS[alg];
+        this.use = use;
+        this.crv = crv;
+        this.x = x;
+        this.y = y;
+        this.private = false;
+    }
+
+    static fromPublicKey(keyInput: KeyInputs.ECPublicKeyInput): ECKey{
+        if('kty' in keyInput){
+            return new ECKey(keyInput.kid, KTYS.EC, ALGS.ES256K, keyInput.crv, keyInput.x, keyInput.y, keyInput.use);
+        }
+        else{
+            let key_buffer = Buffer.alloc(1);
+            try {
+                switch (keyInput.format) {
+                    case KeyInputs.FORMATS.BASE58: key_buffer = base58.decode(keyInput.key); break;
+                    case KeyInputs.FORMATS.BASE64: key_buffer = base64url.toBuffer(base64url.fromBase64(keyInput.key)); break;
+                    case KeyInputs.FORMATS.HEX: key_buffer = Buffer.from(keyInput.key, 'hex'); break;
+                    default: throw new Error(ERRORS.INVALID_KEY_FORMAT);
+                }
+            } catch (err) {
+                throw new Error(ERRORS.INVALID_KEY_FORMAT);
+            }
+
+            let ec = new EC('secp256k1');
+            let ellipticKey;
+            ellipticKey = ec.keyFromPublic(key_buffer);
+            let x = base64url.encode(ellipticKey.getPublic().getX().toArrayLike(Buffer));
+            let y = base64url.encode(ellipticKey.getPublic().getY().toArrayLike(Buffer));
+            return new ECKey(keyInput.kid, KTYS.EC, ALGS.ES256K, 'secp256k1', x, y, keyInput.use);
+        }
+    }
+
+    static fromPrivateKey(keyInput: KeyInputs.ECPrivateKeyInput): ECKey{
+        if ('kty' in keyInput) {
+            let ecKey = new ECKey(keyInput.kid, KTYS.EC, ALGS.ES256K, keyInput.crv, keyInput.x, keyInput.y, keyInput.use);
+            ecKey.private = true;
+            ecKey.d = keyInput.d;
+            return ecKey;
+        }
+        else {
+            let key_buffer = Buffer.alloc(1);
+            try {
+                switch (keyInput.format) {
+                    case KeyInputs.FORMATS.BASE58: key_buffer = base58.decode(keyInput.key); break;
+                    case KeyInputs.FORMATS.BASE64: key_buffer = base64url.toBuffer(base64url.fromBase64(keyInput.key)); break;
+                    case KeyInputs.FORMATS.HEX: key_buffer = Buffer.from(keyInput.key, 'hex'); break;
+                    default: throw new Error(ERRORS.INVALID_KEY_FORMAT);
+                }
+            } catch (err) {
+                throw new Error(ERRORS.INVALID_KEY_FORMAT);
+            }
+
+            let ec = new EC('secp256k1');
+            let ellipticKey;
+            ellipticKey = ec.keyFromPrivate(key_buffer);
+            let x = base64url.encode(ellipticKey.getPublic().getX().toArrayLike(Buffer));
+            let y = base64url.encode(ellipticKey.getPublic().getY().toArrayLike(Buffer));
+            let ecKey = new ECKey(keyInput.kid, KTYS.EC, ALGS.ES256K, 'secp256k1', x, y, keyInput.use);
+            ecKey.d = base64url.encode(ellipticKey.getPrivate().toArrayLike(Buffer));
+            ecKey.private = true;
+            return ecKey;
+        }
+    }
+
+    toJWK(): KeyObjects.ECPrivateKeyObject | KeyObjects.ECPublicKeyObject{
+        if (this.private) {
+            return {
+                kty: this.kty,
+                use: this.use,
+                kid: this.kid,
+                alg: this.alg,
+                crv: this.crv,
+                x: this.x,
+                y: this.y,
+                d: this.d,
+            }
+        }
+        else {
+            return {
+                kty: this.kty,
+                use: this.use,
+                kid: this.kid,
+                alg: this.alg,
+                crv: this.crv,
+                x: this.x,
+                y: this.y,
+            }
+        }
+    }
+
+    toHex(): string {
+        let ec = new EC('secp256k1');
+        if(this.private){
+            return ec.keyFromPrivate(base64url.toBuffer(this.d + '')).getPrivate().toString(16);
+        }
+        else{
+            let pub = {
+                x: base64url.decode(this.x, 'hex'),
+                y: base64url.decode(this.y, 'hex')
+            }
+            return ec.keyFromPublic(pub).getPublic().encode('hex', false);
+        }
+    }
+
+    isPrivate(): boolean{
+        return this.private;
+    }
+}
+
 export function getOKP(key_str: string, kid: string, keyFormat: KeyInputs.FORMATS, isPublic: boolean = true): JWK.OKPKey {
     let key_buffer = Buffer.alloc(1);
     try {
@@ -268,51 +393,6 @@ export function getOKP(key_str: string, kid: string, keyFormat: KeyInputs.FORMAT
                 "kid": kid,
                 "x": base64url.encode(edKey.getPublic()),
                 "alg": "EdDSA"
-            });
-        }
-    } catch (err) {
-        throw new Error(ERRORS.INVALID_KEY_FORMAT);
-    }
-}
-
-export function getECKey(key_str: string, kid: string, keyFormat: KeyInputs.FORMATS, isPublic: boolean = true): JWK.ECKey{
-    let key_buffer = Buffer.alloc(1);
-    try {
-        switch (keyFormat) {
-            case KeyInputs.FORMATS.BASE58: key_buffer = base58.decode(key_str); break;
-            case KeyInputs.FORMATS.BASE64: key_buffer = base64url.toBuffer(base64url.fromBase64(key_str)); break;
-            case KeyInputs.FORMATS.HEX: key_buffer = Buffer.from(key_str, 'hex'); break;
-            default: throw new Error(ERRORS.INVALID_KEY_FORMAT);
-        }
-    } catch (err) {
-        throw new Error(ERRORS.INVALID_KEY_FORMAT);
-    }
-
-    let ec = new EC('secp256k1');
-    let ecKey;
-
-    try {
-        if (isPublic) {
-            ecKey = ec.keyFromPublic(key_buffer);
-            return JWK.asKey({
-                "kty": "EC",
-                "crv": "secp256k1",
-                "kid": kid,
-                "x": base64url.encode(ecKey.getPublic().getX().toArrayLike(Buffer)),
-                "y": base64url.encode(ecKey.getPublic().getY().toArrayLike(Buffer)),
-                "alg": "ES256K"
-            });
-        }
-        else {
-            ecKey = ec.keyFromPrivate(key_buffer);
-            return JWK.asKey({
-                "kty": "EC",
-                "d": base64url.encode(ecKey.getPrivate().toArrayLike(Buffer)),
-                "crv": "secp256k1",
-                "kid": kid,
-                "x": base64url.encode(ecKey.getPublic().getX().toArrayLike(Buffer)),
-                "y": base64url.encode(ecKey.getPublic().getY().toArrayLike(Buffer)),
-                "alg": "ES256K"
             });
         }
     } catch (err) {
