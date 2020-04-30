@@ -10,6 +10,7 @@ export const ERRORS = Object.freeze({
     INVALID_KEY_FORMAT: 'Invalid key format error',
     NO_PRIVATE_KEY: 'Not a private key',
     INVALID_SIGNATURE: 'Invalid signature',
+    INVALID_KEY: 'Invalid key',
 });
 
 export namespace KeyObjects{
@@ -81,6 +82,7 @@ export namespace KeyInputs{
         kid: string;
         use: 'enc' | 'sig';
         format: FORMATS;
+        isPrivate: boolean;
     }
 
     export type RSAPrivateKeyInput = KeyInfo | KeyObjects.RSAPrivateKeyObject;
@@ -190,6 +192,42 @@ export class RSAKey extends Key{
             rs256Key.dp = base64url.encode(rsaKey.keyPair.dmp1.toBuffer());
             rs256Key.dq = base64url.encode(rsaKey.keyPair.dmq1.toBuffer());
             return rs256Key;
+        }
+    }
+
+    static fromKey(keyInput: KeyInputs.RSAPublicKeyInput | KeyInputs.RSAPrivateKeyInput): RSAKey {
+        if (this.isPrivateKeyInput(keyInput)) return this.fromPrivateKey(keyInput as KeyInputs.RSAPrivateKeyInput);
+        return this.fromPublicKey(keyInput as KeyInputs.RSAPublicKeyInput);
+    }
+
+    static isPrivateKeyInput(keyInput: KeyInputs.RSAPublicKeyInput | KeyInputs.RSAPrivateKeyInput): boolean {
+        if ('kty' in keyInput) {
+            let privateKeyObject = keyInput as KeyObjects.RSAPrivateKeyObject;
+            if (
+                privateKeyObject.d &&
+                privateKeyObject.dp &&
+                privateKeyObject.dq &&
+                privateKeyObject.e &&
+                privateKeyObject.n &&
+                privateKeyObject.p &&
+                privateKeyObject.q &&
+                privateKeyObject.qi
+            ) {
+                return true;
+            }
+
+            let publicKeyObject = keyInput as KeyObjects.RSAPublicKeyObject;
+            if (
+                publicKeyObject.e &&
+                publicKeyObject.n
+            ) {
+                return false;
+            }
+
+            throw new Error(ERRORS.INVALID_KEY);
+        }
+        else {
+            return keyInput.isPrivate;
         }
     }
 
@@ -348,6 +386,37 @@ export class ECKey extends Key{
             ecKey.d = base64url.encode(ellipticKey.getPrivate().toArrayLike(Buffer));
             ecKey.private = true;
             return ecKey;
+        }
+    }
+
+    static fromKey(keyInput: KeyInputs.ECPublicKeyInput | KeyInputs.ECPrivateKeyInput): ECKey {
+        if (this.isPrivateKeyInput(keyInput)) return this.fromPrivateKey(keyInput as KeyInputs.ECPrivateKeyInput);
+        return this.fromPublicKey(keyInput as KeyInputs.ECPublicKeyInput);
+    }
+
+    static isPrivateKeyInput(keyInput: KeyInputs.ECPublicKeyInput | KeyInputs.ECPrivateKeyInput): boolean {
+        if ('kty' in keyInput) {
+            let privateKeyObject = keyInput as KeyObjects.ECPrivateKeyObject;
+            if (
+                privateKeyObject.d &&
+                privateKeyObject.x &&
+                privateKeyObject.y
+            ) {
+                return true;
+            }
+
+            let publicKeyObject = keyInput as KeyObjects.ECPublicKeyObject;
+            if (
+                publicKeyObject.x &&
+                publicKeyObject.y
+            ) {
+                return false;
+            }
+
+            throw new Error(ERRORS.INVALID_KEY);
+        }
+        else {
+            return keyInput.isPrivate;
         }
     }
 
@@ -510,6 +579,35 @@ export class OKP extends Key{
             ecKey.d = base64url.encode(ellipticKey.getSecret());
             ecKey.private = true;
             return ecKey;
+        }
+    }
+
+    static fromKey(keyInput: KeyInputs.OKPPublicKeyInput | KeyInputs.OKPPrivateKeyInput): OKP {
+        if (this.isPrivateKeyInput(keyInput)) return this.fromPrivateKey(keyInput as KeyInputs.OKPPrivateKeyInput);
+        return this.fromPublicKey(keyInput as KeyInputs.OKPPublicKeyInput);
+    }
+
+    static isPrivateKeyInput(keyInput: KeyInputs.OKPPublicKeyInput | KeyInputs.OKPPrivateKeyInput): boolean {
+        if ('kty' in keyInput) {
+            let privateKeyObject = keyInput as KeyObjects.OKPPrivateKeyObject;
+            if (
+                privateKeyObject.d &&
+                privateKeyObject.x 
+            ) {
+                return true;
+            }
+
+            let publicKeyObject = keyInput as KeyObjects.OKPPublicKeyObject;
+            if (
+                publicKeyObject.x
+            ) {
+                return false;
+            }
+
+            throw new Error(ERRORS.INVALID_KEY);
+        }
+        else {
+            return keyInput.isPrivate;
         }
     }
 

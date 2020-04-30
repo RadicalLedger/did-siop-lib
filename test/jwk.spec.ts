@@ -63,21 +63,23 @@ vcuWBbGQw5wnN1cJjWTElITN0FTCJpK2KOuQbQnBtOV9T7hUkGKFmhyDqeclBcDo
 pwIDAQAB
 -----END PUBLIC KEY-----
 `
-        let key = RSAKey.fromPublicKey({
+        let key = RSAKey.fromKey({
             key: publicPem,
             kid: kid,
             use: 'enc',
             format: FORMATS.PKCS8_PEM,
+            isPrivate: false,
         });
         expect(key.toJWK()).toMatchObject(publicJWK);
         let pem = key.exportKey(FORMATS.PKCS8_PEM);
         expect(pem.split('\n').join('')).toEqual(publicPem.split('\n').join(''));
 
-        key = RSAKey.fromPrivateKey({
+        key = RSAKey.fromKey({
             key: privatePem,
             kid: kid,
             use: 'enc',
             format: FORMATS.PKCS1_PEM,
+            isPrivate: true,
         });
         expect(key.toJWK()).toMatchObject(privateJWK);
         pem = key.exportKey(FORMATS.PKCS1_PEM);
@@ -105,23 +107,25 @@ pwIDAQAB
             "alg": "ES256K"
         }
 
-        let key = ECKey.fromPrivateKey(privateJWK);
+        let key = ECKey.fromKey(privateJWK);
         let privateHex = key.exportKey(FORMATS.HEX);
-        let retrievedJWK = ECKey.fromPrivateKey({
+        let retrievedJWK = ECKey.fromKey({
             key: privateHex,
             kid: kid,
             use: 'enc',
             format: FORMATS.HEX,
+            isPrivate: true,
         }).toJWK();
         expect(retrievedJWK).toMatchObject(privateJWK);
 
-        key = ECKey.fromPublicKey(publicJWK);
+        key = ECKey.fromKey(publicJWK);
         let publicHex = key.exportKey(FORMATS.HEX);
-        retrievedJWK = ECKey.fromPublicKey({
+        retrievedJWK = ECKey.fromKey({
             key: publicHex,
             kid: kid,
             use: 'enc',
             format: FORMATS.HEX,
+            isPrivate: false,
         }).toJWK();
         expect(retrievedJWK).toMatchObject(publicJWK);
     });
@@ -145,23 +149,25 @@ pwIDAQAB
             "alg": "EdDSA"
         }
 
-        let key = OKP.fromPrivateKey(privateJWK);
+        let key = OKP.fromKey(privateJWK);
         let privateBase58 = key.exportKey(FORMATS.BASE58);
-        let retrievedJWK = OKP.fromPrivateKey({
+        let retrievedJWK = OKP.fromKey({
             key: privateBase58,
             kid: kid,
             use: 'enc',
             format: FORMATS.BASE58,
+            isPrivate: true,
         }).toJWK();
         expect(retrievedJWK).toMatchObject(privateJWK);
 
-        key = OKP.fromPublicKey(publicJWK);
+        key = OKP.fromKey(publicJWK);
         let publicBase58 = key.exportKey(FORMATS.BASE58);
-        retrievedJWK = OKP.fromPublicKey({
+        retrievedJWK = OKP.fromKey({
             key: publicBase58,
             kid: kid,
             use: 'enc',
             format: FORMATS.BASE58,
+            isPrivate: false,
         }).toJWK();
         expect(retrievedJWK).toMatchObject(publicJWK);
     });
@@ -191,8 +197,8 @@ describe('Signing and verifying', function () {
             "n": "hgU7BWR8A_d5Z4boXZaff3KLte8rEZvA5mGRRF_WMEqp2l9K2dkgT-Z27sSAi-uZrkFKRxtclyW2ZCU4uv5jJH9yWcmksxfV-VYpCFiJVPKiAxTFftUNB0jiFsJDAxgfECorJkYn1s9BbNMzbuiNzUvBqTXKS2Q6rFj0lrCR_mZSwZl1zBW5Rh5c2vK8rWkQ7q2T_Q2eT2QOonzmhfTSZDneqyaOKjom9QRbWgnR6vbVb9beUzZ7W5Y_grdIoQ7VZS5SDdEJrGWrquzmsfigvcuWBbGQw5wnN1cJjWTElITN0FTCJpK2KOuQbQnBtOV9T7hUkGKFmhyDqeclBcDopw"
         }
 
-        let privateKey = RSAKey.fromPrivateKey(privateJWK);
-        let publicKey = RSAKey.fromPublicKey(publicJWK);
+        let privateKey = RSAKey.fromKey(privateJWK);
+        let publicKey = RSAKey.fromKey(publicJWK);
 
         let message = 'RSA test message';
 
@@ -221,8 +227,8 @@ describe('Signing and verifying', function () {
             "alg": "ES256K"
         }
 
-        let privateKey = ECKey.fromPrivateKey(privateJWK);
-        let publicKey = ECKey.fromPublicKey(publicJWK);
+        let privateKey = ECKey.fromKey(privateJWK);
+        let publicKey = ECKey.fromKey(publicJWK);
 
         let message = 'EC test message';
 
@@ -249,8 +255,8 @@ describe('Signing and verifying', function () {
             "alg": "EdDSA"
         }
 
-        let privateKey = OKP.fromPrivateKey(privateJWK);
-        let publicKey = OKP.fromPublicKey(publicJWK);
+        let privateKey = OKP.fromKey(privateJWK);
+        let publicKey = OKP.fromKey(publicJWK);
 
         let message = 'EdDSA test message';
 
