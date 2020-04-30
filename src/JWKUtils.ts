@@ -565,8 +565,7 @@ export class OKP extends Key{
             let key = ec.keyFromSecret(this.exportKey(FORMATS.HEX));
 
             let edDsa_signature = key.sign(Buffer.from(msg));
-
-            return edDsa_signature.toBytes();
+            return Buffer.from(edDsa_signature.toHex(), 'hex');
         }
         else{
             throw new Error(ERRORS.NO_PRIVATE_KEY);
@@ -579,7 +578,7 @@ export class OKP extends Key{
     
             let key = ec.keyFromPublic(this.exportKey(FORMATS.HEX));
     
-            return key.verify(Buffer.from(msg), signature);
+            return key.verify(Buffer.from(msg), signature.toString('hex'));
         } catch (err) {
             throw new Error(ERRORS.INVALID_SIGNATURE);
         }
