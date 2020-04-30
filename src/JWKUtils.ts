@@ -1,11 +1,10 @@
 import { eddsa as EdDSA, ec as EC} from 'elliptic';
 import * as base58 from 'bs58';
 import base64url from 'base64url';
-const NodeRSA = require('node-rsa');
-const rs256 = require('jwa')('RS256');
-import { createHash } from 'crypto';
+import { createHash, createSign, createVerify } from 'crypto';
 import { leftpad } from './Utils';
 import { ALGORITHMS } from './globals';
+const NodeRSA = require('node-rsa');
 
 export const ERRORS = Object.freeze({
     INVALID_KEY_FORMAT: 'Invalid key format error',
@@ -263,8 +262,8 @@ export class RSAKey extends Key{
 
     sign(msg: string): Buffer{
         if(this.private){
-            let signature = rs256.sign(msg, this.toPEM());
-            return base64url.toBuffer(signature);
+            let signer = createSign('RSA-SHA256');
+            return signer.update(msg).sign(this.toPEM());
         }
         else{
             throw new Error(ERRORS.NO_PRIVATE_KEY);
@@ -273,7 +272,8 @@ export class RSAKey extends Key{
 
     verify(msg: string, signature: Buffer): boolean{
         try {
-            return rs256.verify(msg, base64url.encode(signature), this.toPEM());
+            let verifier = createVerify('RSA-SHA256');
+            return verifier.update(msg).verify(this.toPEM(), signature);
         } catch (err) {
             throw new Error(ERRORS.INVALID_SIGNATURE);
         }

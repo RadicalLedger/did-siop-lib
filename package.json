@@ -41,7 +41,6 @@
     "ethereum-checksum-address": "0.0.5",
     "ethereum-public-key-to-address": "0.0.2",
     "jose": "^1.26.0",
-    "jwa": "^2.0.0",
     "node-rsa": "^1.0.8"
   }
 }
