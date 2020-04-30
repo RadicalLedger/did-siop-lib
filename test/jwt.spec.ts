@@ -1,11 +1,14 @@
-import { sign, verify, ALGORITHMS, checkKeyPair, ERRORS } from '../src/JWT'
-import { JWK } from 'jose';
+import { RSAKey, ECKey, OKP } from './../src/JWKUtils';
+import { ALGORITHMS } from './../src/globals';
+import { sign, verify, checkKeyPair } from '../src/JWT';
+
 
 const rs256TestResource = {
     jwtDecoded: {
         header: {
-            "alg": "RS256",
-            "typ": "JWT"
+            alg: ALGORITHMS[ALGORITHMS.RS256],
+            typ: 'JWT',
+            kid: 'key_1',
         },
         payload: {
             "sub": "1234567890",
@@ -13,8 +16,7 @@ const rs256TestResource = {
             "admin": true,
         }
     },
-    kid: 'key_1',
-    privateKey: JWK.asKey(
+    privateKey: RSAKey.fromPrivateKey(
         {
             "p": "yS5TAT-JqDgiDgUQeuW5n4XZRIiu9ADhckkzdYLu91RjV1mD0XkAS-3rdC--649pkZ0ZiNdHS9VgyNnhBoRcrlXwOPGY00MxHu89g93WQjP7-iGnzXfnzKaMQkhsNVMbBeAdJfn6ngheZPcsULJwWpdjSc7C8Zk4geZcf2xiyFk",
             "kty": "RSA",
@@ -30,7 +32,7 @@ const rs256TestResource = {
             "n": "irc2RuiQwgBwcJ3FilvWmdffu_9Uw1DTaULfU6zZMQowSqcANRCWbaLsa31vDLjLV8cpui50Ae3EX5asJdGJv9KVgBmDqmgekRh_UbefrA1TvwSBdb7yPaP1OlPPLluMEGVqPI1Q885ymAn1TcNTqq1QxUpeT8AETc3AX3rmQpCr14KO9iRi6u6sMfXC4IDTKUNWWXtm--rAAH366_FkFXyD_OfbgwXx_9dX2WyYKiIlCHrJMOSZlcd52HaUU1xMPxXuEUP3lAscamVfQPcWrT8DYmxY0zw6Sc5PqsTXzkBM2jkE-dcH315SUKGRzBj-D784ykkSynmD2TiEUc65Ww"
         }
     ),
-    publicKey: JWK.asKey(
+    publicKey: RSAKey.fromPublicKey(
         {
             "kty": "RSA",
             "e": "AQAB",
@@ -40,7 +42,7 @@ const rs256TestResource = {
             "n": "irc2RuiQwgBwcJ3FilvWmdffu_9Uw1DTaULfU6zZMQowSqcANRCWbaLsa31vDLjLV8cpui50Ae3EX5asJdGJv9KVgBmDqmgekRh_UbefrA1TvwSBdb7yPaP1OlPPLluMEGVqPI1Q885ymAn1TcNTqq1QxUpeT8AETc3AX3rmQpCr14KO9iRi6u6sMfXC4IDTKUNWWXtm--rAAH366_FkFXyD_OfbgwXx_9dX2WyYKiIlCHrJMOSZlcd52HaUU1xMPxXuEUP3lAscamVfQPcWrT8DYmxY0zw6Sc5PqsTXzkBM2jkE-dcH315SUKGRzBj-D784ykkSynmD2TiEUc65Ww"
         }
     ),
-    publicKeyWrong: JWK.asKey(
+    publicKeyWrong: RSAKey.fromPublicKey(
         {
             "kty": "RSA",
             "e": "AQAB",
@@ -55,8 +57,9 @@ const rs256TestResource = {
 const es256kTestResource = {
     jwtDecoded: {
         header: {
-            "alg": "ES256K",
-            "typ": "JWT"
+            alg: ALGORITHMS[ALGORITHMS.ES256K],
+            typ: 'JWT',
+            kid: 'key_1',
         },
         payload: {
             "sub": "1234567890",
@@ -64,8 +67,7 @@ const es256kTestResource = {
             "admin": true,
         }
     },
-    kid: 'key_1',
-    privateKey: JWK.asKey(
+    privateKey: ECKey.fromPrivateKey(
         {
             "kty": "EC",
             "d": "qY02md1Z-mx7Bm99qjqaESCCE8PMpq8VWl3Kla9NexI",
@@ -77,7 +79,7 @@ const es256kTestResource = {
             "alg": "ES256K"
         }
     ),
-    publicKey: JWK.asKey(
+    publicKey: ECKey.fromPublicKey(
         {
             "kty": "EC",
             "use": "sig",
@@ -88,7 +90,7 @@ const es256kTestResource = {
             "alg": "ES256K"
         }
     ),
-    publicKeyWrong: JWK.asKey(
+    publicKeyWrong: ECKey.fromPublicKey(
         {
             "kty": "EC",
             "use": "sig",
@@ -105,8 +107,9 @@ const es256kTestResource = {
 const es256kRecoverableResources = {
     jwtDecoded: {
         header: {
-            "alg": "ES256K-R",
-            "typ": "JWT"
+            alg: ALGORITHMS[ALGORITHMS["ES256K-R"]],
+            typ: 'JWT',
+            kid: 'key_1',
         },
         payload: {
             "sub": "1234567890",
@@ -114,7 +117,6 @@ const es256kRecoverableResources = {
             "admin": true,
         }
     },
-    kid: 'key_1',
     privateKey: 'CE438802C1F0B6F12BC6E686F372D7D495BC5AA634134B4A7EA4603CB25F0964',
     publicKey: '0xB07Ead9717b44B6cF439c474362b9B0877CBBF83',
     publicKeyWrong: '0428c0da3e1c15e84876625d366eab8dd20c84288bcf6a71a0699209fc646dcfeb4633d7eff3dc63be7d7ada54fcb63cd603e5ac0a1382de19a73487dbc8e177e9',
@@ -124,8 +126,9 @@ const es256kRecoverableResources = {
 const edDsaTestResources = {
     jwtDecoded: {
         header: {
-            "alg": "EdDSA",
-            "typ": "JWT"
+            alg: ALGORITHMS[ALGORITHMS.EdDSA],
+            typ: 'JWT',
+            kid: 'key_1',
         },
         payload: {
             "sub": "1234567890",
@@ -133,8 +136,7 @@ const edDsaTestResources = {
             "admin": true,
         }
     },
-    kid: 'key_1',
-    privateKey: JWK.asKey(
+    privateKey: OKP.fromPrivateKey(
         {
             "kty": "OKP",
             "d": "V_KISRBGjffxWgpY6Kz2P9E1V-HPoJMww0CTcMzirYE",
@@ -145,7 +147,7 @@ const edDsaTestResources = {
             "alg": "EdDSA"
         }
     ),
-    publicKey: JWK.asKey(
+    publicKey: OKP.fromPublicKey(
         {
             "kty": "OKP",
             "use": "sig",
@@ -155,7 +157,7 @@ const edDsaTestResources = {
             "alg": "EdDSA"
         }
     ),
-    publicKeyWrong: JWK.asKey(
+    publicKeyWrong: OKP.fromPublicKey(
         {
             "kty": "OKP",
             "use": "sig",
@@ -170,36 +172,32 @@ const edDsaTestResources = {
 
 describe('JWT functions', function() {
     test('JWT signing and verification RS256', async () => {
-        let signature = sign(rs256TestResource.jwtDecoded.payload, rs256TestResource.kid, rs256TestResource.privateKey, ALGORITHMS.RS256);
-        let validPayload = verify(signature, rs256TestResource.publicKey, ALGORITHMS.RS256);
-        expect(validPayload).toMatchObject(rs256TestResource.jwtDecoded.payload);
-        expect(() => {
-            validPayload = verify(signature, rs256TestResource.publicKeyWrong, ALGORITHMS.RS256);
-        }).toThrow(new Error(ERRORS.INVALID_SIGNATURE));
+        let jwt = sign(rs256TestResource.jwtDecoded, rs256TestResource.privateKey);
+        let validity = verify(jwt, rs256TestResource.publicKey);
+        expect(validity).toBeTruthy();
+        validity = verify(jwt, rs256TestResource.publicKeyWrong);
+        expect(validity).toBeFalsy();
     });
     test('JWT signing and verification ES256K', async () => {
-        let signature = sign(es256kTestResource.jwtDecoded.payload, es256kTestResource.kid, es256kTestResource.privateKey, ALGORITHMS.ES256K);
-        let validPayload = verify(signature, es256kTestResource.publicKey, ALGORITHMS.ES256K);
-        expect(validPayload).toMatchObject(es256kTestResource.jwtDecoded.payload);
-        expect(() => {
-            validPayload = verify(signature, es256kTestResource.publicKeyWrong, ALGORITHMS.ES256K);
-        }).toThrow(new Error(ERRORS.INVALID_SIGNATURE));
+        let jwt = sign(es256kTestResource.jwtDecoded, es256kTestResource.privateKey);
+        let validity = verify(jwt, es256kTestResource.publicKey);
+        expect(validity).toBeTruthy();
+        validity = verify(jwt, es256kTestResource.publicKeyWrong);
+        expect(validity).toBeFalsy();
     }),
     test('JWT signing and verification ES256K-R', async () => {
-        let signature = sign(es256kRecoverableResources.jwtDecoded.payload, es256kRecoverableResources.kid, es256kRecoverableResources.privateKey, ALGORITHMS["ES256K-R"]);
-        let validPayload = verify(signature, es256kRecoverableResources.publicKey, ALGORITHMS["ES256K-R"]);
-        expect(validPayload).toMatchObject(es256kRecoverableResources.jwtDecoded.payload);
-        expect(() => {
-            validPayload = verify(signature, es256kRecoverableResources.publicKeyWrong, ALGORITHMS["ES256K-R"]);
-        }).toThrow(new Error(ERRORS.INVALID_SIGNATURE));
+        let jwt = sign(es256kRecoverableResources.jwtDecoded, es256kRecoverableResources.privateKey);
+        let validity = verify(jwt, es256kRecoverableResources.publicKey);
+        expect(validity).toBeTruthy();
+        validity = verify(jwt, es256kRecoverableResources.publicKeyWrong);
+        expect(validity).toBeFalsy();
     })
     test('JWT signing and verification EdDSA', async () => {
-        let signature = sign(edDsaTestResources.jwtDecoded.payload, edDsaTestResources.kid, edDsaTestResources.privateKey, ALGORITHMS.EdDSA);
-        let validPayload = verify(signature, edDsaTestResources.publicKey, ALGORITHMS.EdDSA);
-        expect(validPayload).toMatchObject(edDsaTestResources.jwtDecoded.payload);
-        expect(() => {
-            validPayload = verify(signature, edDsaTestResources.publicKeyWrong, ALGORITHMS.EdDSA);
-        }).toThrow(new Error(ERRORS.INVALID_SIGNATURE));
+        let jwt = sign(edDsaTestResources.jwtDecoded, edDsaTestResources.privateKey);
+        let validity = verify(jwt, edDsaTestResources.publicKey);
+        expect(validity).toBeTruthy();
+        validity = verify(jwt, edDsaTestResources.publicKeyWrong);
+        expect(validity).toBeFalsy();
     })
     test('JWT check key pair', async () => {
         let validity = checkKeyPair(rs256TestResource.privateKey, rs256TestResource.publicKey, ALGORITHMS.RS256);
