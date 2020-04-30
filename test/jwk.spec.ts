@@ -1,4 +1,6 @@
-import { KeyObjects, RSAKey, ECKey, OKP, FORMATS} from '../src/JWKUtils'
+import { KeySet } from './../src/JWKUtils';
+import { KeyObjects, RSAKey, ECKey, OKP, FORMATS, ERRORS } from '../src/JWKUtils'
+import nock from 'nock';
 
 describe('JWK functions', function () {
     test('RSAKey functions', async ()=>{
@@ -263,5 +265,104 @@ describe('Signing and verifying', function () {
         let signature = privateKey.sign(message);
         let validity = publicKey.verify(message, signature);
         expect(validity).toBeTruthy();
+    })
+})
+describe('JWKS', function () {
+    test('KeySet functions', async () => {
+        let jwks = new KeySet();
+        expect(jwks.size()).toEqual(0);
+
+        const rsa1 = {
+            "p": "0I0kWE9X7K63raZr_-3m_k_--xsKRFxHDGA1xskpEUY8ywgBeMIuk6KT1-dag8Q3PmIJKZd3G-nc9-H1GOw3RrBO25saPT0cnt5ujPI_o2atpCrLYDr7gy8N9cTQuod7I0gexm-U7-qaKk55jIisLV5_FqOwpNnSbryUGDKkumM",
+            "kty": "RSA",
+            "q": "oQfAVr3oLDemgtVAp63mbtxBhOm4JF7SY1H0sDSho5QMKrITRvmArwzmV9T8eiodGV9p7EcZhlRERBgRWDvRIrVfQdL3hzQ55JMCSbfB6eq3vLFco1IER4LVt2-1LzxuuGQBcJdsVnNt7bQdVrtr4tExaF04zzjXe8bGviY7jdc",
+            "d": "G3Fn5XSoC4HZG86-BpEOYrO0gx5Nfd_BDzkyTF1wGAdlZ0khr-9AcybIWgZYc7vXYeeRKk92qxaKmMi2lpPwNrG267RL0upml_aZeke9W1scRWiAoGQQEbNgD08G0qe4hGrhHAJwNJoTJxLWvq5ZAZrLShKx1SAuBt1EcBp3cZ61Xj9Z-DTlrhiXJyGob9ZL8BC6aVT-b_brcT05Kh1vY5I5tOR6KUC17qGdqiUIXuUmnAyHWUsXN9kmzb6zKgkFagqrlQhLaXsMuP0ic75q3YaPX1Hl5HJVKr0rRTmE3w-UNgYsCdIwku_4zkdo5uJKXJ6l6GqN3PhYVpuCs5fA6Q",
+            "e": "AQAB",
+            "use": "sig",
+            "kid": "rsa1",
+            "qi": "XOH-lC58o4yN91Tiq-toECwe7_ujEO3YhFTHy5HWKfFGvMKl692UTlIt9iT6bgw90-kwpe3Uwkm7HioFKE6kpZ4KVNTOCFOlZQ5pNX39iJfVoisZ-Tvm1Af1sZUAT2JegwVi6i0MoJ2r6yVkQEERpw2VJaJqV8SqdhRL6UecCtc",
+            "dp": "dHIqlgiPbn9L3fDrorZCYUNneuvpOqxPm3Bo9nrBrHyMW004DSZXfWWsqUPrvWEk-3cf6JJDFlnpYJtRED5sytKM5X_gEct6nJZUIeztbZ5aXCzs6-ljICd44v6nEU-uiM-vJ1uMTL2woOi6Y6a4hIib65cwfYuGPQCcrDoy0kM",
+            "alg": "RS256",
+            "dq": "hVvJA01FMRFpeeKoJ_XR56_LJwr0MFLDA_QEo8UCtFjQdq-BXX8V_mK9hLHj4jxsWu305_O-BMxWuNoBy0PGoGr6l6XizvsGkvDYrTpcgp-bSM7N_IfY-Ww2GDOQJq1yuIxB0P_mffYcbQaEYabX40ECHP9PI_ZcJqrpPuKk4YM",
+            "n": "gy8UaA2yQDGuK7Dc4f6sYUkRyqYyWChQDHDPcXyN3Rw446C2ti-77XZpZxXRgceEkey2bZT8zHL6uMUrfmKkl1ujL9MHHkDvDVq86E8D54Kpx7K73K87OYnMcHdR2rPWjLRnpiO0sc4HHfNWLuz8TUzo-W1Om53qi853rdIOpBCpWwWgSs-mO17F26D-uZ4RnBNIv8WnYFbId87ddCY60_dsGBT0kj94v600jHn-akTCu_GZW5qwafrRhdXpFby9jinoGIJ7naNC39R27YrE2VIzJb_rK8HKtwML62EEoI5i90VpZ9hHBfHn86fKLPZdK9ycQ7sTfWZPBrtS6dIQJQ"
+        }
+        const rsa2 = {
+            "kty": "RSA",
+            "e": "AQAB",
+            "use": "sig",
+            "kid": "rsa2",
+            "alg": "RS256",
+            "n": "zuhMv8UeE5mMGajivOGpqA-SDfFsdkoGmZ0cIzxfvknBUJMyImQswuwiAhM3vrpd78yuxeBIr7riI_l7xNiSQTv9cBHbiAp67Z1Lq8ddd-AVnUCB3xMtZwaym4Fd4mQqEYYeRHm9HbuMsvuwbV__XefBaKELuapEXUcx3LLwvnh8nGGYhq8fOXhVoHpg1lGpwArCnLWQbZZkjrnkBj1CaYdYqOt_8fzkrTXoykSm-t-9Dsho3pR0trgjXakOy2NVlvI0IStP8M1RDVUgXjSgpOIwPaPPxjslOtr_a-deGscW4CinQoutL0i0FDpPsXGQ6f4B0Xjc1jfH0sM2ULO7DQ"
+        }
+        const ec1 = {
+            "kty": "EC",
+            "d": "9FDfRTfjBt-Z9_w9GXbjSNuI9pXTa_JzEKLG9B_FzwA",
+            "use": "sig",
+            "crv": "secp256k1",
+            "kid": "ec1",
+            "x": "ObMF-bBQvda4b-5stwN2Fqd83Be1BVSIn8IZ4q-x93w",
+            "y": "m4Is5b3VJW0slR6wUNNcYyIffYmQKXnJ373-v5xladY",
+            "alg": "ES256K"
+        }
+        const ec2 = {
+            "kty": "EC",
+            "use": "sig",
+            "crv": "secp256k1",
+            "kid": "ec2",
+            "x": "hOr3CGcAc9JcFuZOCVXHpTGC-uXyEmhfXxX9IH5hZ_w",
+            "y": "TK1ubE2SMOHzflF1Bk_R5QBlZ5fJLIMdsUtuT6j0g38",
+            "alg": "ES256K"
+        }
+        const okp1 = {
+            "kty": "OKP",
+            "d": "MbzHqgiv4ogef4nLjdZzGQntFYcmQwlMpAXGoaa718Y",
+            "use": "sig",
+            "crv": "Ed25519",
+            "kid": "okp1",
+            "x": "FTynsSc6J-07cIBQskBnFm48PjWlgloc8bmwyE6mPjY",
+            "alg": "EdDSA"
+        }
+        const okp2 = {
+            "kty": "OKP",
+            "use": "sig",
+            "crv": "Ed25519",
+            "kid": "okp2",
+            "x": "Lcg5PqvtDePXKa_-ap-fJjInciQfuikgen_yyURYQhY",
+            "alg": "EdDSA"
+        }
+
+        const set = {
+            keys: [
+                rsa1,
+                ec1,
+                ec2,
+                okp1,
+            ]
+        }
+
+        jwks.setKeys(set.keys);
+        expect(jwks.size()).toEqual(set.keys.length);
+
+        jwks.addKey(rsa2);
+        expect(jwks.size()).toEqual(5);
+
+        jwks.addKey(okp2);
+        expect(jwks.size()).toEqual(6);
+
+        jwks.removeKey('rsa1');
+        expect(jwks.size()).toEqual(5);
+
+        let retrieved = jwks.getKey('ec1');
+        expect(retrieved[0].toJWK()).toEqual(ec1);
+
+        nock('http://localhost').get('/keys').reply(200, set).get('/invalidUri').reply(404, 'Not found');
+
+        jwks = new KeySet();
+        await jwks.setURI('http://localhost/keys');
+        expect(jwks.size()).toEqual(set.keys.length);
+
+        jwks = new KeySet();
+        let jwksResolvePromise = jwks.setURI('http://localhost/invalidUri');
+        await expect(jwksResolvePromise).rejects.toEqual(new Error(ERRORS.URI_ERROR));
     })
 })

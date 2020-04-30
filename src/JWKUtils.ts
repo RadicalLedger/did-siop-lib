@@ -5,18 +5,23 @@ import { createHash, createSign, createVerify } from 'crypto';
 import { leftpad } from './Utils';
 import { ALGORITHMS } from './globals';
 const NodeRSA = require('node-rsa');
+const axios = require('axios').default;
 
 export const ERRORS = Object.freeze({
     INVALID_KEY_FORMAT: 'Invalid key format error',
     NO_PRIVATE_KEY: 'Not a private key',
     INVALID_SIGNATURE: 'Invalid signature',
     INVALID_KEY: 'Invalid key',
+    INVALID_KEY_SET: 'Invalid key in set',
+    NO_MATCHING_KEY: 'Matching key cannot be found in key set',
+    URI_ERROR: 'Cannot resolve jwks from uri',
+    KEY_EXISTS: 'Key already exists in the set',
 });
 
 export namespace KeyObjects{
     export interface BasicKeyObject{
         kty: string;
-        use: 'enc'|'sig';
+        use: string;
         kid: string;
         alg: string;
     }
@@ -80,7 +85,7 @@ export namespace KeyInputs{
     interface KeyInfo {
         key: string;
         kid: string;
-        use: 'enc' | 'sig';
+        use: string;
         format: FORMATS;
         isPrivate: boolean;
     }
@@ -105,10 +110,10 @@ export abstract class Key{
     protected kty: string;
     protected alg: ALGORITHMS;
     protected kid: string;
-    protected use: 'enc' | 'sig'; 
+    protected use: string; 
     protected private: boolean;
 
-    protected constructor(kid: string, kty: KTYS, alg: ALGORITHMS, use: 'enc' | 'sig'){
+    protected constructor(kid: string, kty: KTYS, alg: ALGORITHMS, use: string){
         this.kid = kid;
         this.kty = KTYS[kty];
         this.alg = alg;
@@ -122,6 +127,10 @@ export abstract class Key{
 
     isPrivate(): boolean{
         return this.private;
+    }
+
+    checkKid(kid: string): boolean{
+        return this.kid === kid;
     }
 
     abstract sign(msg: string): string | Buffer;
@@ -140,7 +149,7 @@ export class RSAKey extends Key{
     private dq?: string;
     private n: string;
 
-    private constructor(kid: string, kty: KTYS, alg: ALGORITHMS, n: string, e: string, use: 'enc'|'sig'){
+    private constructor(kid: string, kty: KTYS, alg: ALGORITHMS, n: string, e: string, use: string){
         super(kid, kty, alg, use);
         this.n = n;
         this.e = e;
@@ -324,7 +333,7 @@ export class ECKey extends Key{
     private y: string;
     private d?: string;
 
-    private constructor(kid: string, kty: KTYS, alg: ALGORITHMS, crv: string, x: string, y: string, use: 'enc' | 'sig'){
+    private constructor(kid: string, kty: KTYS, alg: ALGORITHMS, crv: string, x: string, y: string, use: string){
         super(kid, kty, alg, use);
         this.crv = crv;
         this.x = x;
@@ -520,7 +529,7 @@ export class OKP extends Key{
     private x: string;
     private d?: string;
 
-    private constructor(kid: string, kty: KTYS, alg: ALGORITHMS, crv: string, x: string, use: 'enc' | 'sig') {
+    private constructor(kid: string, kty: KTYS, alg: ALGORITHMS, crv: string, x: string, use: string) {
         super(kid, kty, alg, use);
         this.crv = crv;
         this.x = x;
@@ -680,5 +689,82 @@ export class OKP extends Key{
         } catch (err) {
             throw new Error(ERRORS.INVALID_SIGNATURE);
         }
+    }
+}
+
+export class KeySet{
+    private ketSet: Key[] = [];
+    private uri: string = '';
+
+    setKeys(keySet: KeyObjects.BasicKeyObject[]){
+        let newKeySet: Key[] = [];
+        keySet.forEach(key =>{
+            switch(key.alg){
+                case ALGORITHMS[ALGORITHMS.RS256]: {
+                    newKeySet.push(RSAKey.fromKey(key as KeyObjects.RSAPrivateKeyObject | KeyObjects.RSAPublicKeyObject));
+                    break;
+                }
+                case ALGORITHMS[ALGORITHMS["ES256K-R"]]:
+                case ALGORITHMS[ALGORITHMS.ES256K]: {
+                    newKeySet.push(ECKey.fromKey(key as KeyObjects.ECPrivateKeyObject | KeyObjects.ECPublicKeyObject));
+                    break;
+                }
+                case ALGORITHMS[ALGORITHMS.EdDSA]: {
+                    newKeySet.push(OKP.fromKey(key as KeyObjects.OKPPrivateKeyObject | KeyObjects.OKPPublicKeyObject));
+                    break;
+                }
+                default: throw new Error(ERRORS.INVALID_KEY_SET);
+            }
+        });
+        this.ketSet = newKeySet;
+    }
+
+    async setURI(uri: string){
+        this.uri = uri;
+        try{
+            let returnedSet = await axios.get(this.uri);
+            this.setKeys(returnedSet.data.keys);
+        }
+        catch(err){
+            throw new Error(ERRORS.URI_ERROR);
+        }
+    }
+
+    getKey(kid: string): Key[]{
+        let keys = this.ketSet.filter(k => {return k.checkKid(kid)});
+        if(keys.length > 0) return keys;
+        throw new Error(ERRORS.NO_MATCHING_KEY);
+    }
+
+    addKey(key: KeyObjects.BasicKeyObject){
+        if(this.ketSet.filter(k => {return k.checkKid(key.kid)}).length === 0){
+            switch (key.alg) {
+                case ALGORITHMS[ALGORITHMS.RS256]: {
+                    this.ketSet.push(RSAKey.fromKey(key as KeyObjects.RSAPrivateKeyObject | KeyObjects.RSAPublicKeyObject));
+                    break;
+                }
+                case ALGORITHMS[ALGORITHMS["ES256K-R"]]:
+                case ALGORITHMS[ALGORITHMS.ES256K]: {
+                    this.ketSet.push(ECKey.fromKey(key as KeyObjects.ECPrivateKeyObject | KeyObjects.ECPublicKeyObject));
+                    break;
+                }
+                case ALGORITHMS[ALGORITHMS.EdDSA]: {
+                    this.ketSet.push(OKP.fromKey(key as KeyObjects.OKPPrivateKeyObject | KeyObjects.OKPPublicKeyObject));
+                    break;
+                }
+                default: throw new Error(ERRORS.INVALID_KEY_SET);
+            }
+        }
+        else{
+            throw new Error(ERRORS.KEY_EXISTS);
+        }
+    }
+
+    removeKey(kid: string){
+        this.ketSet = this.ketSet.filter(key => {return !key.checkKid(kid)});
+    }
+
+    size(): number{
+        return this.ketSet.length;
     }
 }
