@@ -3,7 +3,7 @@ import * as base58 from 'bs58';
 import base64url from 'base64url';
 import { createHash, createSign, createVerify } from 'crypto';
 import { leftpad } from './Utils';
-import { ALGORITHMS } from './globals';
+import { ALGORITHMS, KEY_FORMATS } from './globals';
 const NodeRSA = require('node-rsa');
 const axios = require('axios').default;
 
@@ -71,22 +71,13 @@ export namespace KeyObjects{
     }
 }
 
-export enum FORMATS {
-    PKCS8_PEM,
-    PKCS1_PEM,
-    HEX,
-    BASE58,
-    BASE64,
-    BASE64URL,
-}
-
 export namespace KeyInputs{
 
     interface KeyInfo {
         key: string;
         kid: string;
         use: string;
-        format: FORMATS;
+        format: KEY_FORMATS;
         isPrivate: boolean;
     }
 
@@ -136,7 +127,7 @@ export abstract class Key{
     abstract sign(msg: string): string | Buffer;
     abstract verify(msg: string, signature: Buffer): boolean;
     abstract toJWK(): KeyObjects.BasicKeyObject;
-    abstract exportKey(format: FORMATS): string;
+    abstract exportKey(format: KEY_FORMATS): string;
 }
 
 export class RSAKey extends Key{
@@ -295,14 +286,14 @@ export class RSAKey extends Key{
         return rsaKey.exportKey(exportFormat);
     }
 
-    exportKey(format: FORMATS): string{
+    exportKey(format: KEY_FORMATS): string{
         switch(format){
-            case FORMATS.PKCS1_PEM: return this.toPEM('pkcs1');
-            case FORMATS.PKCS8_PEM: return this.toPEM('pkcs8');
-            case FORMATS.HEX:
-            case FORMATS.BASE58:
-            case FORMATS.BASE64:
-            case FORMATS.BASE64URL:
+            case KEY_FORMATS.PKCS1_PEM: return this.toPEM('pkcs1');
+            case KEY_FORMATS.PKCS8_PEM: return this.toPEM('pkcs8');
+            case KEY_FORMATS.HEX:
+            case KEY_FORMATS.BASE58:
+            case KEY_FORMATS.BASE64:
+            case KEY_FORMATS.BASE64URL:
             default: throw new Error(ERRORS.INVALID_KEY_FORMAT);
         }
     }
@@ -348,9 +339,9 @@ export class ECKey extends Key{
             let key_buffer = Buffer.alloc(1);
             try {
                 switch (keyInput.format) {
-                    case FORMATS.BASE58: key_buffer = base58.decode(keyInput.key); break;
-                    case FORMATS.BASE64: key_buffer = base64url.toBuffer(base64url.fromBase64(keyInput.key)); break;
-                    case FORMATS.HEX: key_buffer = Buffer.from(keyInput.key, 'hex'); break;
+                    case KEY_FORMATS.BASE58: key_buffer = base58.decode(keyInput.key); break;
+                    case KEY_FORMATS.BASE64: key_buffer = base64url.toBuffer(base64url.fromBase64(keyInput.key)); break;
+                    case KEY_FORMATS.HEX: key_buffer = Buffer.from(keyInput.key, 'hex'); break;
                     default: throw new Error(ERRORS.INVALID_KEY_FORMAT);
                 }
             } catch (err) {
@@ -377,9 +368,9 @@ export class ECKey extends Key{
             let key_buffer = Buffer.alloc(1);
             try {
                 switch (keyInput.format) {
-                    case FORMATS.BASE58: key_buffer = base58.decode(keyInput.key); break;
-                    case FORMATS.BASE64: key_buffer = base64url.toBuffer(base64url.fromBase64(keyInput.key)); break;
-                    case FORMATS.HEX: key_buffer = Buffer.from(keyInput.key, 'hex'); break;
+                    case KEY_FORMATS.BASE58: key_buffer = base58.decode(keyInput.key); break;
+                    case KEY_FORMATS.BASE64: key_buffer = base64url.toBuffer(base64url.fromBase64(keyInput.key)); break;
+                    case KEY_FORMATS.HEX: key_buffer = Buffer.from(keyInput.key, 'hex'); break;
                     default: throw new Error(ERRORS.INVALID_KEY_FORMAT);
                 }
             } catch (err) {
@@ -455,7 +446,7 @@ export class ECKey extends Key{
         }
     }
 
-    exportKey(format: FORMATS): string {
+    exportKey(format: KEY_FORMATS): string {
         let ec = new EC('secp256k1');
         let keyString: Buffer;
         if (this.private) {
@@ -470,12 +461,12 @@ export class ECKey extends Key{
         }
 
         switch (format) {
-            case FORMATS.HEX: return keyString.toString('hex');
-            case FORMATS.BASE58: return base58.encode(keyString);
-            case FORMATS.BASE64: return keyString.toString('base64');
-            case FORMATS.BASE64URL: return base64url.encode(keyString);
-            case FORMATS.PKCS1_PEM:
-            case FORMATS.PKCS8_PEM: 
+            case KEY_FORMATS.HEX: return keyString.toString('hex');
+            case KEY_FORMATS.BASE58: return base58.encode(keyString);
+            case KEY_FORMATS.BASE64: return keyString.toString('base64');
+            case KEY_FORMATS.BASE64URL: return base64url.encode(keyString);
+            case KEY_FORMATS.PKCS1_PEM:
+            case KEY_FORMATS.PKCS8_PEM: 
             default: throw new Error(ERRORS.INVALID_KEY_FORMAT);
         }
     }
@@ -487,7 +478,7 @@ export class ECKey extends Key{
 
             let hash = sha256.update(msg).digest('hex');
 
-            let key = ec.keyFromPrivate(this.exportKey(FORMATS.HEX));
+            let key = ec.keyFromPrivate(this.exportKey(KEY_FORMATS.HEX));
 
             let ec256k_signature = key.sign(hash);
 
@@ -515,7 +506,7 @@ export class ECKey extends Key{
                 s: signature.slice(32, 64).toString('hex')
             }
     
-            let key = ec.keyFromPublic(this.exportKey(FORMATS.HEX), 'hex');
+            let key = ec.keyFromPublic(this.exportKey(KEY_FORMATS.HEX), 'hex');
     
             return key.verify(hash, signatureObj);
         } catch (err) {
@@ -543,9 +534,9 @@ export class OKP extends Key{
             let key_buffer = Buffer.alloc(1);
             try {
                 switch (keyInput.format) {
-                    case FORMATS.BASE58: key_buffer = base58.decode(keyInput.key); break;
-                    case FORMATS.BASE64: key_buffer = base64url.toBuffer(base64url.fromBase64(keyInput.key)); break;
-                    case FORMATS.HEX: key_buffer = Buffer.from(keyInput.key, 'hex'); break;
+                    case KEY_FORMATS.BASE58: key_buffer = base58.decode(keyInput.key); break;
+                    case KEY_FORMATS.BASE64: key_buffer = base64url.toBuffer(base64url.fromBase64(keyInput.key)); break;
+                    case KEY_FORMATS.HEX: key_buffer = Buffer.from(keyInput.key, 'hex'); break;
                     default: throw new Error(ERRORS.INVALID_KEY_FORMAT);
                 }
             } catch (err) {
@@ -571,9 +562,9 @@ export class OKP extends Key{
             let key_buffer = Buffer.alloc(1);
             try {
                 switch (keyInput.format) {
-                    case FORMATS.BASE58: key_buffer = base58.decode(keyInput.key); break;
-                    case FORMATS.BASE64: key_buffer = base64url.toBuffer(base64url.fromBase64(keyInput.key)); break;
-                    case FORMATS.HEX: key_buffer = Buffer.from(keyInput.key, 'hex'); break;
+                    case KEY_FORMATS.BASE58: key_buffer = base58.decode(keyInput.key); break;
+                    case KEY_FORMATS.BASE64: key_buffer = base64url.toBuffer(base64url.fromBase64(keyInput.key)); break;
+                    case KEY_FORMATS.HEX: key_buffer = Buffer.from(keyInput.key, 'hex'); break;
                     default: throw new Error(ERRORS.INVALID_KEY_FORMAT);
                 }
             } catch (err) {
@@ -644,7 +635,7 @@ export class OKP extends Key{
         }
     }
 
-    exportKey(format: FORMATS): string {
+    exportKey(format: KEY_FORMATS): string {
         let ed = new EdDSA('ed25519');
         let keyString: Buffer;
         if (this.private) {
@@ -655,12 +646,12 @@ export class OKP extends Key{
         }
 
         switch (format) {
-            case FORMATS.HEX: return keyString.toString('hex');
-            case FORMATS.BASE58: return base58.encode(keyString);
-            case FORMATS.BASE64: return keyString.toString('base64');
-            case FORMATS.BASE64URL: return base64url.encode(keyString);
-            case FORMATS.PKCS1_PEM:
-            case FORMATS.PKCS8_PEM:
+            case KEY_FORMATS.HEX: return keyString.toString('hex');
+            case KEY_FORMATS.BASE58: return base58.encode(keyString);
+            case KEY_FORMATS.BASE64: return keyString.toString('base64');
+            case KEY_FORMATS.BASE64URL: return base64url.encode(keyString);
+            case KEY_FORMATS.PKCS1_PEM:
+            case KEY_FORMATS.PKCS8_PEM:
             default: throw new Error(ERRORS.INVALID_KEY_FORMAT);
         }
     }
@@ -669,7 +660,7 @@ export class OKP extends Key{
         if(this.private){
             let ec = new EdDSA('ed25519');
 
-            let key = ec.keyFromSecret(this.exportKey(FORMATS.HEX));
+            let key = ec.keyFromSecret(this.exportKey(KEY_FORMATS.HEX));
 
             let edDsa_signature = key.sign(Buffer.from(msg));
             return Buffer.from(edDsa_signature.toHex(), 'hex');
@@ -683,7 +674,7 @@ export class OKP extends Key{
         try {
             let ec = new EdDSA('ed25519');
     
-            let key = ec.keyFromPublic(this.exportKey(FORMATS.HEX));
+            let key = ec.keyFromPublic(this.exportKey(KEY_FORMATS.HEX));
     
             return key.verify(Buffer.from(msg), signature.toString('hex'));
         } catch (err) {
