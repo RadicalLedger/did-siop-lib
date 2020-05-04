@@ -73,7 +73,7 @@ export namespace KeyObjects{
 
 export namespace KeyInputs{
 
-    interface KeyInfo {
+    export interface KeyInfo {
         key: string;
         kid: string;
         use: string;
