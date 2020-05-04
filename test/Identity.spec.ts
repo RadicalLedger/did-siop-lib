@@ -1,5 +1,6 @@
-import { Identity, ERRORS } from './../src/Identity';
+import { Identity, ERRORS, DidPublicKey } from './../src/Identity';
 import nock from 'nock';
+import { ALGORITHMS, KEY_FORMATS } from '../src/globals';
 
 const testDID = 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83';
 const invalidDID = 'did:eth:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83';
@@ -51,7 +52,12 @@ const testResolutionResult = {
     contentType: null
 }
 const testKID = 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner';
-const testPublicKey = '0xB07Ead9717b44B6cF439c474362b9B0877CBBF83';
+const testPublicKey: DidPublicKey = {
+    id: testKID,
+    alg: ALGORITHMS["ES256K-R"],
+    format: KEY_FORMATS.ETHEREUM_ADDRESS,
+    keyString: '0xB07Ead9717b44B6cF439c474362b9B0877CBBF83',
+}
 
 describe("Identity functions", function () {
     beforeEach(() => {

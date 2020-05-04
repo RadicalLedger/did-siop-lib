@@ -1,3 +1,4 @@
+import { ALGORITHMS, KEY_FORMATS } from './globals';
 import { RESOLVER_URL } from './config';
 const axios = require('axios').default;
 const { toChecksumAddress } = require('ethereum-checksum-address');
@@ -9,11 +10,33 @@ export interface DidDocument{
     [propName:string]: any,
 }
 
+interface DidPublicKeyMethod{
+    id: string,
+    type: string,
+    publicKeyBase58?: string,
+    publicKeyBase64?: string,
+    publicKeyHex?: string,
+    publicKeyPem?: string,
+    publicKeyJwk?: string,
+    publicKeyPgp?: string,
+    ethereumAddress?: string,
+    address?: string,
+    [propName: string]: any,
+}
+
+export interface DidPublicKey{
+    id: string,
+    alg: ALGORITHMS,
+    format: KEY_FORMATS,
+    keyString: string,
+}
+
 export const ERRORS = Object.freeze(
     {
         DOCUMENT_RESOLUTION_ERROR: 'Cannot resolve document for did',
         INVALID_DID_ERROR: 'Invalid did',
         UNSUPPORTED_KEY_TYPE: 'Unsupported key type',
+        UNSUPPORTED_KEY_FORMAT: 'Unsupported key format',
         NO_MATCHING_PUBLIC_KEY: 'No public key matching kid',
         UNRESOLVED_DOCUMENT: 'Unresolved document',
     }
@@ -56,33 +79,20 @@ export class Identity{
         return this.doc.id !== '';
     }
 
-    private getPublicKeyFromDifferentTypes(key: any): any {
-        if (!key) throw new Error(ERRORS.UNSUPPORTED_KEY_TYPE);
-        if (key.publicKeyBase64) return key.publicKeyBase64;
-        else if (key.publicKeyBase58) return key.publicKeyBase58;
-        else if (key.publicKeyHex) return key.publicKeyHex;
-        else if (key.publicKeyPem) return key.publicKeyPem;
-        else if (key.publicKeyJwk) return key.publicKeyJwk;
-        else if (key.publicKeyPgp) return key.publicKeyPgp;
-        else if (key.ethereumAddress) return toChecksumAddress(key.ethereumAddress);
-        else if (key.address) return key.address;
-        else throw new Error(ERRORS.UNSUPPORTED_KEY_TYPE);
-    }
-
     getPublicKey(kid: string): any{
         if(!this.isResolved()) throw new Error(ERRORS.UNRESOLVED_DOCUMENT);
         for (let method of this.doc.authentication) {
-            if (method.id === kid) return this.getPublicKeyFromDifferentTypes(method);
+            if (method.id === kid) return getPublicKeyFromDifferentTypes(method);
 
             if (method.publicKey && method.publicKey.includes(kid)) {
                 for (let pub of this.doc.publicKey) {
-                    if (pub.id === kid) return this.getPublicKeyFromDifferentTypes(pub);
+                    if (pub.id === kid) return getPublicKeyFromDifferentTypes(pub);
                 }
             }
 
             if (method === kid) {
                 for (let pub of this.doc.publicKey) {
-                    if (pub.id === kid) return this.getPublicKeyFromDifferentTypes(pub);
+                    if (pub.id === kid) return getPublicKeyFromDifferentTypes(pub);
                 }
                 //Implement other verification methods here
             }
@@ -93,4 +103,89 @@ export class Identity{
     getDocument(): DidDocument{
         return this.doc;
     }
+}
+
+function getAlgorithmByKeyType(type: string): ALGORITHMS {
+    switch (type) {
+        case 'RsaVerificationKey2018': return ALGORITHMS.RS256;
+        case 'OpenPgpVerificationKey2019': return ALGORITHMS.RS256;
+        case 'EcdsaSecp256k1VerificationKey2019': return ALGORITHMS.ES256K;
+        case 'Ed25519VerificationKey2018': return ALGORITHMS.EdDSA;
+        case 'ED25519SignatureVerification': return ALGORITHMS.EdDSA;
+        case 'Curve25519EncryptionPublicKey': return ALGORITHMS.EdDSA;
+        case 'Secp256k1SignatureVerificationKey2018': return ALGORITHMS.EdDSA;
+        case 'Secp256k1VerificationKey2018': return ALGORITHMS["ES256K-R"];
+        default: throw new Error(ERRORS.UNSUPPORTED_KEY_TYPE)
+    }
+}
+
+function getPublicKeyFromDifferentTypes(key: DidPublicKeyMethod): DidPublicKey {
+    if (!key) throw new Error(ERRORS.UNSUPPORTED_KEY_TYPE);
+    if (key.publicKeyBase64) {
+        return {
+            id: key.id,
+            alg: getAlgorithmByKeyType(key.type),
+            format: KEY_FORMATS.BASE64,
+            keyString: key.publicKeyBase64,
+        }
+    }
+    else if (key.publicKeyBase58) {
+        return {
+            id: key.id,
+            alg: getAlgorithmByKeyType(key.type),
+            format: KEY_FORMATS.BASE58,
+            keyString: key.publicKeyBase58,
+        }
+    }
+    else if (key.publicKeyHex) {
+        return {
+            id: key.id,
+            alg: getAlgorithmByKeyType(key.type),
+            format: KEY_FORMATS.HEX,
+            keyString: key.publicKeyHex,
+        }
+    }
+    else if (key.publicKeyPem) {
+        let format = key.publicKeyPem.indexOf('-----BEGIN RSA PUBLIC KEY-----') > -1 ? KEY_FORMATS.PKCS1_PEM : KEY_FORMATS.PKCS8_PEM;
+        return {
+            id: key.id,
+            alg: getAlgorithmByKeyType(key.type),
+            format: format,
+            keyString: key.publicKeyPem,
+        }
+    }
+    else if (key.publicKeyJwk) {
+        return {
+            id: key.id,
+            alg: getAlgorithmByKeyType(key.type),
+            format: KEY_FORMATS.JWK,
+            keyString: JSON.stringify(key.publicKeyJwk),
+        }
+    }
+    else if (key.publicKeyPgp) {
+        let format = key.publicKeyPgp.indexOf('-----BEGIN RSA PUBLIC KEY-----') > -1 ? KEY_FORMATS.PKCS1_PEM : KEY_FORMATS.PKCS8_PEM;
+        return {
+            id: key.id,
+            alg: getAlgorithmByKeyType(key.type),
+            format: format,
+            keyString: key.publicKeyPgp,
+        }
+    }
+    else if (key.ethereumAddress) {
+        return {
+            id: key.id,
+            alg: getAlgorithmByKeyType(key.type),
+            format: KEY_FORMATS.ETHEREUM_ADDRESS,
+            keyString: toChecksumAddress(key.ethereumAddress),
+        }
+    }
+    else if (key.address) {
+        return {
+            id: key.id,
+            alg: getAlgorithmByKeyType(key.type),
+            format: KEY_FORMATS.ADDRESS,
+            keyString: key.address,
+        }
+    }
+    else throw new Error(ERRORS.UNSUPPORTED_KEY_FORMAT);
 }
