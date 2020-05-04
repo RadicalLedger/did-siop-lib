@@ -12,4 +12,7 @@ export enum KEY_FORMATS {
     BASE58,
     BASE64,
     BASE64URL,
+    ADDRESS,
+    ETHEREUM_ADDRESS,
+    JWK,
 }
