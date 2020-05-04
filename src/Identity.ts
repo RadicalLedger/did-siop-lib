@@ -2,7 +2,7 @@ import { RESOLVER_URL } from './config';
 const axios = require('axios').default;
 const { toChecksumAddress } = require('ethereum-checksum-address');
 
-interface DidDocument{
+export interface DidDocument{
     '@context': string,
     id: string,
     authentication: any[],
@@ -88,5 +88,9 @@ export class Identity{
             }
         }
         throw new Error(ERRORS.NO_MATCHING_PUBLIC_KEY);
+    }
+
+    getDocument(): DidDocument{
+        return this.doc;
     }
 }
