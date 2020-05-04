@@ -39,6 +39,7 @@ export const ERRORS = Object.freeze(
         UNSUPPORTED_KEY_FORMAT: 'Unsupported key format',
         NO_MATCHING_PUBLIC_KEY: 'No public key matching kid',
         UNRESOLVED_DOCUMENT: 'Unresolved document',
+        INVALID_DOCUMENT: 'Invalid did document',
     }
 );
 
@@ -102,6 +103,20 @@ export class Identity{
 
     getDocument(): DidDocument{
         return this.doc;
+    }
+
+    setDocument(doc: DidDocument, did: string){
+        if (
+            doc['@context'] === 'https://w3id.org/did/v1' &&
+            doc.id == did &&
+            doc.authentication &&
+            doc.authentication.length > 0
+        ) {
+            this.doc = doc;
+        }
+        else {
+            throw new Error(ERRORS.INVALID_DOCUMENT);
+        }
     }
 }
 
