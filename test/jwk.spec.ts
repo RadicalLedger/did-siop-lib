@@ -1,5 +1,6 @@
 import { KeySet } from './../src/JWKUtils';
-import { KeyObjects, RSAKey, ECKey, OKP, FORMATS, ERRORS } from '../src/JWKUtils'
+import { KeyObjects, RSAKey, ECKey, OKP, ERRORS } from '../src/JWKUtils'
+import { KEY_FORMATS } from './../src/globals';
 import nock from 'nock';
 
 describe('JWK functions', function () {
@@ -69,22 +70,22 @@ pwIDAQAB
             key: publicPem,
             kid: kid,
             use: 'enc',
-            format: FORMATS.PKCS8_PEM,
+            format: KEY_FORMATS.PKCS8_PEM,
             isPrivate: false,
         });
         expect(key.toJWK()).toMatchObject(publicJWK);
-        let pem = key.exportKey(FORMATS.PKCS8_PEM);
+        let pem = key.exportKey(KEY_FORMATS.PKCS8_PEM);
         expect(pem.split('\n').join('')).toEqual(publicPem.split('\n').join(''));
 
         key = RSAKey.fromKey({
             key: privatePem,
             kid: kid,
             use: 'enc',
-            format: FORMATS.PKCS1_PEM,
+            format: KEY_FORMATS.PKCS1_PEM,
             isPrivate: true,
         });
         expect(key.toJWK()).toMatchObject(privateJWK);
-        pem = key.exportKey(FORMATS.PKCS1_PEM);
+        pem = key.exportKey(KEY_FORMATS.PKCS1_PEM);
         expect(pem.split('\n').join('')).toEqual(privatePem.split('\n').join(''));
     });
     test('ECKey functions', async () => {
@@ -110,23 +111,23 @@ pwIDAQAB
         }
 
         let key = ECKey.fromKey(privateJWK);
-        let privateHex = key.exportKey(FORMATS.HEX);
+        let privateHex = key.exportKey(KEY_FORMATS.HEX);
         let retrievedJWK = ECKey.fromKey({
             key: privateHex,
             kid: kid,
             use: 'enc',
-            format: FORMATS.HEX,
+            format: KEY_FORMATS.HEX,
             isPrivate: true,
         }).toJWK();
         expect(retrievedJWK).toMatchObject(privateJWK);
 
         key = ECKey.fromKey(publicJWK);
-        let publicHex = key.exportKey(FORMATS.HEX);
+        let publicHex = key.exportKey(KEY_FORMATS.HEX);
         retrievedJWK = ECKey.fromKey({
             key: publicHex,
             kid: kid,
             use: 'enc',
-            format: FORMATS.HEX,
+            format: KEY_FORMATS.HEX,
             isPrivate: false,
         }).toJWK();
         expect(retrievedJWK).toMatchObject(publicJWK);
@@ -152,23 +153,23 @@ pwIDAQAB
         }
 
         let key = OKP.fromKey(privateJWK);
-        let privateBase58 = key.exportKey(FORMATS.BASE58);
+        let privateBase58 = key.exportKey(KEY_FORMATS.BASE58);
         let retrievedJWK = OKP.fromKey({
             key: privateBase58,
             kid: kid,
             use: 'enc',
-            format: FORMATS.BASE58,
+            format: KEY_FORMATS.BASE58,
             isPrivate: true,
         }).toJWK();
         expect(retrievedJWK).toMatchObject(privateJWK);
 
         key = OKP.fromKey(publicJWK);
-        let publicBase58 = key.exportKey(FORMATS.BASE58);
+        let publicBase58 = key.exportKey(KEY_FORMATS.BASE58);
         retrievedJWK = OKP.fromKey({
             key: publicBase58,
             kid: kid,
             use: 'enc',
-            format: FORMATS.BASE58,
+            format: KEY_FORMATS.BASE58,
             isPrivate: false,
         }).toJWK();
         expect(retrievedJWK).toMatchObject(publicJWK);
