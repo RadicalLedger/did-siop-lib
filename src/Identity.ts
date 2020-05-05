@@ -1,4 +1,4 @@
-import { ALGORITHMS, KEY_FORMATS } from './globals';
+import { KEY_FORMATS, KTYS } from './globals';
 import { RESOLVER_URL } from './config';
 const axios = require('axios').default;
 const { toChecksumAddress } = require('ethereum-checksum-address');
@@ -26,7 +26,7 @@ interface DidPublicKeyMethod{
 
 export interface DidPublicKey{
     id: string,
-    alg: ALGORITHMS,
+    kty: KTYS,
     format: KEY_FORMATS,
     keyString: string,
 }
@@ -120,16 +120,16 @@ export class Identity{
     }
 }
 
-function getAlgorithmByKeyType(type: string): ALGORITHMS {
+function getKtyFromKeyType(type: string): KTYS {
     switch (type) {
-        case 'RsaVerificationKey2018': return ALGORITHMS.RS256;
-        case 'OpenPgpVerificationKey2019': return ALGORITHMS.RS256;
-        case 'EcdsaSecp256k1VerificationKey2019': return ALGORITHMS.ES256K;
-        case 'Ed25519VerificationKey2018': return ALGORITHMS.EdDSA;
-        case 'ED25519SignatureVerification': return ALGORITHMS.EdDSA;
-        case 'Curve25519EncryptionPublicKey': return ALGORITHMS.EdDSA;
-        case 'Secp256k1SignatureVerificationKey2018': return ALGORITHMS.EdDSA;
-        case 'Secp256k1VerificationKey2018': return ALGORITHMS["ES256K-R"];
+        case 'RsaVerificationKey2018': return KTYS.RSA;
+        case 'OpenPgpVerificationKey2019': return KTYS.RSA;
+        case 'EcdsaSecp256k1VerificationKey2019': return KTYS.EC;
+        case 'Ed25519VerificationKey2018': return KTYS.OKP;
+        case 'ED25519SignatureVerification': return KTYS.OKP;
+        case 'Curve25519EncryptionPublicKey': return KTYS.OKP;
+        case 'Secp256k1SignatureVerificationKey2018': return KTYS.OKP;
+        case 'Secp256k1VerificationKey2018': return KTYS.EC;
         default: throw new Error(ERRORS.UNSUPPORTED_KEY_TYPE)
     }
 }
@@ -139,7 +139,7 @@ function getPublicKeyFromDifferentTypes(key: DidPublicKeyMethod): DidPublicKey {
     if (key.publicKeyBase64) {
         return {
             id: key.id,
-            alg: getAlgorithmByKeyType(key.type),
+            kty: getKtyFromKeyType(key.type),
             format: KEY_FORMATS.BASE64,
             keyString: key.publicKeyBase64,
         }
@@ -147,7 +147,7 @@ function getPublicKeyFromDifferentTypes(key: DidPublicKeyMethod): DidPublicKey {
     else if (key.publicKeyBase58) {
         return {
             id: key.id,
-            alg: getAlgorithmByKeyType(key.type),
+            kty: getKtyFromKeyType(key.type),
             format: KEY_FORMATS.BASE58,
             keyString: key.publicKeyBase58,
         }
@@ -155,7 +155,7 @@ function getPublicKeyFromDifferentTypes(key: DidPublicKeyMethod): DidPublicKey {
     else if (key.publicKeyHex) {
         return {
             id: key.id,
-            alg: getAlgorithmByKeyType(key.type),
+            kty: getKtyFromKeyType(key.type),
             format: KEY_FORMATS.HEX,
             keyString: key.publicKeyHex,
         }
@@ -164,7 +164,7 @@ function getPublicKeyFromDifferentTypes(key: DidPublicKeyMethod): DidPublicKey {
         let format = key.publicKeyPem.indexOf('-----BEGIN RSA PUBLIC KEY-----') > -1 ? KEY_FORMATS.PKCS1_PEM : KEY_FORMATS.PKCS8_PEM;
         return {
             id: key.id,
-            alg: getAlgorithmByKeyType(key.type),
+            kty: getKtyFromKeyType(key.type),
             format: format,
             keyString: key.publicKeyPem,
         }
@@ -172,7 +172,7 @@ function getPublicKeyFromDifferentTypes(key: DidPublicKeyMethod): DidPublicKey {
     else if (key.publicKeyJwk) {
         return {
             id: key.id,
-            alg: getAlgorithmByKeyType(key.type),
+            kty: getKtyFromKeyType(key.type),
             format: KEY_FORMATS.JWK,
             keyString: JSON.stringify(key.publicKeyJwk),
         }
@@ -181,7 +181,7 @@ function getPublicKeyFromDifferentTypes(key: DidPublicKeyMethod): DidPublicKey {
         let format = key.publicKeyPgp.indexOf('-----BEGIN RSA PUBLIC KEY-----') > -1 ? KEY_FORMATS.PKCS1_PEM : KEY_FORMATS.PKCS8_PEM;
         return {
             id: key.id,
-            alg: getAlgorithmByKeyType(key.type),
+            kty: getKtyFromKeyType(key.type),
             format: format,
             keyString: key.publicKeyPgp,
         }
@@ -189,7 +189,7 @@ function getPublicKeyFromDifferentTypes(key: DidPublicKeyMethod): DidPublicKey {
     else if (key.ethereumAddress) {
         return {
             id: key.id,
-            alg: getAlgorithmByKeyType(key.type),
+            kty: getKtyFromKeyType(key.type),
             format: KEY_FORMATS.ETHEREUM_ADDRESS,
             keyString: toChecksumAddress(key.ethereumAddress),
         }
@@ -197,7 +197,7 @@ function getPublicKeyFromDifferentTypes(key: DidPublicKeyMethod): DidPublicKey {
     else if (key.address) {
         return {
             id: key.id,
-            alg: getAlgorithmByKeyType(key.type),
+            kty: getKtyFromKeyType(key.type),
             format: KEY_FORMATS.ADDRESS,
             keyString: key.address,
         }

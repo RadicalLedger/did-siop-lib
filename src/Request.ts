@@ -3,9 +3,8 @@ import * as queryString from 'query-string';
 import { ERROR_RESPONSES } from './ErrorResponse';
 import base64url from 'base64url';
 import { Key, KeySet, KeyInputs, RSAKey, ECKey, OKP } from './JWKUtils';
-import { ALGORITHMS } from './globals';
+import { ALGORITHMS, KTYS, KEY_FORMATS } from './globals';
 import * as JWT from './JWT';
-import { JWTObject, sign } from './JWT';
 const axios = require('axios').default;
 
 const RESPONSE_TYPES = ['id_token',];
@@ -62,12 +61,12 @@ export class DidSiopRequest{
 
             if (rp.did_doc) jwtPayload.did_doc = rp.did_doc;
 
-            let jwtObject: JWTObject = {
+            let jwtObject: JWT.JWTObject = {
                 header: jwtHeader,
                 payload: jwtPayload
             }
 
-            let jwt = sign(jwtObject, signing.signing_key);
+            let jwt = JWT.sign(jwtObject, signing.signing_key);
 
             query.request = jwt;
         }
@@ -150,15 +149,23 @@ async function validateRequestJWT(requestJWT: string) {
                 key: didPubKey.keyString,
                 kid: didPubKey.id,
                 use: 'sig',
+                kty: KTYS[didPubKey.kty],
                 format: didPubKey.format,
                 isPrivate: false,
             }
 
-            switch(didPubKey.alg){
-                case ALGORITHMS.RS256: publicKey = RSAKey.fromKey(keyInfo); break;
-                case ALGORITHMS.ES256K: publicKey = ECKey.fromKey(keyInfo); break;
-                case ALGORITHMS.EdDSA: publicKey = OKP.fromKey(keyInfo); break;
-                case ALGORITHMS["ES256K-R"]: publicKey = keyInfo.key; break;
+            switch(didPubKey.kty){
+                case KTYS.RSA: publicKey = RSAKey.fromKey(keyInfo); break;
+                case KTYS.EC: {
+                    if(didPubKey.format === KEY_FORMATS.ETHEREUM_ADDRESS){
+                        publicKey = keyInfo.key; 
+                    }
+                    else{
+                        publicKey = ECKey.fromKey(keyInfo); 
+                    }
+                    break;
+                }
+                case KTYS.OKP: publicKey = OKP.fromKey(keyInfo); break;
             }
         } catch (err) {
             try {
