@@ -3,7 +3,7 @@ import * as base58 from 'bs58';
 import base64url from 'base64url';
 import { createHash, createSign, createVerify } from 'crypto';
 import { leftpad } from './Utils';
-import { ALGORITHMS, KEY_FORMATS, KTYS } from './globals';
+import { KEY_FORMATS, KTYS } from './globals';
 const NodeRSA = require('node-rsa');
 const axios = require('axios').default;
 
@@ -77,6 +77,8 @@ export namespace KeyInputs{
         key: string;
         kid: string;
         use: string;
+        kty: string,
+        alg?: string,
         format: KEY_FORMATS;
         isPrivate: boolean;
     }
@@ -92,21 +94,17 @@ export namespace KeyInputs{
 
 export abstract class Key{
     protected kty: string;
-    protected alg: ALGORITHMS;
     protected kid: string;
-    protected use: string; 
+    protected use: string;
+    protected alg: string;
     protected private: boolean;
 
-    protected constructor(kid: string, kty: KTYS, alg: ALGORITHMS, use: string){
+    protected constructor(kid: string, kty: KTYS, use: string, alg?: string){
         this.kid = kid;
         this.kty = KTYS[kty];
-        this.alg = alg;
         this.use = use;
+        this.alg = alg? alg : '';
         this.private = false;
-    }
-
-    getAlgorithm(): string{
-        return ALGORITHMS[this.alg];
     }
 
     isPrivate(): boolean{
@@ -133,17 +131,14 @@ export class RSAKey extends Key{
     private dq?: string;
     private n: string;
 
-    private constructor(kid: string, kty: KTYS, alg: ALGORITHMS, n: string, e: string, use: string){
-        super(kid, kty, alg, use);
+    private constructor(kid: string, kty: KTYS, n: string, e: string, use: string, alg?: string){
+        super(kid, kty, use, alg);
         this.n = n;
         this.e = e;
     }
 
     static fromPublicKey(keyInput: KeyInputs.RSAPublicKeyInput): RSAKey{
-        if('kty' in keyInput){
-            return new RSAKey(keyInput.kid, KTYS.RSA, ALGORITHMS.RS256, keyInput.n, keyInput.e, keyInput.use);
-        }
-        else{
+        if('key' in keyInput){
             let rsaKey = new NodeRSA();
             let format = keyInput.key.indexOf('-----BEGIN RSA PUBLIC KEY-----') > -1 ? 'pkcs1-public-pem' : 'pkcs8-public-pem';
             rsaKey.importKey(keyInput.key, format);
@@ -151,23 +146,15 @@ export class RSAKey extends Key{
             let e = rsaKey.keyPair.e.toString(16);
             e = (e % 2 === 0) ? e : '0' + e;
             e = Buffer.from(e, 'hex').toString('base64');
-            return new RSAKey(keyInput.kid, KTYS.RSA, ALGORITHMS.RS256, n, e, keyInput.use);
+            return new RSAKey(keyInput.kid, KTYS.RSA, n, e, keyInput.use, keyInput.alg);
+        }
+        else{
+            return new RSAKey(keyInput.kid, KTYS.RSA, keyInput.n, keyInput.e, keyInput.use, keyInput.alg);
         }
     }
 
     static fromPrivateKey(keyInput: KeyInputs.RSAPrivateKeyInput): RSAKey {
-        if ('kty' in keyInput) {
-            let rs256Key =  new RSAKey(keyInput.kid, KTYS.RSA, ALGORITHMS.RS256, keyInput.n, keyInput.e, keyInput.use);
-            rs256Key.private = true;
-            rs256Key.p = keyInput.p;
-            rs256Key.q = keyInput.q;
-            rs256Key.d = keyInput.d;
-            rs256Key.qi = keyInput.qi;
-            rs256Key.dp = keyInput.dp;
-            rs256Key.dq = keyInput.dq;
-            return rs256Key;
-        }
-        else {
+        if ('key' in keyInput) {
             let rsaKey = new NodeRSA();
             let format = keyInput.key.indexOf('-----BEGIN RSA PRIVATE KEY-----') > -1 ? 'pkcs1-private-pem' : 'pkcs8-private-pem';
             rsaKey.importKey(keyInput.key, format);
@@ -176,7 +163,7 @@ export class RSAKey extends Key{
             e = (e % 2 === 0) ? e : '0' + e;
             e = Buffer.from(e, 'hex').toString('base64');
 
-            let rs256Key = new RSAKey(keyInput.kid, KTYS.RSA, ALGORITHMS.RS256, n, e, keyInput.use);
+            let rs256Key = new RSAKey(keyInput.kid, KTYS.RSA, n, e, keyInput.use, keyInput.alg);
             rs256Key.private = true;
             rs256Key.p = base64url.encode(rsaKey.keyPair.p.toBuffer().slice(1));
             rs256Key.q = base64url.encode(rsaKey.keyPair.q.toBuffer().slice(1));
@@ -184,6 +171,17 @@ export class RSAKey extends Key{
             rs256Key.qi = base64url.encode(rsaKey.keyPair.coeff.toBuffer());
             rs256Key.dp = base64url.encode(rsaKey.keyPair.dmp1.toBuffer());
             rs256Key.dq = base64url.encode(rsaKey.keyPair.dmq1.toBuffer());
+            return rs256Key;
+        }
+        else {
+            let rs256Key =  new RSAKey(keyInput.kid, KTYS.RSA, keyInput.n, keyInput.e, keyInput.use, keyInput.alg);
+            rs256Key.private = true;
+            rs256Key.p = keyInput.p;
+            rs256Key.q = keyInput.q;
+            rs256Key.d = keyInput.d;
+            rs256Key.qi = keyInput.qi;
+            rs256Key.dp = keyInput.dp;
+            rs256Key.dq = keyInput.dq;
             return rs256Key;
         }
     }
@@ -194,7 +192,10 @@ export class RSAKey extends Key{
     }
 
     static isPrivateKeyInput(keyInput: KeyInputs.RSAPublicKeyInput | KeyInputs.RSAPrivateKeyInput): boolean {
-        if ('kty' in keyInput) {
+        if ('key' in keyInput) {
+            return keyInput.isPrivate;
+        }
+        else {
             let privateKeyObject = keyInput as KeyObjects.RSAPrivateKeyObject;
             if (
                 privateKeyObject.d &&
@@ -219,9 +220,6 @@ export class RSAKey extends Key{
 
             throw new Error(ERRORS.INVALID_KEY);
         }
-        else {
-            return keyInput.isPrivate;
-        }
     }
 
     toJWK(privateKey?: boolean): KeyObjects.RSAPrivateKeyObject | KeyObjects.RSAPublicKeyObject{
@@ -231,7 +229,7 @@ export class RSAKey extends Key{
                     kty: this.kty,
                     use: this.use,
                     kid: this.kid,
-                    alg: ALGORITHMS[this.alg],
+                    alg: this.alg,
                     p: this.p,
                     q: this.q,
                     d: this.d,
@@ -251,7 +249,7 @@ export class RSAKey extends Key{
                 kty: this.kty,
                 use: this.use,
                 kid: this.kid,
-                alg: ALGORITHMS[this.alg],
+                alg: this.alg,
                 e: this.e,
                 n: this.n,
             }
@@ -322,18 +320,15 @@ export class ECKey extends Key{
     private y: string;
     private d?: string;
 
-    private constructor(kid: string, kty: KTYS, alg: ALGORITHMS, crv: string, x: string, y: string, use: string){
-        super(kid, kty, alg, use);
+    private constructor(kid: string, kty: KTYS, crv: string, x: string, y: string, use: string, alg?: string){
+        super(kid, kty, use, alg);
         this.crv = crv;
         this.x = x;
         this.y = y;
     }
 
     static fromPublicKey(keyInput: KeyInputs.ECPublicKeyInput): ECKey{
-        if('kty' in keyInput){
-            return new ECKey(keyInput.kid, KTYS.EC, ALGORITHMS.ES256K, keyInput.crv, keyInput.x, keyInput.y, keyInput.use);
-        }
-        else{
+        if('key' in keyInput){
             let key_buffer = Buffer.alloc(1);
             try {
                 switch (keyInput.format) {
@@ -351,18 +346,15 @@ export class ECKey extends Key{
             ellipticKey = ec.keyFromPublic(key_buffer);
             let x = base64url.encode(ellipticKey.getPublic().getX().toArrayLike(Buffer));
             let y = base64url.encode(ellipticKey.getPublic().getY().toArrayLike(Buffer));
-            return new ECKey(keyInput.kid, KTYS.EC, ALGORITHMS.ES256K, 'secp256k1', x, y, keyInput.use);
+            return new ECKey(keyInput.kid, KTYS.EC, 'secp256k1', x, y, keyInput.use, keyInput.alg);
+        }
+        else{
+            return new ECKey(keyInput.kid, KTYS.EC, keyInput.crv, keyInput.x, keyInput.y, keyInput.use, keyInput.alg);
         }
     }
 
     static fromPrivateKey(keyInput: KeyInputs.ECPrivateKeyInput): ECKey{
-        if ('kty' in keyInput) {
-            let ecKey = new ECKey(keyInput.kid, KTYS.EC, ALGORITHMS.ES256K, keyInput.crv, keyInput.x, keyInput.y, keyInput.use);
-            ecKey.private = true;
-            ecKey.d = keyInput.d;
-            return ecKey;
-        }
-        else {
+        if ('key' in keyInput) {
             let key_buffer = Buffer.alloc(1);
             try {
                 switch (keyInput.format) {
@@ -380,9 +372,15 @@ export class ECKey extends Key{
             ellipticKey = ec.keyFromPrivate(key_buffer);
             let x = base64url.encode(ellipticKey.getPublic().getX().toArrayLike(Buffer));
             let y = base64url.encode(ellipticKey.getPublic().getY().toArrayLike(Buffer));
-            let ecKey = new ECKey(keyInput.kid, KTYS.EC, ALGORITHMS.ES256K, 'secp256k1', x, y, keyInput.use);
+            let ecKey = new ECKey(keyInput.kid, KTYS.EC, 'secp256k1', x, y, keyInput.use, keyInput.alg);
             ecKey.d = base64url.encode(ellipticKey.getPrivate().toArrayLike(Buffer));
             ecKey.private = true;
+            return ecKey;
+        }
+        else {
+            let ecKey = new ECKey(keyInput.kid, KTYS.EC, keyInput.crv, keyInput.x, keyInput.y, keyInput.use, keyInput.alg);
+            ecKey.private = true;
+            ecKey.d = keyInput.d;
             return ecKey;
         }
     }
@@ -393,7 +391,10 @@ export class ECKey extends Key{
     }
 
     static isPrivateKeyInput(keyInput: KeyInputs.ECPublicKeyInput | KeyInputs.ECPrivateKeyInput): boolean {
-        if ('kty' in keyInput) {
+        if ('key' in keyInput) {
+            return keyInput.isPrivate;
+        }
+        else {
             let privateKeyObject = keyInput as KeyObjects.ECPrivateKeyObject;
             if (
                 privateKeyObject.d &&
@@ -413,9 +414,6 @@ export class ECKey extends Key{
 
             throw new Error(ERRORS.INVALID_KEY);
         }
-        else {
-            return keyInput.isPrivate;
-        }
     }
 
     toJWK(privateKey?: boolean): KeyObjects.ECPrivateKeyObject | KeyObjects.ECPublicKeyObject{
@@ -425,7 +423,7 @@ export class ECKey extends Key{
                     kty: this.kty,
                     use: this.use,
                     kid: this.kid,
-                    alg: ALGORITHMS[this.alg],
+                    alg: this.alg,
                     crv: this.crv,
                     x: this.x,
                     y: this.y,
@@ -441,7 +439,7 @@ export class ECKey extends Key{
                 kty: this.kty,
                 use: this.use,
                 kid: this.kid,
-                alg: ALGORITHMS[this.alg],
+                alg: this.alg,
                 crv: this.crv,
                 x: this.x,
                 y: this.y,
@@ -523,17 +521,14 @@ export class OKP extends Key{
     private x: string;
     private d?: string;
 
-    private constructor(kid: string, kty: KTYS, alg: ALGORITHMS, crv: string, x: string, use: string) {
-        super(kid, kty, alg, use);
+    private constructor(kid: string, kty: KTYS, crv: string, x: string, use: string, alg?: string) {
+        super(kid, kty, use, alg);
         this.crv = crv;
         this.x = x;
     }
 
     static fromPublicKey(keyInput: KeyInputs.OKPPublicKeyInput): OKP {
-        if ('kty' in keyInput) {
-            return new OKP(keyInput.kid, KTYS.OKP, ALGORITHMS.EdDSA, keyInput.crv, keyInput.x, keyInput.use);
-        }
-        else {
+        if ('key' in keyInput) {
             let key_buffer = Buffer.alloc(1);
             try {
                 switch (keyInput.format) {
@@ -550,18 +545,15 @@ export class OKP extends Key{
             let ellipticKey;
             ellipticKey = ed.keyFromPublic(key_buffer);
             let x = base64url.encode(ellipticKey.getPublic());
-            return new OKP(keyInput.kid, KTYS.OKP, ALGORITHMS.EdDSA, 'Ed25519', x, keyInput.use);
+            return new OKP(keyInput.kid, KTYS.OKP, 'Ed25519', x, keyInput.use, keyInput.alg);
+        }
+        else {
+            return new OKP(keyInput.kid, KTYS.OKP, keyInput.crv, keyInput.x, keyInput.use, keyInput.alg);
         }
     }
 
     static fromPrivateKey(keyInput: KeyInputs.OKPPrivateKeyInput): OKP {
-        if ('kty' in keyInput) {
-            let ecKey = new OKP(keyInput.kid, KTYS.OKP, ALGORITHMS.EdDSA, keyInput.crv, keyInput.x, keyInput.use);
-            ecKey.private = true;
-            ecKey.d = keyInput.d;
-            return ecKey;
-        }
-        else {
+        if ('key' in keyInput) {
             let key_buffer = Buffer.alloc(1);
             try {
                 switch (keyInput.format) {
@@ -578,9 +570,15 @@ export class OKP extends Key{
             let ellipticKey;
             ellipticKey = ed.keyFromSecret(key_buffer);
             let x = base64url.encode(ellipticKey.getPublic());
-            let ecKey = new OKP(keyInput.kid, KTYS.OKP, ALGORITHMS.EdDSA, 'Ed25519', x, keyInput.use);
+            let ecKey = new OKP(keyInput.kid, KTYS.OKP, 'Ed25519', x, keyInput.use, keyInput.alg);
             ecKey.d = base64url.encode(ellipticKey.getSecret());
             ecKey.private = true;
+            return ecKey;
+        }
+        else {
+            let ecKey = new OKP(keyInput.kid, KTYS.OKP, keyInput.crv, keyInput.x, keyInput.use, keyInput.alg);
+            ecKey.private = true;
+            ecKey.d = keyInput.d;
             return ecKey;
         }
     }
@@ -591,7 +589,10 @@ export class OKP extends Key{
     }
 
     static isPrivateKeyInput(keyInput: KeyInputs.OKPPublicKeyInput | KeyInputs.OKPPrivateKeyInput): boolean {
-        if ('kty' in keyInput) {
+        if ('key' in keyInput) {
+            return keyInput.isPrivate;
+        }
+        else {
             let privateKeyObject = keyInput as KeyObjects.OKPPrivateKeyObject;
             if (
                 privateKeyObject.d &&
@@ -609,9 +610,6 @@ export class OKP extends Key{
 
             throw new Error(ERRORS.INVALID_KEY);
         }
-        else {
-            return keyInput.isPrivate;
-        }
     }
 
     toJWK(privateKey?: boolean): KeyObjects.OKPPrivateKeyObject | KeyObjects.OKPPublicKeyObject {
@@ -621,7 +619,7 @@ export class OKP extends Key{
                     kty: this.kty,
                     use: this.use,
                     kid: this.kid,
-                    alg: ALGORITHMS[this.alg],
+                    alg: this.alg,
                     crv: this.crv,
                     x: this.x,
                     d: this.d,
@@ -636,7 +634,7 @@ export class OKP extends Key{
                 kty: this.kty,
                 use: this.use,
                 kid: this.kid,
-                alg: ALGORITHMS[this.alg],
+                alg: this.alg,
                 crv: this.crv,
                 x: this.x,
             }
@@ -698,17 +696,16 @@ export class KeySet{
     setKeys(keySet: KeyObjects.BasicKeyObject[]){
         let newKeySet: Key[] = [];
         keySet.forEach(key =>{
-            switch(key.alg){
-                case ALGORITHMS[ALGORITHMS.RS256]: {
+            switch(key.kty){
+                case KTYS[KTYS.RSA]: {
                     newKeySet.push(RSAKey.fromKey(key as KeyObjects.RSAPrivateKeyObject | KeyObjects.RSAPublicKeyObject));
                     break;
                 }
-                case ALGORITHMS[ALGORITHMS["ES256K-R"]]:
-                case ALGORITHMS[ALGORITHMS.ES256K]: {
+                case KTYS[KTYS.EC]: {
                     newKeySet.push(ECKey.fromKey(key as KeyObjects.ECPrivateKeyObject | KeyObjects.ECPublicKeyObject));
                     break;
                 }
-                case ALGORITHMS[ALGORITHMS.EdDSA]: {
+                case KTYS[KTYS.OKP]: {
                     newKeySet.push(OKP.fromKey(key as KeyObjects.OKPPrivateKeyObject | KeyObjects.OKPPublicKeyObject));
                     break;
                 }
@@ -737,17 +734,16 @@ export class KeySet{
 
     addKey(key: KeyObjects.BasicKeyObject){
         if(this.ketSet.filter(k => {return k.checkKid(key.kid)}).length === 0){
-            switch (key.alg) {
-                case ALGORITHMS[ALGORITHMS.RS256]: {
+            switch (key.kty) {
+                case KTYS[KTYS.RSA]: {
                     this.ketSet.push(RSAKey.fromKey(key as KeyObjects.RSAPrivateKeyObject | KeyObjects.RSAPublicKeyObject));
                     break;
                 }
-                case ALGORITHMS[ALGORITHMS["ES256K-R"]]:
-                case ALGORITHMS[ALGORITHMS.ES256K]: {
+                case KTYS[KTYS.EC]: {
                     this.ketSet.push(ECKey.fromKey(key as KeyObjects.ECPrivateKeyObject | KeyObjects.ECPublicKeyObject));
                     break;
                 }
-                case ALGORITHMS[ALGORITHMS.EdDSA]: {
+                case KTYS[KTYS.OKP]: {
                     this.ketSet.push(OKP.fromKey(key as KeyObjects.OKPPrivateKeyObject | KeyObjects.OKPPublicKeyObject));
                     break;
                 }

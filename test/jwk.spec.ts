@@ -1,6 +1,6 @@
 import { KeySet } from './../src/JWKUtils';
 import { KeyObjects, RSAKey, ECKey, OKP, ERRORS } from '../src/JWKUtils'
-import { KEY_FORMATS } from './../src/globals';
+import { KEY_FORMATS, KTYS, ALGORITHMS } from './../src/globals';
 import nock from 'nock';
 
 describe('JWK functions', function () {
@@ -70,6 +70,8 @@ pwIDAQAB
             key: publicPem,
             kid: kid,
             use: 'enc',
+            alg: ALGORITHMS[ALGORITHMS.RS256],
+            kty: KTYS[KTYS.RSA],
             format: KEY_FORMATS.PKCS8_PEM,
             isPrivate: false,
         });
@@ -81,10 +83,12 @@ pwIDAQAB
             key: privatePem,
             kid: kid,
             use: 'enc',
+            alg: ALGORITHMS[ALGORITHMS.RS256],
+            kty: KTYS[KTYS.RSA],
             format: KEY_FORMATS.PKCS1_PEM,
             isPrivate: true,
         });
-        expect(key.toJWK()).toMatchObject(privateJWK);
+        expect(key.toJWK(true)).toMatchObject(privateJWK);
         pem = key.exportKey(KEY_FORMATS.PKCS1_PEM);
         expect(pem.split('\n').join('')).toEqual(privatePem.split('\n').join(''));
     });
@@ -116,9 +120,11 @@ pwIDAQAB
             key: privateHex,
             kid: kid,
             use: 'enc',
+            alg: ALGORITHMS[ALGORITHMS.ES256K],
+            kty: KTYS[KTYS.EC],
             format: KEY_FORMATS.HEX,
             isPrivate: true,
-        }).toJWK();
+        }).toJWK(true);
         expect(retrievedJWK).toMatchObject(privateJWK);
 
         key = ECKey.fromKey(publicJWK);
@@ -127,6 +133,8 @@ pwIDAQAB
             key: publicHex,
             kid: kid,
             use: 'enc',
+            alg: ALGORITHMS[ALGORITHMS.ES256K],
+            kty: KTYS[KTYS.EC],
             format: KEY_FORMATS.HEX,
             isPrivate: false,
         }).toJWK();
@@ -158,9 +166,11 @@ pwIDAQAB
             key: privateBase58,
             kid: kid,
             use: 'enc',
+            alg: ALGORITHMS[ALGORITHMS.EdDSA],
+            kty: KTYS[KTYS.OKP],
             format: KEY_FORMATS.BASE58,
             isPrivate: true,
-        }).toJWK();
+        }).toJWK(true);
         expect(retrievedJWK).toMatchObject(privateJWK);
 
         key = OKP.fromKey(publicJWK);
@@ -169,6 +179,8 @@ pwIDAQAB
             key: publicBase58,
             kid: kid,
             use: 'enc',
+            alg: ALGORITHMS[ALGORITHMS.EdDSA],
+            kty: KTYS[KTYS.OKP],
             format: KEY_FORMATS.BASE58,
             isPrivate: false,
         }).toJWK();
@@ -354,7 +366,7 @@ describe('JWKS', function () {
         expect(jwks.size()).toEqual(5);
 
         let retrieved = jwks.getKey('ec1');
-        expect(retrieved[0].toJWK()).toEqual(ec1);
+        expect(retrieved[0].toJWK(true)).toEqual(ec1);
 
         nock('http://localhost').get('/keys').reply(200, set).get('/invalidUri').reply(404, 'Not found');
 
