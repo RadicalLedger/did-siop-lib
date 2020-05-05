@@ -27,12 +27,14 @@ export const EC_ALGORITHMS = [
     ALGORITHMS.ES384,
     ALGORITHMS.ES512,
     ALGORITHMS.ES256K,
-    ALGORITHMS["ES256K-R"],
-    ALGORITHMS.EdDSA,
 ];
 
 export const OKP_ALGORITHMS = [
     ALGORITHMS.EdDSA,
+];
+
+export const SPECIAL_ALGORITHMS = [
+    ALGORITHMS["ES256K-R"],
 ];
 
 export enum KTYS{
