@@ -35,6 +35,13 @@ export const OKP_ALGORITHMS = [
     ALGORITHMS.EdDSA,
 ];
 
+export enum KTYS{
+    'RSA',
+    'EC',
+    'OKP',
+    'oct',
+}
+
 export enum KEY_FORMATS {
     PKCS8_PEM,
     PKCS1_PEM,
