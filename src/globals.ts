@@ -1,9 +1,39 @@
 export enum ALGORITHMS {
     'RS256',
+    'RS384',
+    'RS512', 
+    'PS256',
+    'PS384',
+    'PS512',
+    'ES256',
+    'ES384',
+    'ES512',
     'ES256K',
     'ES256K-R',
     'EdDSA',
 }
+
+export const RSA_ALGORITHMS = [
+    ALGORITHMS.RS256,
+    ALGORITHMS.RS384,
+    ALGORITHMS.RS512,
+    ALGORITHMS.PS256,
+    ALGORITHMS.PS256,
+    ALGORITHMS.PS256,
+];
+
+export const EC_ALGORITHMS = [
+    ALGORITHMS.ES256,
+    ALGORITHMS.ES384,
+    ALGORITHMS.ES512,
+    ALGORITHMS.ES256K,
+    ALGORITHMS["ES256K-R"],
+    ALGORITHMS.EdDSA,
+];
+
+export const OKP_ALGORITHMS = [
+    ALGORITHMS.EdDSA,
+];
 
 export enum KEY_FORMATS {
     PKCS8_PEM,
