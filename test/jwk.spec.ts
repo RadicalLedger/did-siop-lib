@@ -217,8 +217,8 @@ describe('Signing and verifying', function () {
 
         let message = 'RSA test message';
 
-        let signature = privateKey.sign(message);
-        let validity = publicKey.verify(message, Buffer.from(signature));
+        let signature = privateKey.sign(message, ALGORITHMS.RS256);
+        let validity = publicKey.verify(message, Buffer.from(signature), ALGORITHMS.RS256);
         expect(validity).toBeTruthy();
     });
     test('EC sign/verify', async () => {
@@ -247,9 +247,24 @@ describe('Signing and verifying', function () {
 
         let message = 'EC test message';
 
-        let signature = privateKey.sign(message);
-        let validity = publicKey.verify(message, signature);
+        let signature = privateKey.sign(message, ALGORITHMS.ES256K);
+        let validity = publicKey.verify(message, signature, ALGORITHMS.ES256K);
         expect(validity).toBeTruthy();
+
+        privateKey = ECKey.fromKey({
+            key: 'CE438802C1F0B6F12BC6E686F372D7D495BC5AA634134B4A7EA4603CB25F0964',
+            kid: 'key_1',
+            use: 'sig',
+            kty: 'EC',
+            alg: 'ES256K-R',
+            format: KEY_FORMATS.HEX,
+            isPrivate: true,
+        });
+        let publicKeyAddress = '0xB07Ead9717b44B6cF439c474362b9B0877CBBF83';
+        signature = privateKey.sign(message, ALGORITHMS["ES256K-R"]);
+        validity = publicKey.verify(message, signature, ALGORITHMS["ES256K-R"], publicKeyAddress);
+        expect(validity).toBeTruthy();
+
     });
     test('OKP sign/verify', async () => {
         let publicJWK: KeyObjects.OKPPublicKeyObject = {
@@ -275,8 +290,8 @@ describe('Signing and verifying', function () {
 
         let message = 'EdDSA test message';
 
-        let signature = privateKey.sign(message);
-        let validity = publicKey.verify(message, signature);
+        let signature = privateKey.sign(message, ALGORITHMS.EdDSA);
+        let validity = publicKey.verify(message, signature, ALGORITHMS.EdDSA);
         expect(validity).toBeTruthy();
     })
 })

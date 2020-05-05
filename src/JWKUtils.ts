@@ -1,11 +1,12 @@
 import { eddsa as EdDSA, ec as EC} from 'elliptic';
 import * as base58 from 'bs58';
 import base64url from 'base64url';
-import { createHash, createSign, createVerify } from 'crypto';
+import { createHash, createSign, createVerify, constants as cryptoConstants } from 'crypto';
 import { leftpad } from './Utils';
-import { KEY_FORMATS, KTYS } from './globals';
+import { KEY_FORMATS, KTYS, ALGORITHMS } from './globals';
 const NodeRSA = require('node-rsa');
 const axios = require('axios').default;
+const publicKeyToAddress = require('ethereum-public-key-to-address');
 
 export const ERRORS = Object.freeze({
     INVALID_KEY_FORMAT: 'Invalid key format error',
@@ -16,6 +17,7 @@ export const ERRORS = Object.freeze({
     NO_MATCHING_KEY: 'Matching key cannot be found in key set',
     URI_ERROR: 'Cannot resolve jwks from uri',
     KEY_EXISTS: 'Key already exists in the set',
+    INVALID_ALGORITHM: 'Invalid algorithm',
 });
 
 export namespace KeyObjects{
@@ -115,8 +117,8 @@ export abstract class Key{
         return this.kid === kid;
     }
 
-    abstract sign(msg: string): string | Buffer;
-    abstract verify(msg: string, signature: Buffer): boolean;
+    abstract sign(msg: string, algorithm: ALGORITHMS): Buffer;
+    abstract verify(msg: string, signature: Buffer, algorithm: ALGORITHMS): boolean;
     abstract toJWK(privateKey: boolean): KeyObjects.BasicKeyObject;
     abstract exportKey(format: KEY_FORMATS): string;
 }
@@ -294,20 +296,76 @@ export class RSAKey extends Key{
         }
     }
 
-    sign(msg: string): Buffer{
+    sign(msg: string, algorithm: ALGORITHMS): Buffer{
         if(this.private){
-            let signer = createSign('RSA-SHA256');
-            return signer.update(msg).sign(this.toPEM());
+            let signer;
+            let signerParams: any = {
+                key: this.toPEM(),
+            };
+            switch(algorithm){
+                case ALGORITHMS.RS256: signer = createSign('RSA-SHA256'); break;
+                case ALGORITHMS.RS384: signer = createSign('RSA-SHA384'); break;
+                case ALGORITHMS.RS512: signer = createSign('RSA-SHA512'); break;
+                case ALGORITHMS.PS256: {
+                    signer = createSign('RSA-SHA256'); 
+                    signerParams.padding = cryptoConstants.RSA_PKCS1_PSS_PADDING;
+                    signerParams.saltLength = cryptoConstants.RSA_PSS_SALTLEN_DIGEST
+                    break;
+                }
+                case ALGORITHMS.PS384: {
+                    signer = createSign('RSA-SHA384'); 
+                    signerParams.padding = cryptoConstants.RSA_PKCS1_PSS_PADDING;
+                    signerParams.saltLength = cryptoConstants.RSA_PSS_SALTLEN_DIGEST
+                    break;
+                }
+                case ALGORITHMS.PS512:{
+                    signer = createSign('RSA-SHA512'); 
+                    signerParams.padding = cryptoConstants.RSA_PKCS1_PSS_PADDING;
+                    signerParams.saltLength = cryptoConstants.RSA_PSS_SALTLEN_DIGEST
+                    break;
+                }
+                default: throw new Error(ERRORS.INVALID_ALGORITHM)
+            }
+            
+            return signer.update(msg).sign(signerParams);
         }
         else{
             throw new Error(ERRORS.NO_PRIVATE_KEY);
         }
     }
 
-    verify(msg: string, signature: Buffer): boolean{
+    verify(msg: string, signature: Buffer, algorithm: ALGORITHMS): boolean{
         try {
-            let verifier = createVerify('RSA-SHA256');
-            return verifier.update(msg).verify(this.toPEM(), signature);
+            let verifier;
+            let verifierParams: any = {
+                key: this.toPEM(),
+            };
+            switch(algorithm){
+                case ALGORITHMS.RS256: verifier = createVerify('RSA-SHA256'); break;
+                case ALGORITHMS.RS384: verifier = createVerify('RSA-SHA384'); break;
+                case ALGORITHMS.RS512: verifier = createVerify('RSA-SHA512'); break;
+                case ALGORITHMS.PS256: {
+                    verifier = createVerify('RSA-SHA256'); 
+                    verifierParams.padding = cryptoConstants.RSA_PKCS1_PSS_PADDING;
+                    verifierParams.saltLength = cryptoConstants.RSA_PSS_SALTLEN_DIGEST
+                    break;
+                }
+                case ALGORITHMS.PS384: {
+                    verifier = createVerify('RSA-SHA384'); 
+                    verifierParams.padding = cryptoConstants.RSA_PKCS1_PSS_PADDING;
+                    verifierParams.saltLength = cryptoConstants.RSA_PSS_SALTLEN_DIGEST
+                    break;
+                }
+                case ALGORITHMS.PS512:{
+                    verifier = createVerify('RSA-SHA512'); 
+                    verifierParams.padding = cryptoConstants.RSA_PKCS1_PSS_PADDING;
+                    verifierParams.saltLength = cryptoConstants.RSA_PSS_SALTLEN_DIGEST
+                    break;
+                }
+                default: throw new Error(ERRORS.INVALID_ALGORITHM)
+            }
+
+            return verifier.update(msg).verify(verifierParams, signature);
         } catch (err) {
             throw new Error(ERRORS.INVALID_SIGNATURE);
         }
@@ -472,12 +530,58 @@ export class ECKey extends Key{
         }
     }
 
-    sign(msg: string): Buffer{
+    sign(msg: string, algorithm: ALGORITHMS): Buffer{
         if(this,this.private){
-            let ec = new EC('secp256k1');
-            let sha256 = createHash('sha256');
+            let sha;
+            let ec;
 
-            let hash = sha256.update(msg).digest('hex');
+            switch(algorithm){
+                case ALGORITHMS.ES256: {
+                    sha = createHash('sha256'); 
+                    ec = new EC('p256'); 
+                    break;
+                }
+                case ALGORITHMS.ES384: {
+                    sha = createHash('sha384'); 
+                    ec = new EC('p384'); 
+                    break;
+                }
+                case ALGORITHMS.ES512: {
+                    sha = createHash('sha512'); 
+                    ec = new EC('p512'); 
+                    break;
+                }
+                case ALGORITHMS.ES256K: {
+                    sha = createHash('sha256'); 
+                    ec = new EC('secp256k1'); 
+                    break;
+                }
+                case ALGORITHMS.EdDSA: {
+                    sha = createHash('sha256'); 
+                    ec = new EC('ed25519'); 
+                    break;
+                }
+                case ALGORITHMS["ES256K-R"]:{
+                    sha = createHash('sha256'); 
+                    ec = new EC('secp256k1'); 
+
+                    let hash = sha.update(msg).digest('hex');
+
+                    let signingKey = ec.keyFromPrivate(this.exportKey(KEY_FORMATS.HEX));
+
+                    let ec256k_signature = signingKey.sign(hash);
+
+                    let jose = Buffer.alloc(ec256k_signature.recoveryParam? 65 : 64);
+                    Buffer.from(leftpad(ec256k_signature.r.toString('hex')), 'hex').copy(jose, 0);
+                    Buffer.from(leftpad(ec256k_signature.s.toString('hex')), 'hex').copy(jose, 32);
+                    if (ec256k_signature.recoveryParam) jose[64] = ec256k_signature.recoveryParam;
+
+                    return jose;
+                }
+                default: throw new Error(ERRORS.INVALID_ALGORITHM);
+            }
+
+            let hash = sha.update(msg).digest('hex');
 
             let key = ec.keyFromPrivate(this.exportKey(KEY_FORMATS.HEX));
 
@@ -494,12 +598,60 @@ export class ECKey extends Key{
         }
     }
 
-    verify(msg: string, signature: Buffer): boolean{
+    verify(msg: string, signature: Buffer, algorithm: ALGORITHMS, publicKeyAddress?: string): boolean{
         try {
-            let sha256 = createHash('sha256');
-            let ec = new EC('secp256k1');
+            let sha;
+            let ec;
+
+            switch(algorithm){
+                case ALGORITHMS.ES256: {
+                    sha = createHash('sha256'); 
+                    ec = new EC('p256'); 
+                    break;
+                }
+                case ALGORITHMS.ES384: {
+                    sha = createHash('sha384'); 
+                    ec = new EC('p384'); 
+                    break;
+                }
+                case ALGORITHMS.ES512: {
+                    sha = createHash('sha512'); 
+                    ec = new EC('p512'); 
+                    break;
+                }
+                case ALGORITHMS.ES256K: {
+                    sha = createHash('sha256'); 
+                    ec = new EC('secp256k1'); 
+                    break;
+                }
+                case ALGORITHMS.EdDSA: {
+                    sha = createHash('sha256'); 
+                    ec = new EC('ed25519'); 
+                    break;
+                }
+                case ALGORITHMS["ES256K-R"]:{
+                    sha = createHash('sha256'); 
+                    ec = new EC('secp256k1'); 
+
+                    let hash = sha.update(msg).digest();
+
+                    if (signature.length !== 65) throw new Error(ERRORS.INVALID_SIGNATURE);
+                    let signatureObj = {
+                        r: signature.slice(0, 32).toString('hex'),
+                        s: signature.slice(32, 64).toString('hex'),
+                    }
+                    let recoveredKey = ec.recoverPubKey(hash, signatureObj, signature[64]);
+                    return (
+                        recoveredKey.encode('hex') === publicKeyAddress ||
+                        recoveredKey.encode('hex', true) === publicKeyAddress ||
+                        publicKeyToAddress(recoveredKey.encode('hex')) === publicKeyAddress
+                    )
+                }
+                default: throw new Error(ERRORS.INVALID_ALGORITHM);
+            }
+
     
-            let hash = sha256.update(msg).digest();
+            let hash = sha.update(msg).digest();
     
             if (signature.length !== 64) throw new Error(ERRORS.INVALID_SIGNATURE);
             let signatureObj = {
@@ -662,11 +814,19 @@ export class OKP extends Key{
         }
     }
 
-    sign(msg: string): Buffer{
+    sign(msg: string, algorithm: ALGORITHMS): Buffer{
         if(this.private){
-            let ec = new EdDSA('ed25519');
+            let ed;
 
-            let key = ec.keyFromSecret(this.exportKey(KEY_FORMATS.HEX));
+            switch(algorithm){
+                case ALGORITHMS.EdDSA: {
+                    ed = new EdDSA('ed25519'); 
+                    break;
+                }
+                default: throw new Error(ERRORS.INVALID_ALGORITHM);
+            }
+
+            let key = ed.keyFromSecret(this.exportKey(KEY_FORMATS.HEX));
 
             let edDsa_signature = key.sign(Buffer.from(msg));
             return Buffer.from(edDsa_signature.toHex(), 'hex');
@@ -676,11 +836,19 @@ export class OKP extends Key{
         }
     }
 
-    verify(msg: string, signature: Buffer): boolean{
+    verify(msg: string, signature: Buffer, algorithm: ALGORITHMS): boolean{
         try {
-            let ec = new EdDSA('ed25519');
+            let ed;
+
+            switch(algorithm){
+                case ALGORITHMS.EdDSA: {
+                    ed = new EdDSA('ed25519'); 
+                    break;
+                }
+                default: throw new Error(ERRORS.INVALID_ALGORITHM);
+            }
     
-            let key = ec.keyFromPublic(this.exportKey(KEY_FORMATS.HEX));
+            let key = ed.keyFromPublic(this.exportKey(KEY_FORMATS.HEX));
     
             return key.verify(Buffer.from(msg), signature.toString('hex'));
         } catch (err) {
