@@ -1,10 +1,8 @@
 import { Key } from './JWKUtils';
 import base64url from 'base64url';
-import { createHash } from 'crypto';
-import { ec as EC } from 'elliptic';
-import { leftpad } from './Utils';
-import { ALGORITHMS } from './globals';
-const publicKeyToAddress = require('ethereum-public-key-to-address');
+import { ALGORITHMS, RSA_ALGORITHMS, EC_ALGORITHMS, OKP_ALGORITHMS, SPECIAL_ALGORITHMS } from './globals';
+import { Signer, RSASigner, ECSigner, OKPSigner, ES256KRecoverableSigner } from './Signers';
+import { Verifier, RSAVerifier, ECVerifier, OKPVerifier, ES256KRecoverableVerifier } from './Verifiers';
 
 interface JWTHeader{
     typ: string,
@@ -26,96 +24,66 @@ export const ERRORS = Object.freeze({
     UNSUPPORTED_ALGORITHM: 'Unsupported algorithm',
     INVALID_JWT: 'Invalid JWT',
     INVALID_SIGNATURE: 'Invalid signature',
-    ALGORITHM_MISMATCH: 'Key algorithm does not match with JWT algorithm'
 });
 
 export function sign(jwtObject: JWTObject, key: Key | string): string {
     let unsigned = base64url.encode(JSON.stringify(jwtObject.header)) + '.' + base64url.encode(JSON.stringify(jwtObject.payload));
-    let signature: string | Buffer;
 
-    if(typeof key === 'string'){
-        switch (jwtObject.header.alg) {
-            case ALGORITHMS[ALGORITHMS["ES256K-R"]]: signature = signES256KRecoverable(unsigned, key); break;
-            default: throw new Error(ERRORS.UNSUPPORTED_ALGORITHM);
+    let algorithm: ALGORITHMS = ALGORITHMS[jwtObject.header.alg as keyof typeof ALGORITHMS];
+    let signer: Signer | undefined = undefined;
+
+    if(RSA_ALGORITHMS.includes(algorithm)){
+        signer = new RSASigner();
+    }
+    else if(EC_ALGORITHMS.includes(algorithm)){
+        signer = new ECSigner();
+    }
+    else if(OKP_ALGORITHMS.includes(algorithm)){
+        signer = new OKPSigner();
+    }
+    else if(SPECIAL_ALGORITHMS.includes(algorithm)){
+        switch(algorithm){
+            case ALGORITHMS["ES256K-R"]: signer = new ES256KRecoverableSigner(); break;
         }
     }
-    else{
-        if (jwtObject.header.alg !== key.getAlgorithm()) throw new Error(ERRORS.ALGORITHM_MISMATCH);
-
-        signature = key.sign(unsigned);
+    
+    if(signer){
+        let signature = signer.sign(unsigned, key, algorithm);
+        return unsigned + '.' + base64url.encode(signature);
     }
-
-    return unsigned + '.' + base64url.encode(signature);
+    else{
+        throw new Error(ERRORS.UNSUPPORTED_ALGORITHM);
+    }
 }
 
 export function verify(jwt: string, key: Key| string): boolean{
     let decoded = decodeJWT(jwt);
-    if(typeof key === 'string'){
-        switch(decoded.header.alg){
-            case ALGORITHMS[ALGORITHMS["ES256K-R"]]: return verifyES256KRecoverable(decoded.signed, decoded.signature, key);
-            default: throw new Error(ERRORS.UNSUPPORTED_ALGORITHM)
-        }
-    }
-    else {
-        if (decoded.header.alg !== key.getAlgorithm()) throw new Error(ERRORS.ALGORITHM_MISMATCH);
-        
-        return key.verify(decoded.signed, decoded.signature);
-    }
-}
+    
+    let algorithm: ALGORITHMS = ALGORITHMS[decoded.header.alg as keyof typeof ALGORITHMS];
+    let verifier: Verifier | undefined = undefined;
 
-export function checkKeyPair(privateKey: Key | string, publicKey: Key | string, algorithm: ALGORITHMS): boolean{
-    const jwtDecoded: JWTObject = {
-        header: {
-            alg: ALGORITHMS[algorithm],
-            typ: "JWT",
-            kid: 'key_1',
-        },
-        payload: {
-            "sub": "1234567890",
-            "name": "John Doe",
-            "admin": true,
+    if(RSA_ALGORITHMS.includes(algorithm)){
+        verifier = new RSAVerifier();
+    }
+    else if(EC_ALGORITHMS.includes(algorithm)){
+        verifier = new ECVerifier();
+    }
+    else if(OKP_ALGORITHMS.includes(algorithm)){
+        verifier = new OKPVerifier();
+    }
+    else if(SPECIAL_ALGORITHMS.includes(algorithm)){
+        switch(algorithm){
+            case ALGORITHMS["ES256K-R"]: verifier = new ES256KRecoverableVerifier(); break;
         }
     }
 
-    let jwt = sign(jwtDecoded, privateKey);
-    return verify(jwt, publicKey);
-}
-
-function signES256KRecoverable(msg: string, privateKey: string,): Buffer{
-    let ec = new EC('secp256k1');
-    let sha256 = createHash('sha256');
-
-    let hash = sha256.update(msg).digest('hex');
-
-    let signingKey = ec.keyFromPrivate(privateKey);
-
-    let ec256k_signature = signingKey.sign(hash);
-
-    let jose = Buffer.alloc(ec256k_signature.recoveryParam? 65 : 64);
-    Buffer.from(leftpad(ec256k_signature.r.toString('hex')), 'hex').copy(jose, 0);
-    Buffer.from(leftpad(ec256k_signature.s.toString('hex')), 'hex').copy(jose, 32);
-    if (ec256k_signature.recoveryParam) jose[64] = ec256k_signature.recoveryParam;
-
-    return jose;
-}
-
-function verifyES256KRecoverable(msg: string, signature: Buffer, publicKey: string): boolean{
-    let sha256 = createHash('sha256');
-    let ec = new EC('secp256k1');
-
-    let hash = sha256.update(msg).digest();
-
-    if (signature.length !== 65) throw new Error(ERRORS.INVALID_JWT);
-    let signatureObj = {
-        r: signature.slice(0, 32).toString('hex'),
-        s: signature.slice(32, 64).toString('hex'),
+    if(verifier){
+        return verifier.verify(decoded.signed, decoded.signature, key, algorithm);
     }
-    let recoveredKey = ec.recoverPubKey(hash, signatureObj, signature[64]);
-    return (
-        recoveredKey.encode('hex') === publicKey ||
-        recoveredKey.encode('hex', true) === publicKey ||
-        publicKeyToAddress(recoveredKey.encode('hex')) === publicKey
-    )
+    else{
+        throw new Error(ERRORS.INVALID_SIGNATURE);
+    }
+
 }
 
 function decodeJWT(jwt: string): JWTSignedObject{
@@ -123,19 +91,11 @@ function decodeJWT(jwt: string): JWTSignedObject{
         let decodedHeader = JSON.parse(base64url.decode(jwt.split('.')[0]));
         let payload = JSON.parse(base64url.decode(jwt.split('.')[1]));
         let signature = base64url.toBuffer(jwt.split('.')[2]);
-        let alg;
-        switch(decodedHeader.alg){
-            case ALGORITHMS[ALGORITHMS.RS256]: alg = ALGORITHMS[ALGORITHMS.RS256]; break;
-            case ALGORITHMS[ALGORITHMS.ES256K]: alg = ALGORITHMS[ALGORITHMS.ES256K]; break;
-            case ALGORITHMS[ALGORITHMS["ES256K-R"]]: alg = ALGORITHMS[ALGORITHMS["ES256K-R"]]; break;
-            case ALGORITHMS[ALGORITHMS.EdDSA]: alg = ALGORITHMS[ALGORITHMS.EdDSA]; break;
-            default: throw new Error(ERRORS.UNSUPPORTED_ALGORITHM);
-        }
     
         return {
             header: {
                 typ: decodedHeader.typ,
-                alg: alg,
+                alg: decodedHeader.alg,
                 kid: decodedHeader.kid,
             },
             payload,
