@@ -118,7 +118,7 @@ export abstract class Key{
     }
 
     abstract sign(msg: string, algorithm: ALGORITHMS): Buffer;
-    abstract verify(msg: string, signature: Buffer, algorithm: ALGORITHMS): boolean;
+    abstract verify(msg: string, signature: Buffer, algorithm: ALGORITHMS, publicKeyAddress?: string): boolean;
     abstract toJWK(privateKey: boolean): KeyObjects.BasicKeyObject;
     abstract exportKey(format: KEY_FORMATS): string;
 }
@@ -929,5 +929,18 @@ export class KeySet{
 
     size(): number{
         return this.ketSet.length;
+    }
+}
+
+export function checkKeyPair(privateKey: Key, publicKey: Key | string, algorithm: ALGORITHMS): boolean{
+    const message = 'some test message';
+
+    let signature = privateKey.sign(message, algorithm);
+
+    if(typeof publicKey === 'string'){
+        return privateKey.verify(message, signature, algorithm, publicKey);
+    }
+    else{
+        return publicKey.verify(message, signature, algorithm);
     }
 }
