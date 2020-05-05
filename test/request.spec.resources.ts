@@ -1,3 +1,4 @@
+import { ALGORITHMS } from './../src/globals';
 import { JWTObject } from './../src/JWT';
 import { sign } from '../src/JWT';
 
@@ -96,7 +97,7 @@ export const requests = {
     },
     components: {
         signing: {
-            alg: 'ES256K-R',
+            alg: ALGORITHMS["ES256K-R"],
             signing_key: 'CE438802C1F0B6F12BC6E686F372D7D495BC5AA634134B4A7EA4603CB25F0964',
             kid: 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner',
         },

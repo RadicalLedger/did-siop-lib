@@ -1,15 +1,30 @@
-import { Identity } from './Identity';
-import * as urlParser from 'query-string';
+import { Identity, DidDocument } from './Identity';
+import * as queryString from 'query-string';
 import { ERROR_RESPONSES } from './ErrorResponse';
 import base64url from 'base64url';
 import { Key, KeySet, KeyInputs, RSAKey, ECKey, OKP } from './JWKUtils';
 import { ALGORITHMS } from './globals';
 import * as JWT from './JWT';
+import { JWTObject, sign } from './JWT';
 const axios = require('axios').default;
 
 const RESPONSE_TYPES = ['id_token',];
 const SUPPORTED_SCOPES = ['openid', 'did_authn',];
 const REQUIRED_SCOPES = ['openid', 'did_authn',];
+
+export interface RPInfo{
+    redirect_uri: string,
+    did: string, 
+    registration: any,
+    did_doc?: DidDocument, 
+    request_uri?: string, 
+}
+
+export interface SigningInfo{
+    alg: ALGORITHMS,
+    kid: string,
+    signing_key: Key | string,
+}
 
 export class DidSiopRequest{
     static async validateRequest(request: string){
@@ -17,10 +32,55 @@ export class DidSiopRequest{
         let jwtDecoded = await validateRequestJWT(requestJWT);
         return jwtDecoded;
     }
+
+    static async generateRequest(rp: RPInfo, signing: SigningInfo, options: any) {
+        const url = 'openid://';
+        const query: any = {
+            response_type: 'id_token',
+            client_id: rp.redirect_uri,
+            scope: 'openid did_authn',
+        }
+
+        if (rp.request_uri) {
+            query.request_uri = rp.request_uri;
+        }
+        else {
+            let jwtHeader = {
+                alg: ALGORITHMS[signing.alg],
+                typ: 'JWT',
+                kid: signing.kid
+            }
+
+            let jwtPayload = {
+                iss: rp.did,
+                response_type: 'id_token',
+                scope: 'openid did_authn',
+                client_id: rp.redirect_uri,
+                registration: rp.registration,
+                ...options
+            }
+
+            if (rp.did_doc) jwtPayload.did_doc = rp.did_doc;
+
+            let jwtObject: JWTObject = {
+                header: jwtHeader,
+                payload: jwtPayload
+            }
+
+            let jwt = sign(jwtObject, signing.signing_key);
+
+            query.request = jwt;
+        }
+
+        return queryString.stringifyUrl({
+            url,
+            query
+        });
+    }
 }
 
 async function validateRequestParams(request: string) {
-    let parsed = urlParser.parseUrl(request);
+    let parsed = queryString.parseUrl(request);
 
     if (
         parsed.url !== 'openid://' ||
@@ -95,9 +155,9 @@ async function validateRequestJWT(requestJWT: string) {
             }
 
             switch(didPubKey.alg){
-                case ALGORITHMS.RS256: publicKey = RSAKey.fromPublicKey(keyInfo); break;
-                case ALGORITHMS.ES256K: publicKey = ECKey.fromPublicKey(keyInfo); break;
-                case ALGORITHMS.EdDSA: publicKey = OKP.fromPublicKey(keyInfo); break;
+                case ALGORITHMS.RS256: publicKey = RSAKey.fromKey(keyInfo); break;
+                case ALGORITHMS.ES256K: publicKey = ECKey.fromKey(keyInfo); break;
+                case ALGORITHMS.EdDSA: publicKey = OKP.fromKey(keyInfo); break;
                 case ALGORITHMS["ES256K-R"]: publicKey = keyInfo.key; break;
             }
         } catch (err) {

@@ -3,7 +3,7 @@ import { DidSiopRequest } from './../src/Request';
 import { jwts, requests } from './request.spec.resources';
 import nock from 'nock';
 
-describe("Request params validation", function () {
+describe("Request validation/generation", function () {
     beforeEach(() => {
         nock('http://localhost').get('/requestJWT').reply(200, jwts.jwtGoodEncoded).get('/incorrectRequestJWT').reply(404, 'Not found');
     });
@@ -64,5 +64,11 @@ describe("Request params validation", function () {
 
         validityPromise = DidSiopRequest.validateRequest(requests.bad.requestBadJWTIncorrectScope);
         await expect(validityPromise).rejects.toEqual(ERROR_RESPONSES.invalid_request_object.err);
+    });
+    test("Generate request - expect truthy", async () => {
+        let rqst = await DidSiopRequest.generateRequest(requests.components.rp, requests.components.signing, requests.components.options);
+        let decoded = await DidSiopRequest.validateRequest(rqst);
+        expect(decoded).toHaveProperty('header');
+        expect(decoded).toHaveProperty('payload');
     });
 });
