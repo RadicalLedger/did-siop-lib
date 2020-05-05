@@ -126,7 +126,7 @@ export abstract class Key{
 
     abstract sign(msg: string): string | Buffer;
     abstract verify(msg: string, signature: Buffer): boolean;
-    abstract toJWK(): KeyObjects.BasicKeyObject;
+    abstract toJWK(privateKey: boolean): KeyObjects.BasicKeyObject;
     abstract exportKey(format: KEY_FORMATS): string;
 }
 
@@ -231,21 +231,26 @@ export class RSAKey extends Key{
         }
     }
 
-    toJWK(): KeyObjects.RSAPrivateKeyObject | KeyObjects.RSAPublicKeyObject{
-        if(this.private){
-            return {
-                kty: this.kty,
-                use: this.use,
-                kid: this.kid,
-                alg: ALGORITHMS[this.alg],
-                p: this.p,
-                q: this.q,
-                d: this.d,
-                e: this.e,
-                qi: this.qi,
-                dp: this.dp,
-                dq: this.dq,
-                n: this.n,
+    toJWK(privateKey?: boolean): KeyObjects.RSAPrivateKeyObject | KeyObjects.RSAPublicKeyObject{
+        if(privateKey){
+            if(this.private){
+                return {
+                    kty: this.kty,
+                    use: this.use,
+                    kid: this.kid,
+                    alg: ALGORITHMS[this.alg],
+                    p: this.p,
+                    q: this.q,
+                    d: this.d,
+                    e: this.e,
+                    qi: this.qi,
+                    dp: this.dp,
+                    dq: this.dq,
+                    n: this.n,
+                }
+            }
+            else{
+                throw new Error(ERRORS.NO_PRIVATE_KEY);
             }
         }
         else{
@@ -420,17 +425,22 @@ export class ECKey extends Key{
         }
     }
 
-    toJWK(): KeyObjects.ECPrivateKeyObject | KeyObjects.ECPublicKeyObject{
-        if (this.private) {
-            return {
-                kty: this.kty,
-                use: this.use,
-                kid: this.kid,
-                alg: ALGORITHMS[this.alg],
-                crv: this.crv,
-                x: this.x,
-                y: this.y,
-                d: this.d,
+    toJWK(privateKey?: boolean): KeyObjects.ECPrivateKeyObject | KeyObjects.ECPublicKeyObject{
+        if(privateKey){
+            if (this.private) {
+                return {
+                    kty: this.kty,
+                    use: this.use,
+                    kid: this.kid,
+                    alg: ALGORITHMS[this.alg],
+                    crv: this.crv,
+                    x: this.x,
+                    y: this.y,
+                    d: this.d,
+                }
+            }
+            else{
+                throw new Error(ERRORS.NO_PRIVATE_KEY);
             }
         }
         else {
@@ -611,16 +621,21 @@ export class OKP extends Key{
         }
     }
 
-    toJWK(): KeyObjects.OKPPrivateKeyObject | KeyObjects.OKPPublicKeyObject {
-        if (this.private) {
-            return {
-                kty: this.kty,
-                use: this.use,
-                kid: this.kid,
-                alg: ALGORITHMS[this.alg],
-                crv: this.crv,
-                x: this.x,
-                d: this.d,
+    toJWK(privateKey?: boolean): KeyObjects.OKPPrivateKeyObject | KeyObjects.OKPPublicKeyObject {
+        if(privateKey){
+            if (this.private) {
+                return {
+                    kty: this.kty,
+                    use: this.use,
+                    kid: this.kid,
+                    alg: ALGORITHMS[this.alg],
+                    crv: this.crv,
+                    x: this.x,
+                    d: this.d,
+                }
+            }
+            else{
+                throw new Error(ERRORS.NO_PRIVATE_KEY);
             }
         }
         else {
