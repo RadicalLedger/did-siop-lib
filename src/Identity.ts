@@ -39,6 +39,7 @@ export const ERRORS = Object.freeze(
         UNSUPPORTED_KEY_FORMAT: 'Unsupported key format',
         NO_MATCHING_PUBLIC_KEY: 'No public key matching kid',
         UNRESOLVED_DOCUMENT: 'Unresolved document',
+        INVALID_DOCUMENT: 'Invalid did document',
     }
 );
 
@@ -79,10 +80,10 @@ export class Identity{
         return this.doc.id !== '';
     }
 
-    getPublicKey(kid: string): any{
+    getPublicKey(kid: string): DidPublicKey{
         if(!this.isResolved()) throw new Error(ERRORS.UNRESOLVED_DOCUMENT);
         for (let method of this.doc.authentication) {
-            if (method.id === kid) return getPublicKeyFromDifferentTypes(method);
+            if (method.id && method.id === kid) return getPublicKeyFromDifferentTypes(method);
 
             if (method.publicKey && method.publicKey.includes(kid)) {
                 for (let pub of this.doc.publicKey) {
@@ -90,7 +91,7 @@ export class Identity{
                 }
             }
 
-            if (method === kid) {
+            if (method && method === kid) {
                 for (let pub of this.doc.publicKey) {
                     if (pub.id === kid) return getPublicKeyFromDifferentTypes(pub);
                 }
@@ -102,6 +103,20 @@ export class Identity{
 
     getDocument(): DidDocument{
         return this.doc;
+    }
+
+    setDocument(doc: DidDocument, did: string){
+        if (
+            doc['@context'] === 'https://w3id.org/did/v1' &&
+            doc.id == did &&
+            doc.authentication &&
+            doc.authentication.length > 0
+        ) {
+            this.doc = doc;
+        }
+        else {
+            throw new Error(ERRORS.INVALID_DOCUMENT);
+        }
     }
 }
 
