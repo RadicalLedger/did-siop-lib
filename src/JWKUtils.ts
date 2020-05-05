@@ -3,7 +3,7 @@ import * as base58 from 'bs58';
 import base64url from 'base64url';
 import { createHash, createSign, createVerify } from 'crypto';
 import { leftpad } from './Utils';
-import { ALGORITHMS, KEY_FORMATS } from './globals';
+import { ALGORITHMS, KEY_FORMATS, KTYS } from './globals';
 const NodeRSA = require('node-rsa');
 const axios = require('axios').default;
 
@@ -88,13 +88,6 @@ export namespace KeyInputs{
     export type OKPPrivateKeyInput = KeyInfo | KeyObjects.OKPPrivateKeyObject;
     export type OKPPublicKeyInput = KeyInfo | KeyObjects.OKPPublicKeyObject;
     export type SymmetricKeyInput = KeyInfo | KeyObjects.SymmetricKeyObject;
-}
-
-enum KTYS{
-    'RSA',
-    'EC',
-    'OKP',
-    'oct',
 }
 
 export abstract class Key{
