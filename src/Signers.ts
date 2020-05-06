@@ -1,6 +1,6 @@
 import { createHash, createSign, constants as cryptoConstants } from 'crypto';
 import { leftpad } from './Utils';
-import { Key, RSAKey, ECKey } from './JWKUtils';
+import { Key, RSAKey, ECKey, OKP } from './JWKUtils';
 import { ALGORITHMS, KEY_FORMATS } from './globals';
 import { eddsa as EdDSA, ec as EC} from 'elliptic';
 
@@ -109,7 +109,7 @@ export class ECSigner extends Signer{
 }
 
 export class OKPSigner extends Signer{
-    sign(message: string, key: Key, algorithm: ALGORITHMS): Buffer {
+    sign(message: string, key: OKP, algorithm: ALGORITHMS): Buffer {
         if(key.isPrivate()){
             let ed;
 
@@ -134,13 +134,21 @@ export class OKPSigner extends Signer{
 }
 
 export class ES256KRecoverableSigner extends Signer{
-    sign(message: string, key: string): Buffer {
+    sign(message: string, key: ECKey | string): Buffer {
+        let keyHexString;
+        if(typeof key === 'string'){
+            keyHexString = key;
+        }
+        else{
+            keyHexString = key.exportKey(KEY_FORMATS.HEX);
+        }
+
         let sha = createHash('sha256'); 
         let ec = new EC('secp256k1'); 
 
         let hash = sha.update(message).digest('hex');
 
-        let signingKey = ec.keyFromPrivate(key);
+        let signingKey = ec.keyFromPrivate(keyHexString);
 
         let ec256k_signature = signingKey.sign(hash);
 
