@@ -1,3 +1,4 @@
+import { createHash } from 'crypto';
 import { eddsa as EdDSA, ec as EC} from 'elliptic';
 import * as base58 from 'bs58';
 import base64url from 'base64url';
@@ -112,7 +113,8 @@ export abstract class Key{
         return this.kid === kid;
     }
 
-    abstract toJWK(privateKey: boolean): KeyObjects.BasicKeyObject;
+    abstract toJWK(privateKey?: boolean): KeyObjects.BasicKeyObject;
+    abstract getMinimalJWK(privateKey?: boolean): any;
     abstract exportKey(format: KEY_FORMATS): string;
 }
 
@@ -288,6 +290,34 @@ export class RSAKey extends Key{
             default: throw new Error(ERRORS.INVALID_KEY_FORMAT);
         }
     }
+
+    getMinimalJWK(privateKey?: boolean) {
+        if(privateKey){
+            if(this.isPrivate()){
+                return {
+                    d: this.d,
+                    dp: this.dp,
+                    dq: this.dq,
+                    e: this.e,
+                    kty: this.kty,
+                    n: this.n,
+                    p: this.p,
+                    q: this.q,
+                    qi: this.qi,
+                }
+            }
+            else{
+                throw new Error(ERRORS.NO_PRIVATE_KEY);
+            }
+        }
+        else{
+            return {
+                e: this.e,
+                kty: this.kty,
+                n: this.n,
+            }
+        }
+    }
 }
 
 export class ECKey extends Key{
@@ -447,6 +477,31 @@ export class ECKey extends Key{
             default: throw new Error(ERRORS.INVALID_KEY_FORMAT);
         }
     }
+
+    getMinimalJWK(privateKey?: boolean) {
+        if(privateKey){
+            if(this.isPrivate()){
+                return {
+                    crv: this.crv,
+                    d: this.d,
+                    kty: this.kty,
+                    x: this.x,
+                    y: this.y,
+                }
+            }
+            else{
+                throw new Error(ERRORS.NO_PRIVATE_KEY);
+            }
+        }
+        else{
+            return {
+                crv: this.crv,
+                kty: this.kty,
+                x: this.x,
+                y: this.y,
+            }
+        }
+    }
 }
 
 export class OKP extends Key{
@@ -594,6 +649,29 @@ export class OKP extends Key{
             default: throw new Error(ERRORS.INVALID_KEY_FORMAT);
         }
     }
+
+    getMinimalJWK(privateKey?: boolean) {
+        if(privateKey){
+            if(this.isPrivate()){
+                return {
+                    crv: this.crv,
+                    d: this.d,
+                    kty: this.kty,
+                    x: this.x,
+                }
+            }
+            else{
+                throw new Error(ERRORS.NO_PRIVATE_KEY);
+            }
+        }
+        else{
+            return {
+                crv: this.crv,
+                kty: this.kty,
+                x: this.x,
+            }
+        }
+    }
 }
 
 export class KeySet{
@@ -669,4 +747,10 @@ export class KeySet{
     size(): number{
         return this.ketSet.length;
     }
+}
+
+export function calculateThumbprint(minimalJWK: any): string{
+    let sha256 = createHash('sha256');
+    let hash = sha256.update(JSON.stringify(minimalJWK)).digest();
+    return base64url.encode(hash);
 }

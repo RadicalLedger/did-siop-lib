@@ -131,7 +131,15 @@ export class OKPVerifier extends Verifier{
 }
 
 export class ES256KRecoverableVerifier extends Verifier{
-    verify(msg: string, signature: Buffer, key: string): boolean {
+    verify(msg: string, signature: Buffer, key: ECKey | string): boolean {
+        let keyHexString;
+        if(typeof key === 'string'){
+            keyHexString = key;
+        }
+        else{
+            keyHexString = key.exportKey(KEY_FORMATS.HEX);
+        }
+
         let sha = createHash('sha256');
         let ec = new EC('secp256k1');
 
@@ -144,9 +152,9 @@ export class ES256KRecoverableVerifier extends Verifier{
         }
         let recoveredKey = ec.recoverPubKey(hash, signatureObj, signature[64]);
         return (
-            recoveredKey.encode('hex') === key ||
-            recoveredKey.encode('hex', true) === key ||
-            publicKeyToAddress(recoveredKey.encode('hex')) === key
+            recoveredKey.encode('hex') === keyHexString ||
+            recoveredKey.encode('hex', true) === keyHexString ||
+            publicKeyToAddress(recoveredKey.encode('hex')) === keyHexString
         )
     }
 

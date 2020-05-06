@@ -4,7 +4,7 @@ import { ALGORITHMS, RSA_ALGORITHMS, EC_ALGORITHMS, OKP_ALGORITHMS, SPECIAL_ALGO
 import { Signer, RSASigner, ECSigner, OKPSigner, ES256KRecoverableSigner } from './Signers';
 import { Verifier, RSAVerifier, ECVerifier, OKPVerifier, ES256KRecoverableVerifier } from './Verifiers';
 
-interface JWTHeader{
+export interface JWTHeader{
     typ: string,
     alg: string,
     kid: string
@@ -18,6 +18,12 @@ export interface JWTObject{
 export interface JWTSignedObject extends JWTObject{
     signed: string,
     signature: Buffer,
+}
+
+export interface SigningInfo{
+    alg: ALGORITHMS,
+    publicKey_kid: string,
+    privateKey: Key,
 }
 
 export const ERRORS = Object.freeze({

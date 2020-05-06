@@ -1,4 +1,4 @@
-import { KeySet } from './../src/JWKUtils';
+import { KeySet, calculateThumbprint } from './../src/JWKUtils';
 import { KeyObjects, RSAKey, ECKey, OKP, ERRORS } from '../src/JWKUtils'
 import { KEY_FORMATS, KTYS, ALGORITHMS } from './../src/globals';
 import nock from 'nock';
@@ -14,6 +14,12 @@ describe('JWK functions', function () {
             "alg": "RS256",
             "n": "hgU7BWR8A_d5Z4boXZaff3KLte8rEZvA5mGRRF_WMEqp2l9K2dkgT-Z27sSAi-uZrkFKRxtclyW2ZCU4uv5jJH9yWcmksxfV-VYpCFiJVPKiAxTFftUNB0jiFsJDAxgfECorJkYn1s9BbNMzbuiNzUvBqTXKS2Q6rFj0lrCR_mZSwZl1zBW5Rh5c2vK8rWkQ7q2T_Q2eT2QOonzmhfTSZDneqyaOKjom9QRbWgnR6vbVb9beUzZ7W5Y_grdIoQ7VZS5SDdEJrGWrquzmsfigvcuWBbGQw5wnN1cJjWTElITN0FTCJpK2KOuQbQnBtOV9T7hUkGKFmhyDqeclBcDopw"
         }
+        let publicMinimalJWK = {
+            "e": "AQAB",
+            "kty": "RSA",
+            "n": "hgU7BWR8A_d5Z4boXZaff3KLte8rEZvA5mGRRF_WMEqp2l9K2dkgT-Z27sSAi-uZrkFKRxtclyW2ZCU4uv5jJH9yWcmksxfV-VYpCFiJVPKiAxTFftUNB0jiFsJDAxgfECorJkYn1s9BbNMzbuiNzUvBqTXKS2Q6rFj0lrCR_mZSwZl1zBW5Rh5c2vK8rWkQ7q2T_Q2eT2QOonzmhfTSZDneqyaOKjom9QRbWgnR6vbVb9beUzZ7W5Y_grdIoQ7VZS5SDdEJrGWrquzmsfigvcuWBbGQw5wnN1cJjWTElITN0FTCJpK2KOuQbQnBtOV9T7hUkGKFmhyDqeclBcDopw"
+        }
+        let publicJWKThumbprint = 'AJs7jRFXeJDuRgTTEjr92K5_LbCXkaKRGibrDH8Odv8';
         let privateJWK: KeyObjects.RSAPrivateKeyObject = {
             "p": "0riZ2TyPf66nQpV4iuTdHBsVjIqDBeBq17VOhcf2qma1yIhkVKs5xUFUmDHeXHFIJnP6tnlRkxWgQYKJcicFwuoROkZXByN8qxjC5gc_Yt72oV2j_tZti65khLQ9tG6PW31euxniw42ND2rV-hne77uC8QDFVVoDqADwh_nlyTE",
             "kty": "RSA",
@@ -27,6 +33,17 @@ describe('JWK functions', function () {
             "alg": "RS256",
             "dq": "Sr1kGHw8sgi4_nSWM6JpMEWc7O236DS4ILhp1Izpw5IGV3aAtEB8eNFhVd-u_wL0YwLh6R-34zmPrj8lpopVu1_9ICXTkF5ZTuCPfIqNXTAsFviD8ThEV7J-MaG0OwaVg6ytyWZynW69X7h4FSinglLNYzb1IDWxwtmdlnUnXlk",
             "n": "hgU7BWR8A_d5Z4boXZaff3KLte8rEZvA5mGRRF_WMEqp2l9K2dkgT-Z27sSAi-uZrkFKRxtclyW2ZCU4uv5jJH9yWcmksxfV-VYpCFiJVPKiAxTFftUNB0jiFsJDAxgfECorJkYn1s9BbNMzbuiNzUvBqTXKS2Q6rFj0lrCR_mZSwZl1zBW5Rh5c2vK8rWkQ7q2T_Q2eT2QOonzmhfTSZDneqyaOKjom9QRbWgnR6vbVb9beUzZ7W5Y_grdIoQ7VZS5SDdEJrGWrquzmsfigvcuWBbGQw5wnN1cJjWTElITN0FTCJpK2KOuQbQnBtOV9T7hUkGKFmhyDqeclBcDopw"
+        }
+        let privateMinimalJWK = {
+            "d": "Om0vVOOAuU37LGoBBUP0FuC-DbvNv-hyCT3B0dgiDX2PXPcsL5rb3llvwhoCnH1Cy1gFZMiF7hLv1-ruN39Ng4zYMlKZLcaXbxLj4pKOlG0Oul8k1m1VN7bLcfaQtlmeuTJZC1-MYLaMJEBS7OgPYc_EBtu_bGyus5I4VzV1AD3Cv0Kjp5lKb_V8GEshFbsCIszkdXyfGH7PF3SwmsHkyiEEKlCyInLtV1kEPV1s8-ekz9UdhL8_Q-BZRT0JzpsRErgrzQgGZEHp0rXeaMRQWlQWJic4kKdWuTYzSNuDTPyIo8YZhCxOWdQP__saHSi3nfqf8wBl6k3CeRkRAlpVYQ",
+            "dp": "Co14FurzfL9wXONDYCFJ-WhZ0en12ct9TkQkJIr5DVuLavl5nMveXsSAygZlTlfV9ycDvTOiJC2HEwDIhVDy9unl5vcy0Ia0bZUV3ZMrV3Y2_6nC1rZCUiZvnj2wgWKwBzLmFZScSJLEJ6t__8Bf672GNy-EsluJp1Y0tXqMSWE",
+            "dq": "Sr1kGHw8sgi4_nSWM6JpMEWc7O236DS4ILhp1Izpw5IGV3aAtEB8eNFhVd-u_wL0YwLh6R-34zmPrj8lpopVu1_9ICXTkF5ZTuCPfIqNXTAsFviD8ThEV7J-MaG0OwaVg6ytyWZynW69X7h4FSinglLNYzb1IDWxwtmdlnUnXlk",
+            "e": "AQAB",
+            "kty": "RSA",
+            "n": "hgU7BWR8A_d5Z4boXZaff3KLte8rEZvA5mGRRF_WMEqp2l9K2dkgT-Z27sSAi-uZrkFKRxtclyW2ZCU4uv5jJH9yWcmksxfV-VYpCFiJVPKiAxTFftUNB0jiFsJDAxgfECorJkYn1s9BbNMzbuiNzUvBqTXKS2Q6rFj0lrCR_mZSwZl1zBW5Rh5c2vK8rWkQ7q2T_Q2eT2QOonzmhfTSZDneqyaOKjom9QRbWgnR6vbVb9beUzZ7W5Y_grdIoQ7VZS5SDdEJrGWrquzmsfigvcuWBbGQw5wnN1cJjWTElITN0FTCJpK2KOuQbQnBtOV9T7hUkGKFmhyDqeclBcDopw",
+            "p": "0riZ2TyPf66nQpV4iuTdHBsVjIqDBeBq17VOhcf2qma1yIhkVKs5xUFUmDHeXHFIJnP6tnlRkxWgQYKJcicFwuoROkZXByN8qxjC5gc_Yt72oV2j_tZti65khLQ9tG6PW31euxniw42ND2rV-hne77uC8QDFVVoDqADwh_nlyTE",
+            "q": "otF1yZwtMBLiAWi04UTU9vg_4IDXTpCqGatVyLYoPLAhB5BJ4s41Yfop7bI7AsYP6ZjFQBuC5rjZ6OmItgkFu6Ha5lOPl1C36vr7hC_fqWLkLwL8cNZ8pZ5_RO0XOFtc10Zv5pNZypJjLHgnDjM7oDyV0YqA7dBLoxrcFytP2Vc",
+            "qi": "O8ZQbD3Y4mh-rMIY0tQJFfPbxMeabWB0htpx1Ry9Y3LJR1U4EHxMmVFD9WLFQfie_Qg0RZNCKCj_cKn_pbL4LxthHV9sF8Wg2O7QBL7ajQHVnN1-SDyhKq3hbq58NJ8dT5gttuY3TOFuIb5vkSMjNvlIZC4cGk2YIMewkfspsm8",
         }
         let privatePem = `-----BEGIN RSA PRIVATE KEY-----
 MIIEogIBAAKCAQEAhgU7BWR8A/d5Z4boXZaff3KLte8rEZvA5mGRRF/WMEqp2l9K
@@ -78,6 +95,10 @@ pwIDAQAB
         expect(key.toJWK()).toMatchObject(publicJWK);
         let pem = key.exportKey(KEY_FORMATS.PKCS8_PEM);
         expect(pem.split('\n').join('')).toEqual(publicPem.split('\n').join(''));
+        let minimalJWK = key.getMinimalJWK(false);
+        expect(minimalJWK).toMatchObject(publicMinimalJWK);
+        let thumbprint = calculateThumbprint(minimalJWK);
+        expect(thumbprint).toEqual(publicJWKThumbprint);
 
         key = RSAKey.fromKey({
             key: privatePem,
@@ -91,6 +112,8 @@ pwIDAQAB
         expect(key.toJWK(true)).toMatchObject(privateJWK);
         pem = key.exportKey(KEY_FORMATS.PKCS1_PEM);
         expect(pem.split('\n').join('')).toEqual(privatePem.split('\n').join(''));
+        minimalJWK = key.getMinimalJWK(true);
+        expect(minimalJWK).toMatchObject(privateMinimalJWK);
     });
     test('ECKey functions', async () => {
         let kid: string = 'key_1';
@@ -103,6 +126,13 @@ pwIDAQAB
             "y": "luHPOmJDwPmr_BzTPN2fifkr6GZ-dmjm5TMrjBUvszQ",
             "alg": "ES256K"
         }
+        let publicMinimalJWK = {
+            "crv": "secp256k1",
+            "kty": "EC",
+            "x": "oquPKizfRHuR3YyX6X1Dw22aIoKi1UiVyVx9xA1f-XQ",
+            "y": "luHPOmJDwPmr_BzTPN2fifkr6GZ-dmjm5TMrjBUvszQ",
+        }
+        let publicJWKThumbprint = 'qopwkempb7qhgC9XEyZAAs_-5kSZJEIh3yQAANgiJs4';
         let privateJWK: KeyObjects.ECPrivateKeyObject = {
             "kty": "EC",
             "d": "bnTMs3lArTEVvYUIyHXWbXOk_0GlDG__CkKaB4e-lm0",
@@ -112,6 +142,13 @@ pwIDAQAB
             "x": "oquPKizfRHuR3YyX6X1Dw22aIoKi1UiVyVx9xA1f-XQ",
             "y": "luHPOmJDwPmr_BzTPN2fifkr6GZ-dmjm5TMrjBUvszQ",
             "alg": "ES256K"
+        }
+        let privateMinimalJWK = {
+            "crv": "secp256k1",
+            "d": "bnTMs3lArTEVvYUIyHXWbXOk_0GlDG__CkKaB4e-lm0",
+            "kty": "EC",
+            "x": "oquPKizfRHuR3YyX6X1Dw22aIoKi1UiVyVx9xA1f-XQ",
+            "y": "luHPOmJDwPmr_BzTPN2fifkr6GZ-dmjm5TMrjBUvszQ",
         }
 
         let key = ECKey.fromKey(privateJWK);
@@ -127,6 +164,9 @@ pwIDAQAB
         }).toJWK(true);
         expect(retrievedJWK).toMatchObject(privateJWK);
 
+        let minimalJWK = key.getMinimalJWK(true);
+        expect(minimalJWK).toMatchObject(privateMinimalJWK);
+
         key = ECKey.fromKey(publicJWK);
         let publicHex = key.exportKey(KEY_FORMATS.HEX);
         retrievedJWK = ECKey.fromKey({
@@ -139,6 +179,11 @@ pwIDAQAB
             isPrivate: false,
         }).toJWK();
         expect(retrievedJWK).toMatchObject(publicJWK);
+
+        minimalJWK = key.getMinimalJWK(false);
+        expect(minimalJWK).toMatchObject(publicMinimalJWK);
+        let thumbprint = calculateThumbprint(minimalJWK);
+        expect(thumbprint).toEqual(publicJWKThumbprint);
     });
     test('OKP functions', async () => {
         let kid: string = 'key_1';
@@ -150,6 +195,12 @@ pwIDAQAB
             "x": "5_uoVZOQ--9RfCfwZXV6al-jNyyr9fKJRmt56DEQ8LI",
             "alg": "EdDSA"
         }
+        let publicMinimalJWK = {
+            "crv": "Ed25519",
+            "kty": "OKP",
+            "x": "5_uoVZOQ--9RfCfwZXV6al-jNyyr9fKJRmt56DEQ8LI",
+        }
+        let publicJWKThumbprint = 'Dq8McRQuiLlWyvbS0_fvR5prE0X8zARyBaOyANbQxEw';
         let privateJWK: KeyObjects.OKPPrivateKeyObject = {
             "kty": "OKP",
             "d": "5EX3-YZgi5H2T2eLs9ytK0GbFE2Qm4teiAultZxC29U",
@@ -158,6 +209,12 @@ pwIDAQAB
             "kid": "key_1",
             "x": "5_uoVZOQ--9RfCfwZXV6al-jNyyr9fKJRmt56DEQ8LI",
             "alg": "EdDSA"
+        }
+        let privateMinimalJWK = {
+            "crv": "Ed25519",
+            "d": "5EX3-YZgi5H2T2eLs9ytK0GbFE2Qm4teiAultZxC29U",
+            "kty": "OKP",
+            "x": "5_uoVZOQ--9RfCfwZXV6al-jNyyr9fKJRmt56DEQ8LI",
         }
 
         let key = OKP.fromKey(privateJWK);
@@ -173,6 +230,9 @@ pwIDAQAB
         }).toJWK(true);
         expect(retrievedJWK).toMatchObject(privateJWK);
 
+        let minimalJWK = key.getMinimalJWK(true);
+        expect(minimalJWK).toMatchObject(privateMinimalJWK);
+
         key = OKP.fromKey(publicJWK);
         let publicBase58 = key.exportKey(KEY_FORMATS.BASE58);
         retrievedJWK = OKP.fromKey({
@@ -185,6 +245,11 @@ pwIDAQAB
             isPrivate: false,
         }).toJWK();
         expect(retrievedJWK).toMatchObject(publicJWK);
+
+        minimalJWK = key.getMinimalJWK(false);
+        expect(minimalJWK).toMatchObject(publicMinimalJWK);
+        let thumbprint = calculateThumbprint(minimalJWK);
+        expect(thumbprint).toEqual(publicJWKThumbprint);
     });
 })
 describe('JWKS', function () {
