@@ -8,7 +8,8 @@ describe("Request validation/generation", function () {
         nock('http://localhost').get('/requestJWT').reply(200, jwts.jwtGoodEncoded).get('/incorrectRequestJWT').reply(404, 'Not found');
     });
 
-    test('Request params validation - expect truthy', async () => {
+    test('Request validation - expect truthy', async () => {
+        jest.setTimeout(7000);
         let returnedJWT = await DidSiopRequest.validateRequest(requests.good.requestGoodEmbeddedJWT);
         expect(returnedJWT).toEqual(jwts.jwtGoodDecoded);
 
@@ -16,7 +17,8 @@ describe("Request validation/generation", function () {
         expect(returnedJWT).toEqual(jwts.jwtGoodDecoded);
     });
 
-    test('Request params validation - expect falsy', async () => {
+    test('Request validation - expect falsy', async () => {
+        jest.setTimeout(7000);
         let validityPromise = DidSiopRequest.validateRequest(requests.bad.requestBadProtocol);
         await expect(validityPromise).rejects.toEqual(ERROR_RESPONSES.invalid_request.err);
 
@@ -66,6 +68,7 @@ describe("Request validation/generation", function () {
         await expect(validityPromise).rejects.toEqual(ERROR_RESPONSES.invalid_request_object.err);
     });
     test("Generate request - expect truthy", async () => {
+        jest.setTimeout(7000);
         let rqst = await DidSiopRequest.generateRequest(requests.components.rp, requests.components.signing, requests.components.options);
         let decoded = await DidSiopRequest.validateRequest(rqst);
         expect(decoded).toHaveProperty('header');
