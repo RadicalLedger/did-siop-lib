@@ -1,4 +1,4 @@
-import { KeySet } from './../src/JWKUtils';
+import { KeySet, calculateThumbprint } from './../src/JWKUtils';
 import { KeyObjects, RSAKey, ECKey, OKP, ERRORS } from '../src/JWKUtils'
 import { KEY_FORMATS, KTYS, ALGORITHMS } from './../src/globals';
 import nock from 'nock';
@@ -97,7 +97,7 @@ pwIDAQAB
         expect(pem.split('\n').join('')).toEqual(publicPem.split('\n').join(''));
         let minimalJWK = key.getMinimalJWK(false);
         expect(minimalJWK).toMatchObject(publicMinimalJWK);
-        let thumbprint = key.calculateThumbprint();
+        let thumbprint = calculateThumbprint(minimalJWK);
         expect(thumbprint).toEqual(publicJWKThumbprint);
 
         key = RSAKey.fromKey({
@@ -182,7 +182,7 @@ pwIDAQAB
 
         minimalJWK = key.getMinimalJWK(false);
         expect(minimalJWK).toMatchObject(publicMinimalJWK);
-        let thumbprint = key.calculateThumbprint();
+        let thumbprint = calculateThumbprint(minimalJWK);
         expect(thumbprint).toEqual(publicJWKThumbprint);
     });
     test('OKP functions', async () => {
@@ -248,7 +248,7 @@ pwIDAQAB
 
         minimalJWK = key.getMinimalJWK(false);
         expect(minimalJWK).toMatchObject(publicMinimalJWK);
-        let thumbprint = key.calculateThumbprint();
+        let thumbprint = calculateThumbprint(minimalJWK);
         expect(thumbprint).toEqual(publicJWKThumbprint);
     });
 })

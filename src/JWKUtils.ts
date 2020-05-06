@@ -113,12 +113,6 @@ export abstract class Key{
         return this.kid === kid;
     }
 
-    calculateThumbprint(): string{
-        let sha256 = createHash('sha256');
-        let hash = sha256.update(JSON.stringify(this.getMinimalJWK(false))).digest();
-        return base64url.encode(hash);
-    }
-
     abstract toJWK(privateKey?: boolean): KeyObjects.BasicKeyObject;
     abstract getMinimalJWK(privateKey?: boolean): any;
     abstract exportKey(format: KEY_FORMATS): string;
@@ -753,4 +747,10 @@ export class KeySet{
     size(): number{
         return this.ketSet.length;
     }
+}
+
+export function calculateThumbprint(minimalJWK: any): string{
+    let sha256 = createHash('sha256');
+    let hash = sha256.update(JSON.stringify(minimalJWK)).digest();
+    return base64url.encode(hash);
 }
