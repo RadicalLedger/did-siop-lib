@@ -20,6 +20,12 @@ export interface JWTSignedObject extends JWTObject{
     signature: Buffer,
 }
 
+export interface SigningInfo{
+    alg: ALGORITHMS,
+    kid: string,
+    signing_key: Key | string,
+}
+
 export const ERRORS = Object.freeze({
     UNSUPPORTED_ALGORITHM: 'Unsupported algorithm',
     INVALID_JWT: 'Invalid JWT',

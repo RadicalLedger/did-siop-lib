@@ -5,7 +5,7 @@ import base64url from 'base64url';
 import { Key, KeySet, KeyInputs, RSAKey, ECKey, OKP } from './JWKUtils';
 import { ALGORITHMS, KTYS, KEY_FORMATS } from './globals';
 import * as JWT from './JWT';
-import { JWTObject } from './JWT';
+import { JWTObject, SigningInfo } from './JWT';
 const axios = require('axios').default;
 
 const RESPONSE_TYPES = ['id_token',];
@@ -18,12 +18,6 @@ export interface RPInfo{
     registration: any,
     did_doc?: DidDocument, 
     request_uri?: string, 
-}
-
-export interface SigningInfo{
-    alg: ALGORITHMS,
-    kid: string,
-    signing_key: Key | string,
 }
 
 export class DidSiopRequest{
