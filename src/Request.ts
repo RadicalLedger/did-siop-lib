@@ -5,6 +5,7 @@ import base64url from 'base64url';
 import { Key, KeySet, KeyInputs, RSAKey, ECKey, OKP } from './JWKUtils';
 import { ALGORITHMS, KTYS, KEY_FORMATS } from './globals';
 import * as JWT from './JWT';
+import { JWTObject } from './JWT';
 const axios = require('axios').default;
 
 const RESPONSE_TYPES = ['id_token',];
@@ -26,13 +27,13 @@ export interface SigningInfo{
 }
 
 export class DidSiopRequest{
-    static async validateRequest(request: string){
+    static async validateRequest(request: string): Promise<JWTObject>{
         let requestJWT = await validateRequestParams(request);
         let jwtDecoded = await validateRequestJWT(requestJWT);
         return jwtDecoded;
     }
 
-    static async generateRequest(rp: RPInfo, signing: SigningInfo, options: any) {
+    static async generateRequest(rp: RPInfo, signing: SigningInfo, options: any): Promise<string> {
         const url = 'openid://';
         const query: any = {
             response_type: 'id_token',
@@ -78,7 +79,7 @@ export class DidSiopRequest{
     }
 }
 
-async function validateRequestParams(request: string) {
+async function validateRequestParams(request: string): Promise<string> {
     let parsed = queryString.parseUrl(request);
 
     if (
@@ -112,11 +113,11 @@ async function validateRequestParams(request: string) {
     }
     else {
         if (parsed.query.request.toString().match(/^ *$/)) return Promise.reject(ERROR_RESPONSES.invalid_request_object.err);
-        return parsed.query.request;
+        return parsed.query.request.toString();
     }
 }
 
-async function validateRequestJWT(requestJWT: string) {
+async function validateRequestJWT(requestJWT: string): Promise<JWTObject> {
     let decodedHeader;
     let decodedPayload;
     try {
