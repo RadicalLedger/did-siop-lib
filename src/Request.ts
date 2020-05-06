@@ -123,10 +123,10 @@ async function validateRequestJWT(requestJWT: string): Promise<JWTObject> {
     }
 
     if (
-        (decodedHeader.kid && decodedHeader.kid !== '') &&
-        (decodedPayload.iss && decodedPayload.iss !== '') &&
+        (decodedHeader.kid && !decodedHeader.kid.match(/^ *$/)) &&
+        (decodedPayload.iss && !decodedPayload.iss.match(/^ *$/)) &&
         (decodedPayload.scope && decodedPayload.scope.indexOf('did_authn') > -1) &&
-        (decodedPayload.registration && decodedPayload.registration !== '')
+        (decodedPayload.registration && !JSON.stringify(decodedPayload.registration).match(/^ *$/))
     ) {
         let publicKey: Key | string | undefined;
 
