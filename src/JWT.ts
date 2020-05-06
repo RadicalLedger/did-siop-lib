@@ -22,8 +22,8 @@ export interface JWTSignedObject extends JWTObject{
 
 export interface SigningInfo{
     alg: ALGORITHMS,
-    kid: string,
-    signing_key: Key,
+    publicKey_kid: string,
+    privateKey: Key,
 }
 
 export const ERRORS = Object.freeze({

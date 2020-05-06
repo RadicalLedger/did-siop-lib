@@ -99,7 +99,7 @@ export const requests = {
     components: {
         signing: {
             alg: ALGORITHMS["ES256K-R"],
-            signing_key: ECKey.fromKey({
+            privateKey: ECKey.fromKey({
                 key: 'CE438802C1F0B6F12BC6E686F372D7D495BC5AA634134B4A7EA4603CB25F0964',
                 kid: 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner',
                 use: 'sig',
@@ -107,7 +107,7 @@ export const requests = {
                 format: KEY_FORMATS.HEX,
                 isPrivate: true,
             }),
-            kid: 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner',
+            publicKey_kid: 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner',
         },
         rp: {
             did: 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83',

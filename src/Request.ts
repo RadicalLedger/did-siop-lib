@@ -42,7 +42,7 @@ export class DidSiopRequest{
             let jwtHeader = {
                 alg: ALGORITHMS[signing.alg],
                 typ: 'JWT',
-                kid: signing.kid
+                kid: signing.publicKey_kid
             }
 
             let jwtPayload = {
@@ -61,7 +61,7 @@ export class DidSiopRequest{
                 payload: jwtPayload
             }
 
-            let jwt = JWT.sign(jwtObject, signing.signing_key);
+            let jwt = JWT.sign(jwtObject, signing.privateKey);
 
             query.request = jwt;
         }
