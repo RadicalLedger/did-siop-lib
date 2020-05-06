@@ -28,7 +28,7 @@ export interface CheckParams{
 }
 
 export class DidSiopResponse{
-    static async generateResponse(requestPayload: any, signingInfo: JWT.SigningInfo, didSiopUser: Identity, expiresIn?: number): Promise<string>{
+    static async generateResponse(requestPayload: any, signingInfo: JWT.SigningInfo, didSiopUser: Identity, expiresIn: number = 1000): Promise<string>{
         try {
             let header: JWT.JWTHeader;
             let alg = '';
@@ -92,7 +92,7 @@ export class DidSiopResponse{
             if (requestPayload.state) payload.state = requestPayload.state;
     
             payload.iat = Date.now();
-            payload.exp = Date.now() + (expiresIn || 1000);
+            payload.exp = Date.now() + expiresIn;
 
             let unsigned: JWT.JWTObject = {
                 header: header,
