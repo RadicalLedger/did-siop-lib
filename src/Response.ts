@@ -105,7 +105,7 @@ export class DidSiopResponse{
         }
     }
 
-    static async validateResponse(response: string, checkParams: CheckParams){
+    static async validateResponse(response: string, checkParams: CheckParams): Promise<JWT.JWTObject>{
         let decodedHeader;
         let decodedPayload;
         try {
@@ -205,8 +205,8 @@ export class DidSiopResponse{
             }
             
             if(validity) return {
-                decodedHeader,
-                decodedPayload
+                header: decodedHeader,
+                payload: decodedPayload,
             }
 
             return Promise.reject(new Error(ERRORS.INVALID_SIGNATURE_ERROR));
