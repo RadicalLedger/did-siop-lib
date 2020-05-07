@@ -1,3 +1,4 @@
+import { RESOLVER_URL } from './config';
 import { Identity, DidDocument } from './Identity';
 import * as queryString from 'query-string';
 import { ERROR_RESPONSES } from './ErrorResponse';
@@ -161,7 +162,7 @@ async function validateRequestJWT(requestJWT: string): Promise<JWTObject> {
                 if(decodedPayload.jwks){
                     keyset.setKeys(decodedPayload.jwks);
                 }
-                else if(decodedPayload.jwks_uri){
+                else if(decodedPayload.jwks_uri && decodedPayload.jwks_uri === (RESOLVER_URL + decodedPayload.iss + ';transform-keys=jwks')){
                     keyset.setURI(decodedPayload.jwks_uri);
                 }
                 publicKey = keyset.getKey(decodedPayload.kid)[0];
