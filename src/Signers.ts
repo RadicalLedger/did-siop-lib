@@ -152,10 +152,10 @@ export class ES256KRecoverableSigner extends Signer{
 
         let ec256k_signature = signingKey.sign(hash);
 
-        let jose = Buffer.alloc(ec256k_signature.recoveryParam? 65 : 64);
+        let jose = Buffer.alloc(65);
         Buffer.from(leftpad(ec256k_signature.r.toString('hex')), 'hex').copy(jose, 0);
         Buffer.from(leftpad(ec256k_signature.s.toString('hex')), 'hex').copy(jose, 32);
-        if (ec256k_signature.recoveryParam) jose[64] = ec256k_signature.recoveryParam;
+        if (ec256k_signature.recoveryParam !== undefined && ec256k_signature.recoveryParam !== null) jose[64] = ec256k_signature.recoveryParam;
 
         return jose;
     }
