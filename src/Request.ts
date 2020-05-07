@@ -54,8 +54,6 @@ export class DidSiopRequest{
                 ...options
             }
 
-            if (rp.did_doc) jwtPayload.did_doc = rp.did_doc;
-
             let jwtObject: JWT.JWTObject = {
                 header: jwtHeader,
                 payload: jwtPayload
@@ -132,13 +130,8 @@ async function validateRequestJWT(requestJWT: string): Promise<JWTObject> {
 
         try {
             let identity = new Identity();
-            try{
-                identity.setDocument(decodedPayload.did_doc, decodedPayload.iss);
-            }
-            catch(err){
-                await identity.resolve(decodedPayload.iss);
-            }
-
+            await identity.resolve(decodedPayload.iss);
+            
             let didPubKey = identity.getPublicKey(decodedHeader.kid);
             let keyInfo: KeyInputs.KeyInfo = {
                 key: didPubKey.keyString,

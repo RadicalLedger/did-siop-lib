@@ -77,7 +77,6 @@ export class DidSiopResponse{
             }
     
             payload.did = didSiopUser.getDocument().id;
-            if(didSiopUser.getDocument()) payload.did_doc = didSiopUser.getDocument();
             if(requestPayload.client_id) payload.aud = requestPayload.client_id;
     
             if(publicKey){
@@ -160,12 +159,8 @@ export class DidSiopResponse{
             let publicKey: Key | string | undefined;
             try{
                 let identity = new Identity();
-                try{
-                    identity.setDocument(decodedPayload.did_doc, decodedPayload.did);
-                }
-                catch(err){
-                    await identity.resolve(decodedPayload.did);
-                }
+                await identity.resolve(decodedPayload.did);
+                
 
                 let didPubKey = identity.getPublicKey(decodedHeader.kid);
             
