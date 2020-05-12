@@ -1,9 +1,7 @@
 import { JWTObject } from './../src/JWT';
 import { SIOP } from './../src/DID_SIOP';
-import { ECKey } from '../src/JWKUtils';
-import { SigningInfo } from '../src/JWT';
 import { RP } from '../src/DID_SIOP_RP';
-import { ALGORITHMS, KTYS, KEY_FORMATS } from '../src/globals';
+import { ALGORITHMS, KEY_FORMATS } from '../src/globals';
 
 describe('DID SIOP', function () {
     test('DID SIOP end to end functions testing', async () => {
@@ -32,7 +30,7 @@ describe('DID SIOP', function () {
               }
         }
 
-        let rp = new RP(
+        let rp = await RP.getRP(
             'https://my.rp.com/cb',
             'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83',
             {
@@ -41,39 +39,20 @@ describe('DID SIOP', function () {
             }
         );
 
-        let rpSigningInfo: SigningInfo = {
-            alg: ALGORITHMS["ES256K-R"],
-            publicKey_kid: 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner',
-            privateKey: ECKey.fromKey({
-                key: 'CE438802C1F0B6F12BC6E686F372D7D495BC5AA634134B4A7EA4603CB25F0964',
-                kid: 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner',
-                use: 'sig',
-                kty: KTYS[KTYS.EC],
-                format: KEY_FORMATS.HEX,
-                isPrivate: true,
-            }),
-        }
+        let rpPrivateKey = 'CE438802C1F0B6F12BC6E686F372D7D495BC5AA634134B4A7EA4603CB25F0964';
+        let rpKid = 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner';
 
-        rp.addSigningParams(rpSigningInfo);
+        rp.addSigningParams(rpPrivateKey, rpKid, KEY_FORMATS.HEX, ALGORITHMS["ES256K-R"]);
 
         let request =  await rp.generateRequest();
 
         let siop = new SIOP();
         await siop.setUser('did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf');
 
-        let siopSigningInfo: SigningInfo = {
-            alg: ALGORITHMS["ES256K-R"],
-            publicKey_kid: 'did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#owner',
-            privateKey: ECKey.fromKey({
-                key: '3f81cb66c8cbba18fbe25f99d2fb4e19f54a1ee69c335ce756a705726189c9e7',
-                kid: 'did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#owner',
-                use: 'sig',
-                kty: KTYS[KTYS.EC],
-                format: KEY_FORMATS.HEX,
-                isPrivate: true,
-            }),
-        }
-        siop.addSigningParams(siopSigningInfo);
+        let userPrivateKeyHex = '3f81cb66c8cbba18fbe25f99d2fb4e19f54a1ee69c335ce756a705726189c9e7';
+        let userKid = 'did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#owner';
+
+        siop.addSigningParams(userPrivateKeyHex, userKid, KEY_FORMATS.HEX, ALGORITHMS["ES256K-R"]);
 
         let requestJWTDecoded = await siop.validateRequest(request);
 
