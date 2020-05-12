@@ -16,6 +16,10 @@
     "url": "git+https://github.com/RadicalLedger/did-siop-lib.git"
   },
   "keywords": [
+    "Self_Issued_OpenIDConnect_Provider",
+    "DID",
+    "SIOP",
+    "Self_Soverign_Identity",
     "DID_SIOP",
     "OpenID_SIOP",
     "Identity_Wallet",
