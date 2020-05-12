@@ -1,5 +1,5 @@
 {
-  "name": "did-siop-lib",
+  "name": "did-siop",
   "version": "1.0.0",
   "description": "A library containing core functionality for DID based Self Issued OpenID Connect authentication, written in typescript.",
   "main": "dist/node/index.js",
