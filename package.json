@@ -24,6 +24,8 @@
   },
   "homepage": "https://github.com/RadicalLedger/did-siop-lib#readme",
   "devDependencies": {
+    "@babel/core": "^7.9.6",
+    "@babel/preset-env": "^7.9.6",
     "@types/bs58": "^4.0.1",
     "@types/elliptic": "^6.4.12",
     "@types/jest": "^25.2.1",
@@ -38,6 +40,7 @@
     "uglify-js": "^3.9.2"
   },
   "dependencies": {
+    "@babel/polyfill": "^7.8.7",
     "axios": "^0.19.2",
     "base64url": "^3.0.1",
     "bs58": "^4.0.1",
