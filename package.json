@@ -2,7 +2,8 @@
   "name": "did-siop-lib",
   "version": "1.0.0",
   "description": "A library containing core functionality for DID based Self Issued OpenID Connect authentication, written in typescript.",
-  "main": "index.js",
+  "main": "dist/node/index.js",
+  "browser": "dist/browser/did-siop.js",
   "scripts": {
     "node-build": "tsc",
     "compile": "babel dist/browser/did-siop.js --out-file dist/browser/did-siop.js --presets=@babel/preset-env",
