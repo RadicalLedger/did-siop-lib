@@ -1,7 +1,7 @@
-import { JWTObject } from './../src/JWT';
-import { SIOP } from './../src/DID_SIOP';
-import { RP } from '../src/DID_SIOP_RP';
-import { ALGORITHMS, KEY_FORMATS } from '../src/globals';
+import { JWTObject } from './../src/core/JWT';
+import { SIOP } from './../src/core/DID_SIOP';
+import { RP } from '../src/core/DID_SIOP_RP';
+import { ALGORITHMS, KEY_FORMATS } from '../src/core/globals';
 
 describe('DID SIOP', function () {
     test('DID SIOP end to end functions testing', async () => {

@@ -1,8 +1,8 @@
-import { DidSiopResponse } from './../src/Response';
-import { Identity } from './../src/Identity';
-import { SigningInfo } from './../src/JWT';
-import { ALGORITHMS, KTYS, KEY_FORMATS } from '../src/globals';
-import { ECKey } from '../src/JWKUtils';
+import { DidSiopResponse } from './../src/core/Response';
+import { Identity } from './../src/core/Identity';
+import { SigningInfo } from './../src/core/JWT';
+import { ALGORITHMS, KTYS, KEY_FORMATS } from '../src/core/globals';
+import { ECKey } from '../src/core/JWKUtils';
 
 describe("Response", function () {
     test("Response generation and validation", async () => {

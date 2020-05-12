@@ -1,7 +1,7 @@
-export { SIOP as Provider } from './DID_SIOP';
-export { RP } from './DID_SIOP_RP';
-export { DidDocument } from './Identity';
-export { ALGORITHMS } from './globals';
-export { KEY_FORMATS } from './globals';
-export { JWTObject } from './JWT';
-export { CheckParams }  from './Response';
+export { SIOP as Provider } from './core/DID_SIOP';
+export { RP } from './core/DID_SIOP_RP';
+export { DidDocument } from './core/Identity';
+export { ALGORITHMS } from './core/globals';
+export { KEY_FORMATS } from './core/globals';
+export { JWTObject } from './core/JWT';
+export { CheckParams }  from './core/Response';

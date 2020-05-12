@@ -1,5 +1,5 @@
-import { ERROR_RESPONSES } from './../src/ErrorResponse';
-import { DidSiopRequest } from './../src/Request';
+import { ERROR_RESPONSES } from './../src/core/ErrorResponse';
+import { DidSiopRequest } from './../src/core/Request';
 import { jwts, requests } from './request.spec.resources';
 import nock from 'nock';
 

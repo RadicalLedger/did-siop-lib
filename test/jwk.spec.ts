@@ -1,6 +1,6 @@
-import { KeySet, calculateThumbprint } from './../src/JWKUtils';
-import { KeyObjects, RSAKey, ECKey, OKP, ERRORS } from '../src/JWKUtils'
-import { KEY_FORMATS, KTYS, ALGORITHMS } from './../src/globals';
+import { KeySet, calculateThumbprint } from './../src/core/JWKUtils';
+import { KeyObjects, RSAKey, ECKey, OKP, ERRORS } from '../src/core/JWKUtils'
+import { KEY_FORMATS, KTYS, ALGORITHMS } from './../src/core/globals';
 import nock from 'nock';
 
 describe('JWK functions', function () {

@@ -1,6 +1,6 @@
-import { Identity, ERRORS, DidPublicKey } from './../src/Identity';
+import { Identity, ERRORS, DidPublicKey } from './../src/core/Identity';
 import nock from 'nock';
-import { KEY_FORMATS, KTYS } from '../src/globals';
+import { KEY_FORMATS, KTYS } from '../src/core/globals';
 
 const testDID = 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83';
 const invalidDID = 'did:eth:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83';

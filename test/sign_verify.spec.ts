@@ -1,7 +1,7 @@
-import { RSASigner, ECSigner, ES256KRecoverableSigner, OKPSigner } from './../src/Signers';
-import { KeyObjects, RSAKey, ECKey, OKP } from "../src/JWKUtils";
-import { ALGORITHMS } from '../src/globals';
-import { RSAVerifier, ECVerifier, ES256KRecoverableVerifier, OKPVerifier } from '../src/Verifiers';
+import { RSASigner, ECSigner, ES256KRecoverableSigner, OKPSigner } from './../src/core/Signers';
+import { KeyObjects, RSAKey, ECKey, OKP } from "../src/core/JWKUtils";
+import { ALGORITHMS } from '../src/core/globals';
+import { RSAVerifier, ECVerifier, ES256KRecoverableVerifier, OKPVerifier } from '../src/core/Verifiers';
 
 describe('Signing and verifying', function () {
     test('RSA sign/verify', async ()=>{

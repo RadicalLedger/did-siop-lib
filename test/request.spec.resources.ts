@@ -1,7 +1,7 @@
-import { ECKey } from './../src/JWKUtils';
-import { ALGORITHMS, KTYS, KEY_FORMATS } from './../src/globals';
-import { JWTObject } from './../src/JWT';
-import { sign } from '../src/JWT';
+import { ECKey } from './../src/core/JWKUtils';
+import { ALGORITHMS, KTYS, KEY_FORMATS } from './../src/core/globals';
+import { JWTObject } from './../src/core/JWT';
+import { sign } from '../src/core/JWT';
 
 const jwtGoodDecoded = {
     header: {
