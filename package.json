@@ -1,0 +1,61 @@
+{
+  "name": "did-siop",
+  "version": "1.0.0",
+  "description": "A library containing core functionality for DID based Self Issued OpenID Connect authentication. Contains both Relying Party and Provider components.",
+  "main": "dist/node/index.js",
+  "browser": "dist/browser/did-siop.js",
+  "scripts": {
+    "node-build": "tsc",
+    "compile": "babel dist/browser/did-siop.js --out-file dist/browser/did-siop.js --presets=@babel/preset-env",
+    "minify": "uglifyjs --compress --mangle --output dist/browser/did-siop.min.js -- dist/browser/did-siop.js",
+    "browser-build": "browserify src/index.ts -p [ tsify tsconfig.json ] --s DID_SIOP > dist/browser/did-siop.js && npm run-script compile && npm run-script minify",
+    "test": "jest --runInBand"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RadicalLedger/did-siop-lib.git"
+  },
+  "keywords": [
+    "Self_Issued_OpenIDConnect_Provider",
+    "DID",
+    "SIOP",
+    "Self_Soverign_Identity",
+    "DID_SIOP",
+    "OpenID_SIOP",
+    "Identity_Wallet",
+    "OpenIDConnect"
+  ],
+  "author": "SanujaLW",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RadicalLedger/did-siop-lib/issues"
+  },
+  "homepage": "https://github.com/RadicalLedger/did-siop-lib#readme",
+  "devDependencies": {
+    "@babel/core": "^7.9.6",
+    "@babel/preset-env": "^7.9.6",
+    "@types/bs58": "^4.0.1",
+    "@types/elliptic": "^6.4.12",
+    "@types/jest": "^25.2.1",
+    "@types/node": "^13.13.2",
+    "@types/query-string": "^6.3.0",
+    "browserify": "^16.5.1",
+    "jest": "^25.4.0",
+    "nock": "^12.0.3",
+    "ts-jest": "^25.4.0",
+    "tsify": "^4.0.1",
+    "typescript": "^3.8.3",
+    "uglify-js": "^3.9.2"
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.8.7",
+    "axios": "^0.19.2",
+    "base64url": "^3.0.1",
+    "bs58": "^4.0.1",
+    "elliptic": "^6.5.2",
+    "ethereum-checksum-address": "0.0.5",
+    "ethereum-public-key-to-address": "0.0.2",
+    "node-rsa": "^1.0.8",
+    "query-string": "^6.12.1"
+  }
+}
