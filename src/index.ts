@@ -1,3 +1,4 @@
+require("@babel/polyfill");
 export { SIOP as Provider } from './core/DID_SIOP';
 export { RP } from './core/DID_SIOP_RP';
 export { DidDocument } from './core/Identity';
