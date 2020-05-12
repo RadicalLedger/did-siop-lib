@@ -4,7 +4,10 @@
   "description": "A library containing core functionality for DID based Self Issued OpenID Connect authentication, written in typescript.",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
+    "node-build": "tsc",
+    "compile": "babel dist/browser/did-siop.js --out-file dist/browser/did-siop.js --presets=@babel/preset-env",
+    "minify": "uglifyjs --compress --mangle --output dist/browser/did-siop.min.js -- dist/browser/did-siop.js",
+    "browser-build": "browserify src/index.ts -p [ tsify tsconfig.json ] --s DID_SIOP > dist/browser/did-siop.js && npm run-script compile && npm run-script minify",
     "test": "jest --runInBand"
   },
   "repository": {
