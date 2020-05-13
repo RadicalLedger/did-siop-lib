@@ -70,23 +70,73 @@ provider.validateRequest(request)
 })
 ```
 
-### ALGORITHMS ###
-RS256
-RS384
-RS512
-PS256
-PS384
-PS512
-ES256
-ES384
-ES512
-ES256K
-ES256K-R
-EdDSA
+### Supported Algorithms ###
+Defined in srs/core/globals.ts
+* RS256, RS384, RS512
+* PS256, PS384, PS512
+* ES256, ES384, ES512, ES256K, ES256K-R, EdDSA
 
-### KEY_FORMATS ###
-PKCS8_PEM
-PKCS1_PEM
-HEX
-BASE58
-BASE64
+### Supported Key Formats ###
+Defined in srs/core/globals.ts
+* PKCS8_PEM, PKCS1_PEM
+* HEX, BASE58, BASE64
+
+## Classes & Methods ##
+
+### DID_SIOP ###
+This class provides primary functionality to for Self Issued OpenIDConnect Provider.
+
+#### setUser(did: string, doc?: DidDocument) ####
+* Parameters
+  * did:string - fully qualified decentralised identity of the user
+  * doc?:DidDocument - Complete DID Document for the user [Optional]
+* Return
+  * void
+
+Sets the user of the application. If the DID is provied, this function resolves the provided did to a DID Document
+
+#### addSigningParams(key: string, kid: string, format: KEY_FORMATS, algorithm: ALGORITHMS) ####
+Add necessary parameters for the user to cryptographically sign a message
+* Parameters
+  * key: string - Private Key of the user. Should match with one of the Keys provided in DID Document
+  * kid: string - Key ID, should be one of the key ids in provided DID Document
+  * format: KEY_FORMATS - One of the supported key formats (refer Supported Key Formats)
+  * algorithm: ALGORITHMS - One of the supported algorithms (refer Supported Algorithms)
+* Return
+  * void
+
+#### removeSigningParams(kid: string) ####
+Removed already added key information for sigining
+* Parameters
+  * kid: string - Key ID of the key to be removed
+* Return
+  * void
+
+#### validateRequest(request: string): Promise<JWTObject> ####
+* Parameters
+  * request: string - Authentication request from the user to sign in
+* Return
+  * Promise
+
+#### generateResponse(requestPayload: any, expiresIn: number = 1000): Promise<string> ####
+* Parameters
+  * requestPayload: content of the response as JSON object
+  * expiresIn: number - expiration time in seconds
+* Return
+  * Promise
+
+### DID-SIOP-RP ###
+
+#### getRP(redirect_uri: string, did: string, registration: any, did_doc?: DidDocument) ####
+
+#### addSigningParams(key: string, kid: string, format: KEY_FORMATS, algorithm: ALGORITHMS) ####
+
+#### removeSigningParams(kid: string) ####
+
+#### generateRequest(options:any = {}): Promise<string> ####
+
+#### generateUriRequest(request_uri: string, options:any = {}): Promise<string> ####
+
+#### validateResponse(response: string, checkParams: CheckParams = {redirect_uri: this.info.redirect_uri}): Promise<any> ####
+
+
