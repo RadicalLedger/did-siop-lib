@@ -125,7 +125,7 @@ export class SIOP{
         try {
             return DidSiopRequest.validateRequest(request);
         } catch (err) {
-            throw err;
+            return Promise.reject(err);
         }
     }
 
@@ -138,13 +138,13 @@ export class SIOP{
                     return await DidSiopResponse.generateResponse(requestPayload, signing_info, this.identity, expiresIn);
                 }
                 else{
-                    throw new Error(ERRORS.UNRESOLVED_IDENTITY);
+                    return Promise.reject(new Error(ERRORS.UNRESOLVED_IDENTITY));
                 }
             }
-            throw new Error(ERRORS.NO_SIGNING_INFO);
+            return Promise.reject(new Error(ERRORS.NO_SIGNING_INFO));
         }
         catch(err){
-            throw err;
+            return Promise.reject(err);
         }
     }
 }

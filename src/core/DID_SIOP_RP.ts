@@ -39,7 +39,7 @@ export class RP {
             }
             return rp;
         } catch (err) {
-            throw err;
+            return Promise.reject(err);
         }
     }
 
@@ -138,10 +138,10 @@ export class RP {
                 let signing_info = this.signing_info_set[Math.floor(Math.random() * this.signing_info_set.length)];
                 return await DidSiopRequest.generateRequest(this.info, signing_info, options);
             }
-            throw new Error(ERRORS.NO_SIGNING_INFO);
+            return Promise.reject(new Error(ERRORS.NO_SIGNING_INFO));
         }
         catch(err){
-            throw err;
+            return Promise.reject(err);
         }
     }
 
@@ -151,7 +151,7 @@ export class RP {
             return await this.generateRequest(options);
         }
         catch(err){
-            throw err;
+            return Promise.reject(ERRORS.NO_SIGNING_INFO);
         }
     }
 
@@ -159,7 +159,7 @@ export class RP {
         try {
             return await DidSiopResponse.validateResponse(response, checkParams);
         } catch (err) {
-            throw err;
+            return Promise.reject(err);
         }
     }
 }
