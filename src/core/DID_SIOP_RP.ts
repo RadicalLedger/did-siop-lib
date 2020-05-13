@@ -123,6 +123,15 @@ export class RP {
         }
     }
 
+    removeSigningParams(kid: string){
+        try{
+            this.signing_info_set = this.signing_info_set.filter(s => { return s.publicKey_kid !== kid });
+        }
+        catch(err){
+            throw err;
+        }
+    }
+
     async generateRequest(options:any = {}): Promise<string> {
         try{
             if(this.signing_info_set.length > 0){
