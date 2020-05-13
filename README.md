@@ -27,7 +27,7 @@ rp.addSigningParams(
   'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner', // Corresponding authentication method in RP's did document (to be used as kid value for key)
   DID_SIOP.KEY_FORMATS.HEX, //Format in which the key is supplied. List of values is given below
   DID_SIOP.ALGORITHMS['ES256K-R'] //Algorithm. List of values is given below
-);// If several keys are provided, one will be selected randomly when generating the request.
+);// If several keys are provided, one will be selected randomly when generating the request. To remove a key use rp.removeSigningParams(kid)
 
 //Request generation
 rp.generateRequest([optionsObj]).then(request => {
@@ -54,7 +54,7 @@ provider.addSigningParams(
   'did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#owner', // Corresponding authentication method in user's did document (to be used as kid value for key)
   DID_SIOP.KEY_FORMATS.HEX, //Format in which the key is supplied. List of values is given below
   DID_SIOP.ALGORITHMS['ES256K-R'] //Algorithm. List of values is given below
-);
+);// If several keys are provided, one will be selected randomly when generating the request. To remove a key use provider.removeSigningParams(kid)
 
 // Request validation and response generation
 provider.validateRequest(request)
