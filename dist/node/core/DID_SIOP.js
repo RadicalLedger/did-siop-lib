@@ -155,6 +155,14 @@ var SIOP = /** @class */ (function () {
             throw err;
         }
     };
+    SIOP.prototype.removeSigningParams = function (kid) {
+        try {
+            this.signing_info_set = this.signing_info_set.filter(function (s) { return s.publicKey_kid !== kid; });
+        }
+        catch (err) {
+            throw err;
+        }
+    };
     SIOP.prototype.validateRequest = function (request) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -162,7 +170,7 @@ var SIOP = /** @class */ (function () {
                     return [2 /*return*/, Request_1.DidSiopRequest.validateRequest(request)];
                 }
                 catch (err) {
-                    throw err;
+                    return [2 /*return*/, Promise.reject(err)];
                 }
                 return [2 /*return*/];
             });
@@ -181,11 +189,11 @@ var SIOP = /** @class */ (function () {
                         if (!this.identity.isResolved()) return [3 /*break*/, 2];
                         return [4 /*yield*/, Response_1.DidSiopResponse.generateResponse(requestPayload, signing_info, this.identity, expiresIn)];
                     case 1: return [2 /*return*/, _a.sent()];
-                    case 2: throw new Error(ERRORS.UNRESOLVED_IDENTITY);
-                    case 3: throw new Error(ERRORS.NO_SIGNING_INFO);
+                    case 2: return [2 /*return*/, Promise.reject(new Error(ERRORS.UNRESOLVED_IDENTITY))];
+                    case 3: return [2 /*return*/, Promise.reject(new Error(ERRORS.NO_SIGNING_INFO))];
                     case 4:
                         err_2 = _a.sent();
-                        throw err_2;
+                        return [2 /*return*/, Promise.reject(err_2)];
                     case 5: return [2 /*return*/];
                 }
             });
