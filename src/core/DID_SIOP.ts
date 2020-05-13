@@ -112,6 +112,15 @@ export class SIOP{
         }
     }
 
+    removeSigningParams(kid: string){
+        try{
+            this.signing_info_set = this.signing_info_set.filter(s => { return s.publicKey_kid !== kid });
+        }
+        catch(err){
+            throw err;
+        }
+    }
+
     async validateRequest(request: string): Promise<JWTObject>{
         try {
             return DidSiopRequest.validateRequest(request);
