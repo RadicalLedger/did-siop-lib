@@ -67,5 +67,15 @@ describe('DID SIOP', function () {
 
         expect(responseJWTDecoded).toHaveProperty('header');
         expect(responseJWTDecoded).toHaveProperty('payload');
+
+        rp.removeSigningParams('did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner');
+        let requestPromise = rp.generateRequest();
+
+        expect(requestPromise).rejects.toEqual(new Error('Atleast one SigningInfo is required'));
+
+        siop.removeSigningParams('did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#owner');
+        let responsePromise = siop.generateResponse(requestJWTDecoded.payload);
+
+        expect(responsePromise).rejects.toEqual(new Error('Atleast one SigningInfo is required'));
     })
 })

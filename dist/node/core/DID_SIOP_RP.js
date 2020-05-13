@@ -78,7 +78,7 @@ var RP = /** @class */ (function () {
                     case 3: return [2 /*return*/, rp];
                     case 4:
                         err_1 = _a.sent();
-                        throw err_1;
+                        return [2 /*return*/, Promise.reject(err_1)];
                     case 5: return [2 /*return*/];
                 }
             });
@@ -161,6 +161,14 @@ var RP = /** @class */ (function () {
             throw err;
         }
     };
+    RP.prototype.removeSigningParams = function (kid) {
+        try {
+            this.signing_info_set = this.signing_info_set.filter(function (s) { return s.publicKey_kid !== kid; });
+        }
+        catch (err) {
+            throw err;
+        }
+    };
     RP.prototype.generateRequest = function (options) {
         if (options === void 0) { options = {}; }
         return __awaiter(this, void 0, void 0, function () {
@@ -173,10 +181,10 @@ var RP = /** @class */ (function () {
                         signing_info = this.signing_info_set[Math.floor(Math.random() * this.signing_info_set.length)];
                         return [4 /*yield*/, Request_1.DidSiopRequest.generateRequest(this.info, signing_info, options)];
                     case 1: return [2 /*return*/, _a.sent()];
-                    case 2: throw new Error(ERRORS.NO_SIGNING_INFO);
+                    case 2: return [2 /*return*/, Promise.reject(new Error(ERRORS.NO_SIGNING_INFO))];
                     case 3:
                         err_2 = _a.sent();
-                        throw err_2;
+                        return [2 /*return*/, Promise.reject(err_2)];
                     case 4: return [2 /*return*/];
                 }
             });
@@ -195,7 +203,7 @@ var RP = /** @class */ (function () {
                     case 1: return [2 /*return*/, _a.sent()];
                     case 2:
                         err_3 = _a.sent();
-                        throw err_3;
+                        return [2 /*return*/, Promise.reject(ERRORS.NO_SIGNING_INFO)];
                     case 3: return [2 /*return*/];
                 }
             });
@@ -213,7 +221,7 @@ var RP = /** @class */ (function () {
                     case 1: return [2 /*return*/, _a.sent()];
                     case 2:
                         err_4 = _a.sent();
-                        throw err_4;
+                        return [2 /*return*/, Promise.reject(err_4)];
                     case 3: return [2 /*return*/];
                 }
             });

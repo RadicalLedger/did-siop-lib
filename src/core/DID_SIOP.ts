@@ -112,11 +112,20 @@ export class SIOP{
         }
     }
 
+    removeSigningParams(kid: string){
+        try{
+            this.signing_info_set = this.signing_info_set.filter(s => { return s.publicKey_kid !== kid });
+        }
+        catch(err){
+            throw err;
+        }
+    }
+
     async validateRequest(request: string): Promise<JWTObject>{
         try {
             return DidSiopRequest.validateRequest(request);
         } catch (err) {
-            throw err;
+            return Promise.reject(err);
         }
     }
 
@@ -129,13 +138,13 @@ export class SIOP{
                     return await DidSiopResponse.generateResponse(requestPayload, signing_info, this.identity, expiresIn);
                 }
                 else{
-                    throw new Error(ERRORS.UNRESOLVED_IDENTITY);
+                    return Promise.reject(new Error(ERRORS.UNRESOLVED_IDENTITY));
                 }
             }
-            throw new Error(ERRORS.NO_SIGNING_INFO);
+            return Promise.reject(new Error(ERRORS.NO_SIGNING_INFO));
         }
         catch(err){
-            throw err;
+            return Promise.reject(err);
         }
     }
 }
