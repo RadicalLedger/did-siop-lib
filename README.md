@@ -71,13 +71,13 @@ provider.validateRequest(request)
 ```
 
 ### Supported Algorithms ###
-Defined in srs/core/globals.ts
+Defined in _src/core/globals.ts_
 * RS256, RS384, RS512
 * PS256, PS384, PS512
 * ES256, ES384, ES512, ES256K, ES256K-R, EdDSA
 
 ### Supported Key Formats ###
-Defined in srs/core/globals.ts
+Defined in _src/core/globals.ts_
 * PKCS8_PEM, PKCS1_PEM
 * HEX, BASE58, BASE64
 
@@ -86,6 +86,7 @@ Defined in srs/core/globals.ts
 ### DID_SIOP ###
 This class provides primary functionality to for Self Issued OpenIDConnect Provider.
 
+---
 #### setUser(did: string, doc?: DidDocument) ####
 * Parameters
   * did:string - fully qualified decentralised identity of the user
@@ -95,6 +96,7 @@ This class provides primary functionality to for Self Issued OpenIDConnect Provi
 
 Sets the user of the application. If the DID is provied, this function resolves the provided did to a DID Document
 
+---
 #### addSigningParams(key: string, kid: string, format: KEY_FORMATS, algorithm: ALGORITHMS) ####
 Add necessary parameters for the user to cryptographically sign a message
 * Parameters
@@ -105,6 +107,7 @@ Add necessary parameters for the user to cryptographically sign a message
 * Return
   * void
 
+---
 #### removeSigningParams(kid: string) ####
 Removed already added key information for sigining
 * Parameters
@@ -112,18 +115,21 @@ Removed already added key information for sigining
 * Return
   * void
 
+---
 #### validateRequest(request: string): Promise<JWTObject> ####
 * Parameters
   * request: string - Authentication request from the user to sign in
 * Return
   * Promise
 
+---
 #### generateResponse(requestPayload: any, expiresIn: number = 1000): Promise<string> ####
 * Parameters
   * requestPayload: content of the response as JSON object
   * expiresIn: number - expiration time in seconds
 * Return
   * Promise
+---
 
 ### DID-SIOP-RP ###
 
