@@ -15,7 +15,7 @@ const ERRORS= Object.freeze({
     KEY_MISMATCH: 'Public and private keys do not match',
 });
 
-export class SIOP{
+export class Provider{
     private identity: Identity = new Identity();
     private signing_info_set: SigningInfo[] = [];
 

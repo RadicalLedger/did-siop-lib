@@ -1,5 +1,5 @@
 require("@babel/polyfill");
-export { SIOP as Provider } from './core/DID_SIOP';
+export { Provider } from './core/DID_SIOP_Provider';
 export { RP } from './core/DID_SIOP_RP';
 export { DidDocument } from './core/Identity';
 export { ALGORITHMS } from './core/globals';
