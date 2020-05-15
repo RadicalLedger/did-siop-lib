@@ -28,7 +28,7 @@ export class RP {
         }
     }
 
-    static async getRP(redirect_uri: string, did: string, registration: any, did_doc?: DidDocument) {
+    static async getRP(redirect_uri: string, did: string, registration: any, did_doc?: DidDocument): Promise<RP> {
         try {
             let rp = new RP(redirect_uri, did, registration, did_doc)
             if(did_doc){
