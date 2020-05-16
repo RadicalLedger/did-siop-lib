@@ -6,7 +6,7 @@ import { DidSiopResponse } from './Response';
 import { SigningInfo, JWTObject } from './JWT';
 import { Identity, DidDocument } from './Identity';
 import { DidSiopRequest } from './Request';
-import { checkKeyPair } from './Utils';
+import { checkKeyPair, getAlgorithm, getKeyFormat } from './Utils';
 
 const ERRORS= Object.freeze({
     NO_SIGNING_INFO: 'Atleast one SigningInfo is required',
@@ -32,8 +32,11 @@ export class Provider{
         }
     }
 
-    addSigningParams(key: string, kid: string, format: KEY_FORMATS, algorithm: ALGORITHMS) {
+    addSigningParams(key: string, kid: string, format: KEY_FORMATS | string, algorithm: ALGORITHMS | string) {
         try{
+            algorithm = typeof algorithm === 'string'? getAlgorithm(algorithm) : algorithm;
+            format = typeof format === 'string'? getKeyFormat(format) : format;
+
             let didPublicKey = this.identity.getPublicKey(kid);
 
             let publicKeyInfo: KeyInputs.KeyInfo = {
