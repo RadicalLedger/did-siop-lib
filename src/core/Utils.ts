@@ -1,5 +1,5 @@
 import { Key } from "./JWKUtils";
-import { ALGORITHMS } from "./globals";
+import { ALGORITHMS, KEY_FORMATS } from "./globals";
 import { Signer } from "./Signers";
 import { Verifier } from "./Verifiers";
 
@@ -13,4 +13,12 @@ export function checkKeyPair(privateKey: Key | string, publicKey: Key | string, 
 
     let signature = signer.sign(message, privateKey, algorithm);
     return verifier.verify(message, signature, publicKey, algorithm);
+}
+
+export function getAlgorithm(alg: string): ALGORITHMS{
+    return ALGORITHMS[alg.toUpperCase() as keyof typeof ALGORITHMS];
+}
+
+export function getKeyFormat(format: string): KEY_FORMATS{
+    return KEY_FORMATS[format.toUpperCase() as keyof typeof KEY_FORMATS];
 }
