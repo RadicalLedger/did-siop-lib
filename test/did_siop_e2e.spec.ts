@@ -1,5 +1,5 @@
 import { JWTObject } from './../src/core/JWT';
-import { SIOP } from './../src/core/DID_SIOP';
+import { Provider } from './../src/core/DID_SIOP_Provider';
 import { RP } from '../src/core/DID_SIOP_RP';
 import { ALGORITHMS, KEY_FORMATS } from '../src/core/globals';
 
@@ -46,7 +46,7 @@ describe('DID SIOP', function () {
 
         let request =  await rp.generateRequest();
 
-        let siop = new SIOP();
+        let siop = new Provider();
         await siop.setUser('did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf');
 
         let userPrivateKeyHex = '3f81cb66c8cbba18fbe25f99d2fb4e19f54a1ee69c335ce756a705726189c9e7';

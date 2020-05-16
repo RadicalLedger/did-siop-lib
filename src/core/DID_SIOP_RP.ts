@@ -6,7 +6,7 @@ import { KEY_FORMATS, ALGORITHMS, KTYS } from './globals';
 import { KeyInputs, Key, RSAKey, ECKey, OKP } from './JWKUtils';
 import { RSASigner, ES256KRecoverableSigner, ECSigner, OKPSigner } from './Signers';
 import { RSAVerifier, ES256KRecoverableVerifier, ECVerifier, OKPVerifier } from './Verifiers';
-import { checkKeyPair } from './Utils';
+import { checkKeyPair, getAlgorithm, getKeyFormat } from './Utils';
 
 const ERRORS= Object.freeze({
     NO_SIGNING_INFO: 'Atleast one SigningInfo is required',
@@ -28,7 +28,7 @@ export class RP {
         }
     }
 
-    static async getRP(redirect_uri: string, did: string, registration: any, did_doc?: DidDocument) {
+    static async getRP(redirect_uri: string, did: string, registration: any, did_doc?: DidDocument): Promise<RP> {
         try {
             let rp = new RP(redirect_uri, did, registration, did_doc)
             if(did_doc){
@@ -43,8 +43,11 @@ export class RP {
         }
     }
 
-    addSigningParams(key: string, kid: string, format: KEY_FORMATS, algorithm: ALGORITHMS) {
+    addSigningParams(key: string, kid: string, format: KEY_FORMATS | string, algorithm: ALGORITHMS | string) {
         try{
+            algorithm = typeof algorithm === 'string'? getAlgorithm(algorithm) : algorithm;
+            format = typeof format === 'string'? getKeyFormat(format) : format;
+
             let didPublicKey = this.identity.getPublicKey(kid);
 
             let publicKeyInfo: KeyInputs.KeyInfo = {

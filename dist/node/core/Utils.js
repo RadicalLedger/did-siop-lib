@@ -1,5 +1,6 @@
 "use strict";
 exports.__esModule = true;
+var globals_1 = require("./globals");
 function leftpad(data, size) {
     if (size === void 0) { size = 64; }
     if (data.length === size)
@@ -13,4 +14,12 @@ function checkKeyPair(privateKey, publicKey, signer, verifier, algorithm) {
     return verifier.verify(message, signature, publicKey, algorithm);
 }
 exports.checkKeyPair = checkKeyPair;
+function getAlgorithm(alg) {
+    return globals_1.ALGORITHMS[alg.toUpperCase()];
+}
+exports.getAlgorithm = getAlgorithm;
+function getKeyFormat(format) {
+    return globals_1.KEY_FORMATS[format.toUpperCase()];
+}
+exports.getKeyFormat = getKeyFormat;
 //# sourceMappingURL=Utils.js.map
