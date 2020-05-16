@@ -36,55 +36,49 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-var Response_1 = require("./Response");
-var Request_1 = require("./Request");
-var Identity_1 = require("./Identity");
-var globals_1 = require("./globals");
-var JWKUtils_1 = require("./JWKUtils");
-var Signers_1 = require("./Signers");
 var Verifiers_1 = require("./Verifiers");
+var Signers_1 = require("./Signers");
+var JWKUtils_1 = require("./JWKUtils");
+var globals_1 = require("./globals");
+var Response_1 = require("./Response");
+var Identity_1 = require("./Identity");
+var Request_1 = require("./Request");
 var Utils_1 = require("./Utils");
 var ERRORS = Object.freeze({
     NO_SIGNING_INFO: 'Atleast one SigningInfo is required',
+    UNRESOLVED_IDENTITY: 'Unresolved identity',
     INVALID_KEY_TYPE: 'Invalid key type',
     KEY_MISMATCH: 'Public and private keys do not match'
 });
-var RP = /** @class */ (function () {
-    function RP(redirect_uri, did, registration, did_doc) {
+var Provider = /** @class */ (function () {
+    function Provider() {
         this.identity = new Identity_1.Identity();
         this.signing_info_set = [];
-        this.info = {
-            redirect_uri: redirect_uri,
-            did: did,
-            registration: registration,
-            did_doc: did_doc
-        };
     }
-    RP.getRP = function (redirect_uri, did, registration, did_doc) {
+    Provider.prototype.setUser = function (did, doc) {
         return __awaiter(this, void 0, void 0, function () {
-            var rp, err_1;
+            var err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 4, , 5]);
-                        rp = new RP(redirect_uri, did, registration, did_doc);
-                        if (!did_doc) return [3 /*break*/, 1];
-                        rp.identity.setDocument(did_doc, did);
+                        if (!doc) return [3 /*break*/, 1];
+                        this.identity.setDocument(doc, did);
                         return [3 /*break*/, 3];
-                    case 1: return [4 /*yield*/, rp.identity.resolve(did)];
+                    case 1: return [4 /*yield*/, this.identity.resolve(did)];
                     case 2:
                         _a.sent();
                         _a.label = 3;
-                    case 3: return [2 /*return*/, rp];
+                    case 3: return [3 /*break*/, 5];
                     case 4:
                         err_1 = _a.sent();
-                        return [2 /*return*/, Promise.reject(err_1)];
+                        throw err_1;
                     case 5: return [2 /*return*/];
                 }
             });
         });
     };
-    RP.prototype.addSigningParams = function (key, kid, format, algorithm) {
+    Provider.prototype.addSigningParams = function (key, kid, format, algorithm) {
         try {
             algorithm = typeof algorithm === 'string' ? Utils_1.getAlgorithm(algorithm) : algorithm;
             format = typeof format === 'string' ? Utils_1.getKeyFormat(format) : format;
@@ -163,7 +157,7 @@ var RP = /** @class */ (function () {
             throw err;
         }
     };
-    RP.prototype.removeSigningParams = function (kid) {
+    Provider.prototype.removeSigningParams = function (kid) {
         try {
             this.signing_info_set = this.signing_info_set.filter(function (s) { return s.publicKey_kid !== kid; });
         }
@@ -171,65 +165,43 @@ var RP = /** @class */ (function () {
             throw err;
         }
     };
-    RP.prototype.generateRequest = function (options) {
-        if (options === void 0) { options = {}; }
+    Provider.prototype.validateRequest = function (request) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                try {
+                    return [2 /*return*/, Request_1.DidSiopRequest.validateRequest(request)];
+                }
+                catch (err) {
+                    return [2 /*return*/, Promise.reject(err)];
+                }
+                return [2 /*return*/];
+            });
+        });
+    };
+    Provider.prototype.generateResponse = function (requestPayload, expiresIn) {
+        if (expiresIn === void 0) { expiresIn = 1000; }
         return __awaiter(this, void 0, void 0, function () {
             var signing_info, err_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 3, , 4]);
-                        if (!(this.signing_info_set.length > 0)) return [3 /*break*/, 2];
+                        _a.trys.push([0, 4, , 5]);
+                        if (!(this.signing_info_set.length > 0)) return [3 /*break*/, 3];
                         signing_info = this.signing_info_set[Math.floor(Math.random() * this.signing_info_set.length)];
-                        return [4 /*yield*/, Request_1.DidSiopRequest.generateRequest(this.info, signing_info, options)];
+                        if (!this.identity.isResolved()) return [3 /*break*/, 2];
+                        return [4 /*yield*/, Response_1.DidSiopResponse.generateResponse(requestPayload, signing_info, this.identity, expiresIn)];
                     case 1: return [2 /*return*/, _a.sent()];
-                    case 2: return [2 /*return*/, Promise.reject(new Error(ERRORS.NO_SIGNING_INFO))];
-                    case 3:
+                    case 2: return [2 /*return*/, Promise.reject(new Error(ERRORS.UNRESOLVED_IDENTITY))];
+                    case 3: return [2 /*return*/, Promise.reject(new Error(ERRORS.NO_SIGNING_INFO))];
+                    case 4:
                         err_2 = _a.sent();
                         return [2 /*return*/, Promise.reject(err_2)];
-                    case 4: return [2 /*return*/];
+                    case 5: return [2 /*return*/];
                 }
             });
         });
     };
-    RP.prototype.generateUriRequest = function (request_uri, options) {
-        if (options === void 0) { options = {}; }
-        return __awaiter(this, void 0, void 0, function () {
-            var err_3;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        this.info.request_uri = request_uri;
-                        return [4 /*yield*/, this.generateRequest(options)];
-                    case 1: return [2 /*return*/, _a.sent()];
-                    case 2:
-                        err_3 = _a.sent();
-                        return [2 /*return*/, Promise.reject(ERRORS.NO_SIGNING_INFO)];
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    RP.prototype.validateResponse = function (response, checkParams) {
-        if (checkParams === void 0) { checkParams = { redirect_uri: this.info.redirect_uri }; }
-        return __awaiter(this, void 0, void 0, function () {
-            var err_4;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, Response_1.DidSiopResponse.validateResponse(response, checkParams)];
-                    case 1: return [2 /*return*/, _a.sent()];
-                    case 2:
-                        err_4 = _a.sent();
-                        return [2 /*return*/, Promise.reject(err_4)];
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    return RP;
+    return Provider;
 }());
-exports.RP = RP;
-//# sourceMappingURL=DID_SIOP_RP.js.map
+exports.Provider = Provider;
+//# sourceMappingURL=DID_SIOP_Provider.js.map
