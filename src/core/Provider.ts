@@ -7,6 +7,7 @@ import { SigningInfo, JWTObject } from './JWT';
 import { Identity, DidDocument } from './Identity';
 import { DidSiopRequest } from './Request';
 import { checkKeyPair, getAlgorithm, getKeyFormat } from './Utils';
+import * as ErrorResponse from './ErrorResponse';
 
 const ERRORS= Object.freeze({
     NO_SIGNING_INFO: 'Atleast one SigningInfo is required',
@@ -148,6 +149,15 @@ export class Provider{
         }
         catch(err){
             return Promise.reject(err);
+        }
+    }
+
+    generateErrorResponse(errorMessage: string): string{
+        try{
+            return ErrorResponse.getBase64URLEncodedError(errorMessage);
+        }
+        catch(err){
+            throw err;
         }
     }
 }
