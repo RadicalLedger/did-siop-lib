@@ -3,6 +3,7 @@ import * as JWT from './JWT';
 import { Identity } from './Identity';
 import { KeyInputs, Key, RSAKey, ECKey, OKP, calculateThumbprint } from './JWKUtils';
 import base64url from 'base64url';
+import * as ErrorResponse from './ErrorResponse';
 
 
 const ERRORS = Object.freeze({
@@ -104,21 +105,17 @@ export class DidSiopResponse{
         }
     }
 
-    static async validateResponse(response: string, checkParams: CheckParams): Promise<JWT.JWTObject>{
+    static async validateResponse(response: string, checkParams: CheckParams): Promise<JWT.JWTObject | ErrorResponse.SIOPErrorResponse>{
         let decodedHeader;
         let decodedPayload;
         try {
+            let errorResponse = ErrorResponse.checkErrorResponse(response);
+            if(errorResponse) return errorResponse;
+
             decodedHeader = JSON.parse(base64url.decode(response.split('.')[0]));
             decodedPayload = JSON.parse(base64url.decode(response.split('.')[1]));
         } catch (err) {
-            try {
-                let error = JSON.parse(base64url.decode(response));
-                if(error){
-                    return error;
-                }
-            } catch (err) {
-                return Promise.reject(err);
-            }
+            return Promise.reject(err);
         }
 
         if(
