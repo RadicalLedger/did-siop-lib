@@ -112,8 +112,9 @@ export class RP {
             if(checkKeyPair(privateKey, publicKey, signer, verifier, algorithm)){
                 this.signing_info_set.push({
                     alg: algorithm,
-                    publicKey_kid: kid,
-                    privateKey: privateKey
+                    kid: kid,
+                    key: key,
+                    format: format,
                 })
             }
             else{
@@ -128,7 +129,7 @@ export class RP {
 
     removeSigningParams(kid: string){
         try{
-            this.signing_info_set = this.signing_info_set.filter(s => { return s.publicKey_kid !== kid });
+            this.signing_info_set = this.signing_info_set.filter(s => { return s.kid !== kid });
         }
         catch(err){
             throw err;
