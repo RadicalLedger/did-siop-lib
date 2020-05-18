@@ -41,11 +41,11 @@ export class DidSiopResponse{
                 Promise.reject(ERRORS.UNSUPPORTED_ALGO);
             }
 
-            let didPubKey = didSiopUser.getPublicKey(signingInfo.publicKey_kid);
+            let didPubKey = didSiopUser.getPublicKey(signingInfo.kid);
             header = {
                 typ: 'JWT',
                 alg: alg,
-                kid: signingInfo.publicKey_kid,
+                kid: signingInfo.kid,
             }
 
             let publicKey: Key | undefined;
@@ -63,11 +63,11 @@ export class DidSiopResponse{
                 case KTYS.RSA: publicKey = RSAKey.fromKey(keyInfo); break;
                 case KTYS.EC: {
                     if(didPubKey.format === KEY_FORMATS.ETHEREUM_ADDRESS){
-                        publicKey = signingInfo.privateKey; 
+                        keyInfo.key = signingInfo.key;
+                        keyInfo.format = signingInfo.format;
+                        keyInfo.isPrivate = true;
                     }
-                    else{
-                        publicKey = ECKey.fromKey(keyInfo); 
-                    }
+                    publicKey = ECKey.fromKey(keyInfo);
                     break;
                 }
                 case KTYS.OKP: publicKey = OKP.fromKey(keyInfo); break;
@@ -99,7 +99,7 @@ export class DidSiopResponse{
                 payload: payload,
             }
     
-            return JWT.sign(unsigned, signingInfo.privateKey);
+            return JWT.sign(unsigned, signingInfo);
         } catch (err) {
             return Promise.reject(err);
         }
@@ -152,36 +152,17 @@ export class DidSiopResponse{
             let jwkThumbprint = calculateThumbprint(decodedPayload.sub_jwk);
             if (jwkThumbprint !== decodedPayload.sub) return Promise.reject(new Error(ERRORS.INVALID_JWK_THUMBPRINT));
 
-            
-            let publicKey: Key | string | undefined;
+            let publicKeyInfo: JWT.SigningInfo | undefined;
             try{
                 let identity = new Identity();
                 await identity.resolve(decodedPayload.did);
                 
-
                 let didPubKey = identity.getPublicKey(decodedHeader.kid);
-            
-                let keyInfo: KeyInputs.KeyInfo = {
+                publicKeyInfo = {
                     key: didPubKey.keyString,
                     kid: didPubKey.id,
-                    use: 'sig',
-                    kty: KTYS[didPubKey.kty],
-                    format: didPubKey.format,
-                    isPrivate: false,
-                }
-    
-                switch(didPubKey.kty){
-                    case KTYS.RSA: publicKey = RSAKey.fromKey(keyInfo); break;
-                    case KTYS.EC: {
-                        if(didPubKey.format === KEY_FORMATS.ETHEREUM_ADDRESS){
-                            publicKey = keyInfo.key; 
-                        }
-                        else{
-                            publicKey = ECKey.fromKey(keyInfo); 
-                        }
-                        break;
-                    }
-                    case KTYS.OKP: publicKey = OKP.fromKey(keyInfo); break;
+                    alg: ALGORITHMS[decodedHeader.alg as keyof typeof ALGORITHMS],
+                    format: didPubKey.format
                 }
             }
             catch(err){
@@ -189,8 +170,8 @@ export class DidSiopResponse{
             }
 
             let validity: boolean = false; 
-            if(publicKey){
-                validity = JWT.verify(response, publicKey);
+            if(publicKeyInfo){
+                validity = JWT.verify(response, publicKeyInfo);
             }
             else{
                 return Promise.reject(ERRORS.PUBLIC_KEY_ERROR);

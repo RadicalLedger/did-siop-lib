@@ -1,8 +1,7 @@
 import { DidSiopResponse } from './../src/core/Response';
 import { Identity } from './../src/core/Identity';
 import { SigningInfo } from './../src/core/JWT';
-import { ALGORITHMS, KTYS, KEY_FORMATS } from '../src/core/globals';
-import { ECKey } from '../src/core/JWKUtils';
+import { ALGORITHMS, KEY_FORMATS } from '../src/core/globals';
 
 describe("Response", function () {
     test("Response generation and validation", async () => {
@@ -22,15 +21,9 @@ describe("Response", function () {
         }
         let signing: SigningInfo = {
             alg: ALGORITHMS["ES256K-R"],
-            privateKey: ECKey.fromKey({
-                key: 'CE438802C1F0B6F12BC6E686F372D7D495BC5AA634134B4A7EA4603CB25F0964',
-                kid: 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner',
-                use: 'sig',
-                kty: KTYS[KTYS.EC],
-                format: KEY_FORMATS.HEX,
-                isPrivate: true,
-            }),
-            publicKey_kid: 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner',
+            key: 'CE438802C1F0B6F12BC6E686F372D7D495BC5AA634134B4A7EA4603CB25F0964',
+            kid: 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner',
+            format: KEY_FORMATS.HEX,
         }
 
         let user = new Identity();
