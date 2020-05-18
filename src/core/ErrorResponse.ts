@@ -196,8 +196,10 @@ export function checkErrorResponse(responseBase64Encoded: string): SIOPErrorResp
         let errorResponseDecoded = JSON.parse(base64url.decode(responseBase64Encoded));
         if(
             errorResponseDecoded.error &&
-            errorResponseDecoded.description &&
-            errorResponseDecoded.error_uri
+            errorResponseDecoded.description !== undefined &&
+            errorResponseDecoded.description !== null &&
+            errorResponseDecoded.error_uri !== undefined &&
+            errorResponseDecoded.error_uri !== null
         ){
             return errorResponseDecoded;
         }
