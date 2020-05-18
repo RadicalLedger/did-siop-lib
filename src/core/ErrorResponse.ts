@@ -1,3 +1,5 @@
+import base64url from 'base64url';
+
 export interface SIOPErrorResponse{
     error: string;
     description: string;
@@ -172,4 +174,36 @@ export const ERROR_RESPONSES = {
     request_not_supported,
     request_uri_not_supported,
     registration_not_supported,
+}
+
+
+export function getBase64URLEncodedError(errorMessage: string): string{
+    let error = ERROR_RESPONSES[errorMessage as keyof typeof ERROR_RESPONSES];
+    if(error){
+        return base64url.encode(JSON.stringify(error.response));
+    }
+    else{
+        return base64url.encode(JSON.stringify({
+            error: 'unknown_error',
+            description: 'Unknown error occured.',
+            error_uri: ''
+        }));
+    }
+}
+
+export function checkErrorResponse(responseBase64Encoded: string): SIOPErrorResponse | undefined{
+    try{
+        let errorResponseDecoded = JSON.parse(base64url.decode(responseBase64Encoded));
+        if(
+            errorResponseDecoded.error &&
+            errorResponseDecoded.description &&
+            errorResponseDecoded.error_uri
+        ){
+            return errorResponseDecoded;
+        }
+        return undefined;
+    }
+    catch(err){
+        return undefined;
+    }
 }
