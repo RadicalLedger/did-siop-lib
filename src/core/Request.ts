@@ -3,10 +3,9 @@ import { Identity, DidDocument } from './Identity';
 import * as queryString from 'query-string';
 import { ERROR_RESPONSES } from './ErrorResponse';
 import base64url from 'base64url';
-import { Key, KeySet, KeyInputs, RSAKey, ECKey, OKP } from './JWKUtils';
+import { KeySet } from './JWKUtils';
 import { ALGORITHMS, KTYS, KEY_FORMATS } from './globals';
 import * as JWT from './JWT';
-import { JWTObject, SigningInfo } from './JWT';
 const axios = require('axios').default;
 
 const RESPONSE_TYPES = ['id_token',];
@@ -22,13 +21,13 @@ export interface RPInfo{
 }
 
 export class DidSiopRequest{
-    static async validateRequest(request: string): Promise<JWTObject>{
+    static async validateRequest(request: string): Promise<JWT.JWTObject>{
         let requestJWT = await validateRequestParams(request);
         let jwtDecoded = await validateRequestJWT(requestJWT);
         return jwtDecoded;
     }
 
-    static async generateRequest(rp: RPInfo, signing: SigningInfo, options: any): Promise<string> {
+    static async generateRequest(rp: RPInfo, signingInfo: JWT.SigningInfo, options: any): Promise<string> {
         const url = 'openid://';
         const query: any = {
             response_type: 'id_token',
@@ -41,9 +40,9 @@ export class DidSiopRequest{
         }
         else {
             let jwtHeader = {
-                alg: ALGORITHMS[signing.alg],
+                alg: ALGORITHMS[signingInfo.alg],
                 typ: 'JWT',
-                kid: signing.publicKey_kid
+                kid: signingInfo.kid
             }
 
             let jwtPayload = {
@@ -60,7 +59,7 @@ export class DidSiopRequest{
                 payload: jwtPayload
             }
 
-            let jwt = JWT.sign(jwtObject, signing.privateKey);
+            let jwt = JWT.sign(jwtObject, signingInfo);
 
             query.request = jwt;
         }
@@ -110,7 +109,7 @@ async function validateRequestParams(request: string): Promise<string> {
     }
 }
 
-async function validateRequestJWT(requestJWT: string): Promise<JWTObject> {
+async function validateRequestJWT(requestJWT: string): Promise<JWT.JWTObject> {
     let decodedHeader;
     let decodedPayload;
     try {
@@ -123,38 +122,23 @@ async function validateRequestJWT(requestJWT: string): Promise<JWTObject> {
 
     if (
         (decodedHeader.kid && !decodedHeader.kid.match(/^ *$/)) &&
+        (decodedHeader.alg && !decodedHeader.alg.match(/^ *$/)) &&
         (decodedPayload.iss && !decodedPayload.iss.match(/^ *$/)) &&
         (decodedPayload.scope && decodedPayload.scope.indexOf('did_authn') > -1) &&
         (decodedPayload.registration && !JSON.stringify(decodedPayload.registration).match(/^ *$/))
     ) {
-        let publicKey: Key | string | undefined;
+        let publicKeyInfo: JWT.SigningInfo | undefined;
 
         try {
             let identity = new Identity();
             await identity.resolve(decodedPayload.iss);
             
             let didPubKey = identity.getPublicKey(decodedHeader.kid);
-            let keyInfo: KeyInputs.KeyInfo = {
+            publicKeyInfo = {
                 key: didPubKey.keyString,
                 kid: didPubKey.id,
-                use: 'sig',
-                kty: KTYS[didPubKey.kty],
-                format: didPubKey.format,
-                isPrivate: false,
-            }
-
-            switch(didPubKey.kty){
-                case KTYS.RSA: publicKey = RSAKey.fromKey(keyInfo); break;
-                case KTYS.EC: {
-                    if(didPubKey.format === KEY_FORMATS.ETHEREUM_ADDRESS){
-                        publicKey = keyInfo.key; 
-                    }
-                    else{
-                        publicKey = ECKey.fromKey(keyInfo); 
-                    }
-                    break;
-                }
-                case KTYS.OKP: publicKey = OKP.fromKey(keyInfo); break;
+                alg: ALGORITHMS[decodedHeader.alg as keyof typeof ALGORITHMS],
+                format: didPubKey.format
             }
         } catch (err) {
             try {
@@ -165,17 +149,36 @@ async function validateRequestJWT(requestJWT: string): Promise<JWTObject> {
                 else if(decodedPayload.jwks_uri && decodedPayload.jwks_uri === (RESOLVER_URL + decodedPayload.iss + ';transform-keys=jwks')){
                     keyset.setURI(decodedPayload.jwks_uri);
                 }
-                publicKey = keyset.getKey(decodedPayload.kid)[0];
+                let keySetKey = keyset.getKey(decodedPayload.kid)[0];
+                let keySetKeyFormat: KEY_FORMATS;
+                switch(keySetKey.toJWK().kty){
+                    case KTYS[KTYS.RSA]: {
+                        keySetKeyFormat = KEY_FORMATS.PKCS1_PEM;
+                        break;
+                    }
+                    case KTYS[KTYS.EC]:
+                    case KTYS[KTYS.OKP]: {
+                        keySetKeyFormat = KEY_FORMATS.HEX;
+                        break;
+                    }
+                    default: keySetKeyFormat = KEY_FORMATS.HEX;
+                }
+                publicKeyInfo = {
+                    key: keySetKey.exportKey(keySetKeyFormat),
+                    kid: keySetKey.toJWK().kid,
+                    alg: ALGORITHMS[decodedHeader.alg as keyof typeof ALGORITHMS],
+                    format: keySetKeyFormat
+                }
             } catch (err) {
-                publicKey = undefined;
+                publicKeyInfo = undefined;
             }
         }
 
-        if (publicKey) {
+        if (publicKeyInfo) {
             let validity = false;
 
             try {
-                validity = JWT.verify(requestJWT, publicKey);
+                validity = JWT.verify(requestJWT, publicKeyInfo);
             } catch (err) {
                 return Promise.reject(ERROR_RESPONSES.invalid_request_object.err);
             }

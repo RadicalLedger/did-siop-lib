@@ -69,7 +69,7 @@ describe("Request validation/generation", function () {
     });
     test("Generate request - expect truthy", async () => {
         jest.setTimeout(7000);
-        let rqst = await DidSiopRequest.generateRequest(requests.components.rp, requests.components.signing, requests.components.options);
+        let rqst = await DidSiopRequest.generateRequest(requests.components.rp, requests.components.signingInfo, requests.components.options);
         let decoded = await DidSiopRequest.validateRequest(rqst);
         expect(decoded).toHaveProperty('header');
         expect(decoded).toHaveProperty('payload');
