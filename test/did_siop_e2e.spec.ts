@@ -1,6 +1,6 @@
 import { JWTObject } from './../src/core/JWT';
-import { Provider } from './../src/core/DID_SIOP_Provider';
-import { RP } from '../src/core/DID_SIOP_RP';
+import { Provider } from './../src/core/Provider';
+import { RP } from '../src/core/RP';
 import { ALGORITHMS, KEY_FORMATS } from '../src/core/globals';
 
 describe('DID SIOP', function () {
