@@ -1,4 +1,3 @@
-require("@babel/polyfill");
 export { Provider } from './core/Provider';
 export { RP } from './core/RP';
 export { DidDocument } from './core/Identity';
