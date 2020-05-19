@@ -2,8 +2,60 @@ import { DidSiopResponse } from './../src/core/Response';
 import { Identity } from './../src/core/Identity';
 import { SigningInfo } from './../src/core/JWT';
 import { ALGORITHMS, KEY_FORMATS } from '../src/core/globals';
+import nock from 'nock';
+
+let rpDidDoc = {
+    didDocument: {
+        "@context": "https://w3id.org/did/v1",
+        "id": "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83",
+        "authentication": [
+        {
+            "type": "Secp256k1SignatureAuthentication2018",
+            "publicKey": [
+            "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner"
+            ]
+        }
+        ],
+        "publicKey": [
+        {
+            "id": "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner",
+            "type": "Secp256k1VerificationKey2018",
+            "ethereumAddress": "0xb07ead9717b44b6cf439c474362b9b0877cbbf83",
+            "owner": "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83"
+        }
+        ]
+    }
+}
+let rpDID = 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83';
+
+let userDidDoc = {
+    didDocument: {
+        "@context": "https://w3id.org/did/v1",
+        "id": "did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf",
+        "authentication": [
+        {
+            "type": "Secp256k1SignatureAuthentication2018",
+            "publicKey": [
+            "did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#owner"
+            ]
+        }
+        ],
+        "publicKey": [
+        {
+            "id": "did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#owner",
+            "type": "Secp256k1VerificationKey2018",
+            "ethereumAddress": "0x30d1707aa439f215756d67300c95bb38b5646aef",
+            "owner": "did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf"
+        }
+        ]
+    }
+  }
+let userDID = 'did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf';
 
 describe("Response", function () {
+    beforeEach(() => {
+        nock('https://uniresolver.io/1.0/identifiers').persist().get('/'+rpDID).reply(200, rpDidDoc).get('/'+userDID).reply(200, userDidDoc);
+    });
     test("Response generation and validation", async () => {
         jest.setTimeout(7000);
         let requestPayload = {
