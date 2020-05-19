@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var ALGORITHMS;
 (function (ALGORITHMS) {
     ALGORITHMS[ALGORITHMS["RS256"] = 0] = "RS256";

@@ -12,14 +12,14 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var crypto_1 = require("crypto");
 var Utils_1 = require("./Utils");
 var globals_1 = require("./globals");
 var elliptic_1 = require("elliptic");
 exports.ERRORS = Object.freeze({
     NO_PRIVATE_KEY: 'Not a private key',
-    INVALID_ALGORITHM: 'Invalid algorithm'
+    INVALID_ALGORITHM: 'Invalid algorithm',
 });
 var Signer = /** @class */ (function () {
     function Signer() {
@@ -36,7 +36,7 @@ var RSASigner = /** @class */ (function (_super) {
         if (key.isPrivate()) {
             var signer = void 0;
             var signerParams = {
-                key: key.exportKey(globals_1.KEY_FORMATS.PKCS8_PEM)
+                key: key.exportKey(globals_1.KEY_FORMATS.PKCS8_PEM),
             };
             switch (algorithm) {
                 case globals_1.ALGORITHMS.RS256:

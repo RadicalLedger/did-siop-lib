@@ -35,7 +35,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-exports.__esModule = true;
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
 var Verifiers_1 = require("./Verifiers");
 var Signers_1 = require("./Signers");
 var JWKUtils_1 = require("./JWKUtils");
@@ -44,18 +51,19 @@ var Response_1 = require("./Response");
 var Identity_1 = require("./Identity");
 var Request_1 = require("./Request");
 var Utils_1 = require("./Utils");
+var ErrorResponse = __importStar(require("./ErrorResponse"));
 var ERRORS = Object.freeze({
     NO_SIGNING_INFO: 'Atleast one SigningInfo is required',
     UNRESOLVED_IDENTITY: 'Unresolved identity',
     INVALID_KEY_TYPE: 'Invalid key type',
-    KEY_MISMATCH: 'Public and private keys do not match'
+    KEY_MISMATCH: 'Public and private keys do not match',
 });
-var SIOP = /** @class */ (function () {
-    function SIOP() {
+var Provider = /** @class */ (function () {
+    function Provider() {
         this.identity = new Identity_1.Identity();
         this.signing_info_set = [];
     }
-    SIOP.prototype.setUser = function (did, doc) {
+    Provider.prototype.setUser = function (did, doc) {
         return __awaiter(this, void 0, void 0, function () {
             var err_1;
             return __generator(this, function (_a) {
@@ -78,8 +86,10 @@ var SIOP = /** @class */ (function () {
             });
         });
     };
-    SIOP.prototype.addSigningParams = function (key, kid, format, algorithm) {
+    Provider.prototype.addSigningParams = function (key, kid, format, algorithm) {
         try {
+            algorithm = typeof algorithm === 'string' ? Utils_1.getAlgorithm(algorithm) : algorithm;
+            format = typeof format === 'string' ? Utils_1.getKeyFormat(format) : format;
             var didPublicKey = this.identity.getPublicKey(kid);
             var publicKeyInfo = {
                 key: didPublicKey.keyString,
@@ -143,8 +153,9 @@ var SIOP = /** @class */ (function () {
             if (Utils_1.checkKeyPair(privateKey, publicKey, signer, verifier, algorithm)) {
                 this.signing_info_set.push({
                     alg: algorithm,
-                    publicKey_kid: kid,
-                    privateKey: privateKey
+                    kid: kid,
+                    key: key,
+                    format: format,
                 });
             }
             else {
@@ -155,15 +166,15 @@ var SIOP = /** @class */ (function () {
             throw err;
         }
     };
-    SIOP.prototype.removeSigningParams = function (kid) {
+    Provider.prototype.removeSigningParams = function (kid) {
         try {
-            this.signing_info_set = this.signing_info_set.filter(function (s) { return s.publicKey_kid !== kid; });
+            this.signing_info_set = this.signing_info_set.filter(function (s) { return s.kid !== kid; });
         }
         catch (err) {
             throw err;
         }
     };
-    SIOP.prototype.validateRequest = function (request) {
+    Provider.prototype.validateRequest = function (request) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 try {
@@ -176,7 +187,7 @@ var SIOP = /** @class */ (function () {
             });
         });
     };
-    SIOP.prototype.generateResponse = function (requestPayload, expiresIn) {
+    Provider.prototype.generateResponse = function (requestPayload, expiresIn) {
         if (expiresIn === void 0) { expiresIn = 1000; }
         return __awaiter(this, void 0, void 0, function () {
             var signing_info, err_2;
@@ -199,7 +210,15 @@ var SIOP = /** @class */ (function () {
             });
         });
     };
-    return SIOP;
+    Provider.prototype.generateErrorResponse = function (errorMessage) {
+        try {
+            return ErrorResponse.getBase64URLEncodedError(errorMessage);
+        }
+        catch (err) {
+            throw err;
+        }
+    };
+    return Provider;
 }());
-exports.SIOP = SIOP;
-//# sourceMappingURL=DID_SIOP.js.map
+exports.Provider = Provider;
+//# sourceMappingURL=Provider.js.map

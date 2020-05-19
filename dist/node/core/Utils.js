@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var globals_1 = require("./globals");
 function leftpad(data, size) {
     if (size === void 0) { size = 64; }

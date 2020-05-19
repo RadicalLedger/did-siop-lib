@@ -1,5 +1,9 @@
 "use strict";
-exports.__esModule = true;
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var base64url_1 = __importDefault(require("base64url"));
 //OAuth 2.0
 var invalid_request = {
     err: new Error('invalid_request'),
@@ -146,6 +150,37 @@ exports.ERROR_RESPONSES = {
     invalid_request_object: invalid_request_object,
     request_not_supported: request_not_supported,
     request_uri_not_supported: request_uri_not_supported,
-    registration_not_supported: registration_not_supported
+    registration_not_supported: registration_not_supported,
 };
+function getBase64URLEncodedError(errorMessage) {
+    var error = exports.ERROR_RESPONSES[errorMessage];
+    if (error) {
+        return base64url_1.default.encode(JSON.stringify(error.response));
+    }
+    else {
+        return base64url_1.default.encode(JSON.stringify({
+            error: 'unknown_error',
+            description: 'Unknown error occured.',
+            error_uri: ''
+        }));
+    }
+}
+exports.getBase64URLEncodedError = getBase64URLEncodedError;
+function checkErrorResponse(responseBase64Encoded) {
+    try {
+        var errorResponseDecoded = JSON.parse(base64url_1.default.decode(responseBase64Encoded));
+        if (errorResponseDecoded.error &&
+            errorResponseDecoded.description !== undefined &&
+            errorResponseDecoded.description !== null &&
+            errorResponseDecoded.error_uri !== undefined &&
+            errorResponseDecoded.error_uri !== null) {
+            return errorResponseDecoded;
+        }
+        return undefined;
+    }
+    catch (err) {
+        return undefined;
+    }
+}
+exports.checkErrorResponse = checkErrorResponse;
 //# sourceMappingURL=ErrorResponse.js.map
