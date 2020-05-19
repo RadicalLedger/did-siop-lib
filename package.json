@@ -4,6 +4,7 @@
   "description": "A library containing core functionality for DID based Self Issued OpenID Connect authentication. Contains both Relying Party and Provider components.",
   "main": "dist/node/index.js",
   "browser": "dist/browser/did-siop.js",
+  "types": "dist/types/index.d.ts",
   "scripts": {
     "node-build": "tsc --declarationDir ./dist/types",
     "compile": "babel dist/browser/did-siop.js --out-file dist/browser/did-siop.compiled.js --presets=@babel/preset-env",
