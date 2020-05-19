@@ -12,7 +12,7 @@ export interface JWTHeader{
 
 export interface JWTObject{
     header: JWTHeader;
-    payload: object;
+    payload: any;
 }
 
 export interface JWTSignedObject extends JWTObject{
