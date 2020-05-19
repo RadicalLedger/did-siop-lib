@@ -1,12 +1,13 @@
 import { DidSiopResponse, CheckParams } from './Response';
 import { RPInfo, DidSiopRequest } from './Request';
-import { SigningInfo } from './JWT';
+import { SigningInfo, JWTObject } from './JWT';
 import { DidDocument, Identity } from './Identity';
 import { KEY_FORMATS, ALGORITHMS, KTYS } from './globals';
 import { KeyInputs, Key, RSAKey, ECKey, OKP } from './JWKUtils';
 import { RSASigner, ES256KRecoverableSigner, ECSigner, OKPSigner } from './Signers';
 import { RSAVerifier, ES256KRecoverableVerifier, ECVerifier, OKPVerifier } from './Verifiers';
 import { checkKeyPair, getAlgorithm, getKeyFormat } from './Utils';
+import { SIOPErrorResponse } from './ErrorResponse';
 
 const ERRORS= Object.freeze({
     NO_SIGNING_INFO: 'Atleast one SigningInfo is required',
@@ -159,7 +160,7 @@ export class RP {
         }
     }
 
-    async validateResponse(response: string, checkParams: CheckParams = {redirect_uri: this.info.redirect_uri}): Promise<any> {
+    async validateResponse(response: string, checkParams: CheckParams = {redirect_uri: this.info.redirect_uri}): Promise<JWTObject | SIOPErrorResponse> {
         try {
             return await DidSiopResponse.validateResponse(response, checkParams);
         } catch (err) {
