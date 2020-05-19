@@ -5,9 +5,9 @@
   "main": "dist/node/index.js",
   "browser": "dist/browser/did-siop.js",
   "scripts": {
-    "node-build": "tsc",
-    "compile": "babel dist/browser/did-siop.js --out-file dist/browser/did-siop.js --presets=@babel/preset-env",
-    "minify": "uglifyjs --compress --mangle --output dist/browser/did-siop.min.js -- dist/browser/did-siop.js",
+    "node-build": "tsc --declarationDir ./dist/types",
+    "compile": "babel dist/browser/did-siop.js --out-file dist/browser/did-siop.compiled.js --presets=@babel/preset-env",
+    "minify": "uglifyjs --compress --mangle --output dist/browser/did-siop.min.js -- dist/browser/did-siop.compiled.js",
     "browser-build": "browserify src/index.ts -p [ tsify tsconfig.json ] --s DID_SIOP > dist/browser/did-siop.js && npm run-script compile && npm run-script minify",
     "test": "jest --runInBand"
   },
