@@ -4,31 +4,31 @@ const axios = require('axios').default;
 const { toChecksumAddress } = require('ethereum-checksum-address');
 
 export interface DidDocument{
-    '@context': string,
-    id: string,
-    authentication: any[],
-    [propName:string]: any,
+    '@context': string;
+    id: string;
+    authentication: any[];
+    [propName:string]: any;
 }
 
 interface DidPublicKeyMethod{
-    id: string,
-    type: string,
-    publicKeyBase58?: string,
-    publicKeyBase64?: string,
-    publicKeyHex?: string,
-    publicKeyPem?: string,
-    publicKeyJwk?: string,
-    publicKeyPgp?: string,
-    ethereumAddress?: string,
-    address?: string,
-    [propName: string]: any,
+    id: string;
+    type: string;
+    publicKeyBase58?: string;
+    publicKeyBase64?: string;
+    publicKeyHex?: string;
+    publicKeyPem?: string;
+    publicKeyJwk?: string;
+    publicKeyPgp?: string;
+    ethereumAddress?: string;
+    address?: string;
+    [propName: string]: any;
 }
 
 export interface DidPublicKey{
-    id: string,
-    kty: KTYS,
-    format: KEY_FORMATS,
-    keyString: string,
+    id: string;
+    kty: KTYS;
+    format: KEY_FORMATS;
+    keyString: string;
 }
 
 export const ERRORS = Object.freeze(

@@ -13,11 +13,11 @@ const SUPPORTED_SCOPES = ['openid', 'did_authn',];
 const REQUIRED_SCOPES = ['openid', 'did_authn',];
 
 export interface RPInfo{
-    redirect_uri: string,
-    did: string, 
-    registration: any,
-    did_doc?: DidDocument, 
-    request_uri?: string, 
+    redirect_uri: string;
+    did: string;
+    registration: any;
+    did_doc?: DidDocument;
+    request_uri?: string;
 }
 
 export class DidSiopRequest{

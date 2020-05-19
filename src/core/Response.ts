@@ -22,10 +22,10 @@ const ERRORS = Object.freeze({
 });
 
 export interface CheckParams{
-    redirect_uri: string,
-    nonce?: string,
-    validBefore?: number,
-    isExpirable?: boolean,
+    redirect_uri: string;
+    nonce?: string;
+    validBefore?: number;
+    isExpirable?: boolean;
 }
 
 export class DidSiopResponse{

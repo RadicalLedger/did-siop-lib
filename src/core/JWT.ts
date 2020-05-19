@@ -5,26 +5,26 @@ import { Signer, RSASigner, ECSigner, OKPSigner, ES256KRecoverableSigner } from 
 import { Verifier, RSAVerifier, ECVerifier, OKPVerifier, ES256KRecoverableVerifier } from './Verifiers';
 
 export interface JWTHeader{
-    typ: string,
-    alg: string,
-    kid: string
+    typ: string;
+    alg: string;
+    kid: string;
 }
 
 export interface JWTObject{
-    header: JWTHeader,
-    payload: object,
+    header: JWTHeader;
+    payload: object;
 }
 
 export interface JWTSignedObject extends JWTObject{
-    signed: string,
-    signature: Buffer,
+    signed: string;
+    signature: Buffer;
 }
 
 export interface SigningInfo{
-    alg: ALGORITHMS,
-    kid: string,
-    key: string,
-    format: KEY_FORMATS,
+    alg: ALGORITHMS;
+    kid: string;
+    key: string;
+    format: KEY_FORMATS;
 }
 
 export const ERRORS = Object.freeze({
