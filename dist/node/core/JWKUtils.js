@@ -58,14 +58,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var crypto_1 = require("crypto");
 var elliptic_1 = require("elliptic");
 var base58 = __importStar(require("bs58"));
 var base64url_1 = __importDefault(require("base64url"));
 var globals_1 = require("./globals");
 var NodeRSA = require('node-rsa');
-var axios = require('axios')["default"];
+var axios = require('axios').default;
 exports.ERRORS = Object.freeze({
     INVALID_KEY_FORMAT: 'Invalid key format error',
     NO_PRIVATE_KEY: 'Not a private key',
@@ -73,7 +73,7 @@ exports.ERRORS = Object.freeze({
     INVALID_KEY_SET: 'Invalid key in set',
     NO_MATCHING_KEY: 'Matching key cannot be found in key set',
     URI_ERROR: 'Cannot resolve jwks from uri',
-    KEY_EXISTS: 'Key already exists in the set'
+    KEY_EXISTS: 'Key already exists in the set',
 });
 var Key = /** @class */ (function () {
     function Key(kid, kty, use, alg) {
@@ -105,7 +105,7 @@ var RSAKey = /** @class */ (function (_super) {
             var rsaKey = new NodeRSA();
             var format = keyInput.key.indexOf('-----BEGIN RSA PUBLIC KEY-----') > -1 ? 'pkcs1-public-pem' : 'pkcs8-public-pem';
             rsaKey.importKey(keyInput.key, format);
-            var n = base64url_1["default"].encode(rsaKey.keyPair.n.toBuffer().slice(1));
+            var n = base64url_1.default.encode(rsaKey.keyPair.n.toBuffer().slice(1));
             var e = rsaKey.keyPair.e.toString(16);
             e = (e % 2 === 0) ? e : '0' + e;
             e = Buffer.from(e, 'hex').toString('base64');
@@ -120,18 +120,18 @@ var RSAKey = /** @class */ (function (_super) {
             var rsaKey = new NodeRSA();
             var format = keyInput.key.indexOf('-----BEGIN RSA PRIVATE KEY-----') > -1 ? 'pkcs1-private-pem' : 'pkcs8-private-pem';
             rsaKey.importKey(keyInput.key, format);
-            var n = base64url_1["default"].encode(rsaKey.keyPair.n.toBuffer().slice(1));
+            var n = base64url_1.default.encode(rsaKey.keyPair.n.toBuffer().slice(1));
             var e = rsaKey.keyPair.e.toString(16);
             e = (e % 2 === 0) ? e : '0' + e;
             e = Buffer.from(e, 'hex').toString('base64');
             var rs256Key = new RSAKey(keyInput.kid, globals_1.KTYS.RSA, n, e, keyInput.use, keyInput.alg);
             rs256Key.private = true;
-            rs256Key.p = base64url_1["default"].encode(rsaKey.keyPair.p.toBuffer().slice(1));
-            rs256Key.q = base64url_1["default"].encode(rsaKey.keyPair.q.toBuffer().slice(1));
-            rs256Key.d = base64url_1["default"].encode(rsaKey.keyPair.d.toBuffer());
-            rs256Key.qi = base64url_1["default"].encode(rsaKey.keyPair.coeff.toBuffer());
-            rs256Key.dp = base64url_1["default"].encode(rsaKey.keyPair.dmp1.toBuffer());
-            rs256Key.dq = base64url_1["default"].encode(rsaKey.keyPair.dmq1.toBuffer());
+            rs256Key.p = base64url_1.default.encode(rsaKey.keyPair.p.toBuffer().slice(1));
+            rs256Key.q = base64url_1.default.encode(rsaKey.keyPair.q.toBuffer().slice(1));
+            rs256Key.d = base64url_1.default.encode(rsaKey.keyPair.d.toBuffer());
+            rs256Key.qi = base64url_1.default.encode(rsaKey.keyPair.coeff.toBuffer());
+            rs256Key.dp = base64url_1.default.encode(rsaKey.keyPair.dmp1.toBuffer());
+            rs256Key.dq = base64url_1.default.encode(rsaKey.keyPair.dmq1.toBuffer());
             return rs256Key;
         }
         else {
@@ -190,7 +190,7 @@ var RSAKey = /** @class */ (function (_super) {
                     qi: this.qi,
                     dp: this.dp,
                     dq: this.dq,
-                    n: this.n
+                    n: this.n,
                 };
             }
             else {
@@ -204,7 +204,7 @@ var RSAKey = /** @class */ (function (_super) {
                 kid: this.kid,
                 alg: this.alg,
                 e: this.e,
-                n: this.n
+                n: this.n,
             };
         }
     };
@@ -215,21 +215,21 @@ var RSAKey = /** @class */ (function (_super) {
         if (this.private) {
             exportFormat = format + '-private-pem';
             rsaKey.importKey({
-                n: base64url_1["default"].toBuffer(this.n || ' '),
-                e: base64url_1["default"].toBuffer(this.e || ' '),
-                p: base64url_1["default"].toBuffer(this.p || ' '),
-                q: base64url_1["default"].toBuffer(this.q || ' '),
-                d: base64url_1["default"].toBuffer(this.d || ' '),
-                coeff: base64url_1["default"].toBuffer(this.qi || ' '),
-                dmp1: base64url_1["default"].toBuffer(this.dp || ' '),
-                dmq1: base64url_1["default"].toBuffer(this.dq || ' ')
+                n: base64url_1.default.toBuffer(this.n || ' '),
+                e: base64url_1.default.toBuffer(this.e || ' '),
+                p: base64url_1.default.toBuffer(this.p || ' '),
+                q: base64url_1.default.toBuffer(this.q || ' '),
+                d: base64url_1.default.toBuffer(this.d || ' '),
+                coeff: base64url_1.default.toBuffer(this.qi || ' '),
+                dmp1: base64url_1.default.toBuffer(this.dp || ' '),
+                dmq1: base64url_1.default.toBuffer(this.dq || ' '),
             }, 'components');
         }
         else {
             exportFormat = format + '-public-pem';
             rsaKey.importKey({
-                n: base64url_1["default"].toBuffer(this.n || ' '),
-                e: base64url_1["default"].toBuffer(this.e || ' ')
+                n: base64url_1.default.toBuffer(this.n || ' '),
+                e: base64url_1.default.toBuffer(this.e || ' '),
             }, 'components-public');
         }
         return rsaKey.exportKey(exportFormat);
@@ -257,7 +257,7 @@ var RSAKey = /** @class */ (function (_super) {
                     n: this.n,
                     p: this.p,
                     q: this.q,
-                    qi: this.qi
+                    qi: this.qi,
                 };
             }
             else {
@@ -268,7 +268,7 @@ var RSAKey = /** @class */ (function (_super) {
             return {
                 e: this.e,
                 kty: this.kty,
-                n: this.n
+                n: this.n,
             };
         }
     };
@@ -293,7 +293,7 @@ var ECKey = /** @class */ (function (_super) {
                         key_buffer = base58.decode(keyInput.key);
                         break;
                     case globals_1.KEY_FORMATS.BASE64:
-                        key_buffer = base64url_1["default"].toBuffer(base64url_1["default"].fromBase64(keyInput.key));
+                        key_buffer = base64url_1.default.toBuffer(base64url_1.default.fromBase64(keyInput.key));
                         break;
                     case globals_1.KEY_FORMATS.HEX:
                         key_buffer = Buffer.from(keyInput.key, 'hex');
@@ -307,8 +307,8 @@ var ECKey = /** @class */ (function (_super) {
             var ec = new elliptic_1.ec('secp256k1');
             var ellipticKey = void 0;
             ellipticKey = ec.keyFromPublic(key_buffer);
-            var x = base64url_1["default"].encode(ellipticKey.getPublic().getX().toArrayLike(Buffer));
-            var y = base64url_1["default"].encode(ellipticKey.getPublic().getY().toArrayLike(Buffer));
+            var x = base64url_1.default.encode(ellipticKey.getPublic().getX().toArrayLike(Buffer));
+            var y = base64url_1.default.encode(ellipticKey.getPublic().getY().toArrayLike(Buffer));
             return new ECKey(keyInput.kid, globals_1.KTYS.EC, 'secp256k1', x, y, keyInput.use, keyInput.alg);
         }
         else {
@@ -324,7 +324,7 @@ var ECKey = /** @class */ (function (_super) {
                         key_buffer = base58.decode(keyInput.key);
                         break;
                     case globals_1.KEY_FORMATS.BASE64:
-                        key_buffer = base64url_1["default"].toBuffer(base64url_1["default"].fromBase64(keyInput.key));
+                        key_buffer = base64url_1.default.toBuffer(base64url_1.default.fromBase64(keyInput.key));
                         break;
                     case globals_1.KEY_FORMATS.HEX:
                         key_buffer = Buffer.from(keyInput.key, 'hex');
@@ -338,10 +338,10 @@ var ECKey = /** @class */ (function (_super) {
             var ec = new elliptic_1.ec('secp256k1');
             var ellipticKey = void 0;
             ellipticKey = ec.keyFromPrivate(key_buffer);
-            var x = base64url_1["default"].encode(ellipticKey.getPublic().getX().toArrayLike(Buffer));
-            var y = base64url_1["default"].encode(ellipticKey.getPublic().getY().toArrayLike(Buffer));
+            var x = base64url_1.default.encode(ellipticKey.getPublic().getX().toArrayLike(Buffer));
+            var y = base64url_1.default.encode(ellipticKey.getPublic().getY().toArrayLike(Buffer));
             var ecKey = new ECKey(keyInput.kid, globals_1.KTYS.EC, 'secp256k1', x, y, keyInput.use, keyInput.alg);
-            ecKey.d = base64url_1["default"].encode(ellipticKey.getPrivate().toArrayLike(Buffer));
+            ecKey.d = base64url_1.default.encode(ellipticKey.getPrivate().toArrayLike(Buffer));
             ecKey.private = true;
             return ecKey;
         }
@@ -387,7 +387,7 @@ var ECKey = /** @class */ (function (_super) {
                     crv: this.crv,
                     x: this.x,
                     y: this.y,
-                    d: this.d
+                    d: this.d,
                 };
             }
             else {
@@ -402,7 +402,7 @@ var ECKey = /** @class */ (function (_super) {
                 alg: this.alg,
                 crv: this.crv,
                 x: this.x,
-                y: this.y
+                y: this.y,
             };
         }
     };
@@ -410,12 +410,12 @@ var ECKey = /** @class */ (function (_super) {
         var ec = new elliptic_1.ec('secp256k1');
         var keyString;
         if (this.private) {
-            keyString = ec.keyFromPrivate(base64url_1["default"].toBuffer(this.d || ' ')).getPrivate().toArrayLike(Buffer);
+            keyString = ec.keyFromPrivate(base64url_1.default.toBuffer(this.d || ' ')).getPrivate().toArrayLike(Buffer);
         }
         else {
             var pub = {
-                x: base64url_1["default"].decode(this.x, 'hex'),
-                y: base64url_1["default"].decode(this.y, 'hex')
+                x: base64url_1.default.decode(this.x, 'hex'),
+                y: base64url_1.default.decode(this.y, 'hex')
             };
             keyString = Buffer.from(ec.keyFromPublic(pub).getPublic().encode('hex', false), 'hex');
         }
@@ -423,7 +423,7 @@ var ECKey = /** @class */ (function (_super) {
             case globals_1.KEY_FORMATS.HEX: return keyString.toString('hex');
             case globals_1.KEY_FORMATS.BASE58: return base58.encode(keyString);
             case globals_1.KEY_FORMATS.BASE64: return keyString.toString('base64');
-            case globals_1.KEY_FORMATS.BASE64URL: return base64url_1["default"].encode(keyString);
+            case globals_1.KEY_FORMATS.BASE64URL: return base64url_1.default.encode(keyString);
             case globals_1.KEY_FORMATS.PKCS1_PEM:
             case globals_1.KEY_FORMATS.PKCS8_PEM:
             default: throw new Error(exports.ERRORS.INVALID_KEY_FORMAT);
@@ -437,7 +437,7 @@ var ECKey = /** @class */ (function (_super) {
                     d: this.d,
                     kty: this.kty,
                     x: this.x,
-                    y: this.y
+                    y: this.y,
                 };
             }
             else {
@@ -449,7 +449,7 @@ var ECKey = /** @class */ (function (_super) {
                 crv: this.crv,
                 kty: this.kty,
                 x: this.x,
-                y: this.y
+                y: this.y,
             };
         }
     };
@@ -473,7 +473,7 @@ var OKP = /** @class */ (function (_super) {
                         key_buffer = base58.decode(keyInput.key);
                         break;
                     case globals_1.KEY_FORMATS.BASE64:
-                        key_buffer = base64url_1["default"].toBuffer(base64url_1["default"].fromBase64(keyInput.key));
+                        key_buffer = base64url_1.default.toBuffer(base64url_1.default.fromBase64(keyInput.key));
                         break;
                     case globals_1.KEY_FORMATS.HEX:
                         key_buffer = Buffer.from(keyInput.key, 'hex');
@@ -487,7 +487,7 @@ var OKP = /** @class */ (function (_super) {
             var ed = new elliptic_1.eddsa('ed25519');
             var ellipticKey = void 0;
             ellipticKey = ed.keyFromPublic(key_buffer);
-            var x = base64url_1["default"].encode(ellipticKey.getPublic());
+            var x = base64url_1.default.encode(ellipticKey.getPublic());
             return new OKP(keyInput.kid, globals_1.KTYS.OKP, 'Ed25519', x, keyInput.use, keyInput.alg);
         }
         else {
@@ -503,7 +503,7 @@ var OKP = /** @class */ (function (_super) {
                         key_buffer = base58.decode(keyInput.key);
                         break;
                     case globals_1.KEY_FORMATS.BASE64:
-                        key_buffer = base64url_1["default"].toBuffer(base64url_1["default"].fromBase64(keyInput.key));
+                        key_buffer = base64url_1.default.toBuffer(base64url_1.default.fromBase64(keyInput.key));
                         break;
                     case globals_1.KEY_FORMATS.HEX:
                         key_buffer = Buffer.from(keyInput.key, 'hex');
@@ -517,9 +517,9 @@ var OKP = /** @class */ (function (_super) {
             var ed = new elliptic_1.eddsa('ed25519');
             var ellipticKey = void 0;
             ellipticKey = ed.keyFromSecret(key_buffer);
-            var x = base64url_1["default"].encode(ellipticKey.getPublic());
+            var x = base64url_1.default.encode(ellipticKey.getPublic());
             var ecKey = new OKP(keyInput.kid, globals_1.KTYS.OKP, 'Ed25519', x, keyInput.use, keyInput.alg);
-            ecKey.d = base64url_1["default"].encode(ellipticKey.getSecret());
+            ecKey.d = base64url_1.default.encode(ellipticKey.getSecret());
             ecKey.private = true;
             return ecKey;
         }
@@ -562,7 +562,7 @@ var OKP = /** @class */ (function (_super) {
                     alg: this.alg,
                     crv: this.crv,
                     x: this.x,
-                    d: this.d
+                    d: this.d,
                 };
             }
             else {
@@ -576,7 +576,7 @@ var OKP = /** @class */ (function (_super) {
                 kid: this.kid,
                 alg: this.alg,
                 crv: this.crv,
-                x: this.x
+                x: this.x,
             };
         }
     };
@@ -584,16 +584,16 @@ var OKP = /** @class */ (function (_super) {
         var ed = new elliptic_1.eddsa('ed25519');
         var keyString;
         if (this.private) {
-            keyString = ed.keyFromSecret(base64url_1["default"].toBuffer(this.d || ' ')).getSecret();
+            keyString = ed.keyFromSecret(base64url_1.default.toBuffer(this.d || ' ')).getSecret();
         }
         else {
-            keyString = ed.keyFromPublic(base64url_1["default"].toBuffer(this.x)).getPublic();
+            keyString = ed.keyFromPublic(base64url_1.default.toBuffer(this.x)).getPublic();
         }
         switch (format) {
             case globals_1.KEY_FORMATS.HEX: return keyString.toString('hex');
             case globals_1.KEY_FORMATS.BASE58: return base58.encode(keyString);
             case globals_1.KEY_FORMATS.BASE64: return keyString.toString('base64');
-            case globals_1.KEY_FORMATS.BASE64URL: return base64url_1["default"].encode(keyString);
+            case globals_1.KEY_FORMATS.BASE64URL: return base64url_1.default.encode(keyString);
             case globals_1.KEY_FORMATS.PKCS1_PEM:
             case globals_1.KEY_FORMATS.PKCS8_PEM:
             default: throw new Error(exports.ERRORS.INVALID_KEY_FORMAT);
@@ -606,7 +606,7 @@ var OKP = /** @class */ (function (_super) {
                     crv: this.crv,
                     d: this.d,
                     kty: this.kty,
-                    x: this.x
+                    x: this.x,
                 };
             }
             else {
@@ -617,7 +617,7 @@ var OKP = /** @class */ (function (_super) {
             return {
                 crv: this.crv,
                 kty: this.kty,
-                x: this.x
+                x: this.x,
             };
         }
     };
@@ -713,7 +713,7 @@ exports.KeySet = KeySet;
 function calculateThumbprint(minimalJWK) {
     var sha256 = crypto_1.createHash('sha256');
     var hash = sha256.update(JSON.stringify(minimalJWK)).digest();
-    return base64url_1["default"].encode(hash);
+    return base64url_1.default.encode(hash);
 }
 exports.calculateThumbprint = calculateThumbprint;
 //# sourceMappingURL=JWKUtils.js.map

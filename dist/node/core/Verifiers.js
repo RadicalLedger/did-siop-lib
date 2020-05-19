@@ -12,7 +12,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var globals_1 = require("./globals");
 var crypto_1 = require("crypto");
 var elliptic_1 = require("elliptic");
@@ -20,7 +20,7 @@ var publicKeyToAddress = require('ethereum-public-key-to-address');
 exports.ERRORS = Object.freeze({
     NO_PRIVATE_KEY: 'Not a private key',
     INVALID_ALGORITHM: 'Invalid algorithm',
-    INVALID_SIGNATURE: 'Invalid signature'
+    INVALID_SIGNATURE: 'Invalid signature',
 });
 var Verifier = /** @class */ (function () {
     function Verifier() {
@@ -37,7 +37,7 @@ var RSAVerifier = /** @class */ (function (_super) {
         try {
             var verifier = void 0;
             var verifierParams = {
-                key: key.exportKey(globals_1.KEY_FORMATS.PKCS8_PEM)
+                key: key.exportKey(globals_1.KEY_FORMATS.PKCS8_PEM),
             };
             switch (algorithm) {
                 case globals_1.ALGORITHMS.RS256:
@@ -177,7 +177,7 @@ var ES256KRecoverableVerifier = /** @class */ (function (_super) {
             throw new Error(exports.ERRORS.INVALID_SIGNATURE);
         var signatureObj = {
             r: signature.slice(0, 32).toString('hex'),
-            s: signature.slice(32, 64).toString('hex')
+            s: signature.slice(32, 64).toString('hex'),
         };
         var recoveredKey = ec.recoverPubKey(hash, signatureObj, signature[64]);
         return (recoveredKey.encode('hex') === keyHexString ||

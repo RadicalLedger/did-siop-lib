@@ -1,5 +1,4 @@
-import { ECKey } from './../src/core/JWKUtils';
-import { ALGORITHMS, KTYS, KEY_FORMATS } from './../src/core/globals';
+import { ALGORITHMS, KEY_FORMATS } from './../src/core/globals';
 import { JWTObject } from './../src/core/JWT';
 import { sign } from '../src/core/JWT';
 
@@ -25,8 +24,18 @@ const jwtGoodDecoded = {
 }
 
 const keyPair = {
-    privateKey: 'CE438802C1F0B6F12BC6E686F372D7D495BC5AA634134B4A7EA4603CB25F0964',
-    publicKey: '0xB07Ead9717b44B6cF439c474362b9B0877CBBF83'
+    privateKey: {
+        alg: ALGORITHMS["ES256K-R"],
+        key: 'CE438802C1F0B6F12BC6E686F372D7D495BC5AA634134B4A7EA4603CB25F0964',
+        kid: 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner',
+        format: KEY_FORMATS.HEX,
+    },
+    publicKey: {
+        alg: ALGORITHMS["ES256K-R"],
+        key: '0xB07Ead9717b44B6cF439c474362b9B0877CBBF83',
+        kid: 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner',
+        format: KEY_FORMATS.HEX,
+    }
 }
 
 const jwtGoodEncoded = sign(jwtGoodDecoded, keyPair.privateKey);
@@ -97,17 +106,11 @@ export const requests = {
 
     },
     components: {
-        signing: {
+        signingInfo: {
             alg: ALGORITHMS["ES256K-R"],
-            privateKey: ECKey.fromKey({
-                key: 'CE438802C1F0B6F12BC6E686F372D7D495BC5AA634134B4A7EA4603CB25F0964',
-                kid: 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner',
-                use: 'sig',
-                kty: KTYS[KTYS.EC],
-                format: KEY_FORMATS.HEX,
-                isPrivate: true,
-            }),
-            publicKey_kid: 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner',
+            key: 'CE438802C1F0B6F12BC6E686F372D7D495BC5AA634134B4A7EA4603CB25F0964',
+            kid: 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner',
+            format: KEY_FORMATS.HEX,
         },
         rp: {
             did: 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83',

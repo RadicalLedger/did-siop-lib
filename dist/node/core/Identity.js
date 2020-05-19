@@ -35,10 +35,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var globals_1 = require("./globals");
 var config_1 = require("./config");
-var axios = require('axios')["default"];
+var axios = require('axios').default;
 var toChecksumAddress = require('ethereum-checksum-address').toChecksumAddress;
 exports.ERRORS = Object.freeze({
     DOCUMENT_RESOLUTION_ERROR: 'Cannot resolve document for did',
@@ -47,14 +47,14 @@ exports.ERRORS = Object.freeze({
     UNSUPPORTED_KEY_FORMAT: 'Unsupported key format',
     NO_MATCHING_PUBLIC_KEY: 'No public key matching kid',
     UNRESOLVED_DOCUMENT: 'Unresolved document',
-    INVALID_DOCUMENT: 'Invalid did document'
+    INVALID_DOCUMENT: 'Invalid did document',
 });
 var Identity = /** @class */ (function () {
     function Identity() {
         this.doc = {
             '@context': '',
             id: '',
-            authentication: []
+            authentication: [],
         };
     }
     Identity.prototype.resolve = function (did) {
@@ -152,7 +152,7 @@ function getPublicKeyFromDifferentTypes(key) {
             id: key.id,
             kty: getKtyFromKeyType(key.type),
             format: globals_1.KEY_FORMATS.BASE64,
-            keyString: key.publicKeyBase64
+            keyString: key.publicKeyBase64,
         };
     }
     else if (key.publicKeyBase58) {
@@ -160,7 +160,7 @@ function getPublicKeyFromDifferentTypes(key) {
             id: key.id,
             kty: getKtyFromKeyType(key.type),
             format: globals_1.KEY_FORMATS.BASE58,
-            keyString: key.publicKeyBase58
+            keyString: key.publicKeyBase58,
         };
     }
     else if (key.publicKeyHex) {
@@ -168,7 +168,7 @@ function getPublicKeyFromDifferentTypes(key) {
             id: key.id,
             kty: getKtyFromKeyType(key.type),
             format: globals_1.KEY_FORMATS.HEX,
-            keyString: key.publicKeyHex
+            keyString: key.publicKeyHex,
         };
     }
     else if (key.publicKeyPem) {
@@ -177,7 +177,7 @@ function getPublicKeyFromDifferentTypes(key) {
             id: key.id,
             kty: getKtyFromKeyType(key.type),
             format: format,
-            keyString: key.publicKeyPem
+            keyString: key.publicKeyPem,
         };
     }
     else if (key.publicKeyJwk) {
@@ -185,7 +185,7 @@ function getPublicKeyFromDifferentTypes(key) {
             id: key.id,
             kty: getKtyFromKeyType(key.type),
             format: globals_1.KEY_FORMATS.JWK,
-            keyString: JSON.stringify(key.publicKeyJwk)
+            keyString: JSON.stringify(key.publicKeyJwk),
         };
     }
     else if (key.publicKeyPgp) {
@@ -194,7 +194,7 @@ function getPublicKeyFromDifferentTypes(key) {
             id: key.id,
             kty: getKtyFromKeyType(key.type),
             format: format,
-            keyString: key.publicKeyPgp
+            keyString: key.publicKeyPgp,
         };
     }
     else if (key.ethereumAddress) {
@@ -202,7 +202,7 @@ function getPublicKeyFromDifferentTypes(key) {
             id: key.id,
             kty: getKtyFromKeyType(key.type),
             format: globals_1.KEY_FORMATS.ETHEREUM_ADDRESS,
-            keyString: toChecksumAddress(key.ethereumAddress)
+            keyString: toChecksumAddress(key.ethereumAddress),
         };
     }
     else if (key.address) {
@@ -210,7 +210,7 @@ function getPublicKeyFromDifferentTypes(key) {
             id: key.id,
             kty: getKtyFromKeyType(key.type),
             format: globals_1.KEY_FORMATS.ADDRESS,
-            keyString: key.address
+            keyString: key.address,
         };
     }
     else

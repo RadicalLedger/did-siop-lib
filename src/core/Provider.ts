@@ -1,45 +1,35 @@
-import { DidSiopResponse, CheckParams } from './Response';
-import { RPInfo, DidSiopRequest } from './Request';
-import { SigningInfo } from './JWT';
-import { DidDocument, Identity } from './Identity';
+import { RSAVerifier, ECVerifier, OKPVerifier, ES256KRecoverableVerifier } from './Verifiers';
+import { RSASigner, ECSigner, OKPSigner, ES256KRecoverableSigner } from './Signers';
+import { Key, RSAKey, OKP, ECKey, KeyInputs } from './JWKUtils';
 import { KEY_FORMATS, ALGORITHMS, KTYS } from './globals';
-import { KeyInputs, Key, RSAKey, ECKey, OKP } from './JWKUtils';
-import { RSASigner, ES256KRecoverableSigner, ECSigner, OKPSigner } from './Signers';
-import { RSAVerifier, ES256KRecoverableVerifier, ECVerifier, OKPVerifier } from './Verifiers';
+import { DidSiopResponse } from './Response';
+import { SigningInfo, JWTObject } from './JWT';
+import { Identity, DidDocument } from './Identity';
+import { DidSiopRequest } from './Request';
 import { checkKeyPair, getAlgorithm, getKeyFormat } from './Utils';
+import * as ErrorResponse from './ErrorResponse';
 
 const ERRORS= Object.freeze({
     NO_SIGNING_INFO: 'Atleast one SigningInfo is required',
+    UNRESOLVED_IDENTITY: 'Unresolved identity',
     INVALID_KEY_TYPE: 'Invalid key type',
     KEY_MISMATCH: 'Public and private keys do not match',
 });
 
-export class RP {
-    private info: RPInfo;
+export class Provider{
     private identity: Identity = new Identity();
     private signing_info_set: SigningInfo[] = [];
 
-    private constructor(redirect_uri: string, did: string, registration: any, did_doc?: DidDocument) {
-        this.info = {
-            redirect_uri,
-            did,
-            registration,
-            did_doc
-        }
-    }
-
-    static async getRP(redirect_uri: string, did: string, registration: any, did_doc?: DidDocument): Promise<RP> {
+    async setUser(did: string, doc?: DidDocument){
         try {
-            let rp = new RP(redirect_uri, did, registration, did_doc)
-            if(did_doc){
-                rp.identity.setDocument(did_doc, did);
+            if(doc){
+                this.identity.setDocument(doc, did);
             }
             else{
-                await rp.identity.resolve(did);
+                await this.identity.resolve(did);
             }
-            return rp;
         } catch (err) {
-            return Promise.reject(err);
+            throw err;
         }
     }
 
@@ -112,8 +102,9 @@ export class RP {
             if(checkKeyPair(privateKey, publicKey, signer, verifier, algorithm)){
                 this.signing_info_set.push({
                     alg: algorithm,
-                    publicKey_kid: kid,
-                    privateKey: privateKey
+                    kid: kid,
+                    key: key,
+                    format: format,
                 })
             }
             else{
@@ -128,18 +119,32 @@ export class RP {
 
     removeSigningParams(kid: string){
         try{
-            this.signing_info_set = this.signing_info_set.filter(s => { return s.publicKey_kid !== kid });
+            this.signing_info_set = this.signing_info_set.filter(s => { return s.kid !== kid });
         }
         catch(err){
             throw err;
         }
     }
 
-    async generateRequest(options:any = {}): Promise<string> {
+    async validateRequest(request: string): Promise<JWTObject>{
+        try {
+            return DidSiopRequest.validateRequest(request);
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    }
+
+    async generateResponse(requestPayload: any, expiresIn: number = 1000): Promise<string>{
         try{
             if(this.signing_info_set.length > 0){
                 let signing_info = this.signing_info_set[Math.floor(Math.random() * this.signing_info_set.length)];
-                return await DidSiopRequest.generateRequest(this.info, signing_info, options);
+
+                if(this.identity.isResolved()){
+                    return await DidSiopResponse.generateResponse(requestPayload, signing_info, this.identity, expiresIn);
+                }
+                else{
+                    return Promise.reject(new Error(ERRORS.UNRESOLVED_IDENTITY));
+                }
             }
             return Promise.reject(new Error(ERRORS.NO_SIGNING_INFO));
         }
@@ -148,21 +153,12 @@ export class RP {
         }
     }
 
-    async generateUriRequest(request_uri: string, options:any = {}): Promise<string> {
+    generateErrorResponse(errorMessage: string): string{
         try{
-            this.info.request_uri = request_uri;
-            return await this.generateRequest(options);
+            return ErrorResponse.getBase64URLEncodedError(errorMessage);
         }
         catch(err){
-            return Promise.reject(ERRORS.NO_SIGNING_INFO);
-        }
-    }
-
-    async validateResponse(response: string, checkParams: CheckParams = {redirect_uri: this.info.redirect_uri}): Promise<any> {
-        try {
-            return await DidSiopResponse.validateResponse(response, checkParams);
-        } catch (err) {
-            return Promise.reject(err);
+            throw err;
         }
     }
 }

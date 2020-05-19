@@ -56,7 +56,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var config_1 = require("./config");
 var Identity_1 = require("./Identity");
 var queryString = __importStar(require("query-string"));
@@ -65,7 +65,7 @@ var base64url_1 = __importDefault(require("base64url"));
 var JWKUtils_1 = require("./JWKUtils");
 var globals_1 = require("./globals");
 var JWT = __importStar(require("./JWT"));
-var axios = require('axios')["default"];
+var axios = require('axios').default;
 var RESPONSE_TYPES = ['id_token',];
 var SUPPORTED_SCOPES = ['openid', 'did_authn',];
 var REQUIRED_SCOPES = ['openid', 'did_authn',];
@@ -88,7 +88,7 @@ var DidSiopRequest = /** @class */ (function () {
             });
         });
     };
-    DidSiopRequest.generateRequest = function (rp, signing, options) {
+    DidSiopRequest.generateRequest = function (rp, signingInfo, options) {
         return __awaiter(this, void 0, void 0, function () {
             var url, query, jwtHeader, jwtPayload, jwtObject, jwt;
             return __generator(this, function (_a) {
@@ -96,23 +96,23 @@ var DidSiopRequest = /** @class */ (function () {
                 query = {
                     response_type: 'id_token',
                     client_id: rp.redirect_uri,
-                    scope: 'openid did_authn'
+                    scope: 'openid did_authn',
                 };
                 if (rp.request_uri) {
                     query.request_uri = rp.request_uri;
                 }
                 else {
                     jwtHeader = {
-                        alg: globals_1.ALGORITHMS[signing.alg],
+                        alg: globals_1.ALGORITHMS[signingInfo.alg],
                         typ: 'JWT',
-                        kid: signing.publicKey_kid
+                        kid: signingInfo.kid
                     };
                     jwtPayload = __assign({ iss: rp.did, response_type: 'id_token', scope: 'openid did_authn', client_id: rp.redirect_uri, registration: rp.registration }, options);
                     jwtObject = {
                         header: jwtHeader,
                         payload: jwtPayload
                     };
-                    jwt = JWT.sign(jwtObject, signing.privateKey);
+                    jwt = JWT.sign(jwtObject, signingInfo);
                     query.request = jwt;
                 }
                 return [2 /*return*/, queryString.stringifyUrl({
@@ -173,22 +173,23 @@ function validateRequestParams(request) {
 }
 function validateRequestJWT(requestJWT) {
     return __awaiter(this, void 0, void 0, function () {
-        var decodedHeader, decodedPayload, publicKey, identity, didPubKey, keyInfo, err_2, keyset, validity;
+        var decodedHeader, decodedPayload, publicKeyInfo, identity, didPubKey, err_2, keyset, keySetKey, keySetKeyFormat, validity;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     try {
-                        decodedHeader = JSON.parse(base64url_1["default"].decode(requestJWT.split('.')[0]));
-                        decodedPayload = JSON.parse(base64url_1["default"].decode(requestJWT.split('.')[1]));
+                        decodedHeader = JSON.parse(base64url_1.default.decode(requestJWT.split('.')[0]));
+                        decodedPayload = JSON.parse(base64url_1.default.decode(requestJWT.split('.')[1]));
                     }
                     catch (err) {
                         return [2 /*return*/, Promise.reject(ErrorResponse_1.ERROR_RESPONSES.invalid_request_object.err)];
                     }
                     if (!((decodedHeader.kid && !decodedHeader.kid.match(/^ *$/)) &&
+                        (decodedHeader.alg && !decodedHeader.alg.match(/^ *$/)) &&
                         (decodedPayload.iss && !decodedPayload.iss.match(/^ *$/)) &&
                         (decodedPayload.scope && decodedPayload.scope.indexOf('did_authn') > -1) &&
                         (decodedPayload.registration && !JSON.stringify(decodedPayload.registration).match(/^ *$/)))) return [3 /*break*/, 5];
-                    publicKey = void 0;
+                    publicKeyInfo = void 0;
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
@@ -197,31 +198,12 @@ function validateRequestJWT(requestJWT) {
                 case 2:
                     _a.sent();
                     didPubKey = identity.getPublicKey(decodedHeader.kid);
-                    keyInfo = {
+                    publicKeyInfo = {
                         key: didPubKey.keyString,
                         kid: didPubKey.id,
-                        use: 'sig',
-                        kty: globals_1.KTYS[didPubKey.kty],
-                        format: didPubKey.format,
-                        isPrivate: false
+                        alg: globals_1.ALGORITHMS[decodedHeader.alg],
+                        format: didPubKey.format
                     };
-                    switch (didPubKey.kty) {
-                        case globals_1.KTYS.RSA:
-                            publicKey = JWKUtils_1.RSAKey.fromKey(keyInfo);
-                            break;
-                        case globals_1.KTYS.EC: {
-                            if (didPubKey.format === globals_1.KEY_FORMATS.ETHEREUM_ADDRESS) {
-                                publicKey = keyInfo.key;
-                            }
-                            else {
-                                publicKey = JWKUtils_1.ECKey.fromKey(keyInfo);
-                            }
-                            break;
-                        }
-                        case globals_1.KTYS.OKP:
-                            publicKey = JWKUtils_1.OKP.fromKey(keyInfo);
-                            break;
-                    }
                     return [3 /*break*/, 4];
                 case 3:
                     err_2 = _a.sent();
@@ -233,17 +215,36 @@ function validateRequestJWT(requestJWT) {
                         else if (decodedPayload.jwks_uri && decodedPayload.jwks_uri === (config_1.RESOLVER_URL + decodedPayload.iss + ';transform-keys=jwks')) {
                             keyset.setURI(decodedPayload.jwks_uri);
                         }
-                        publicKey = keyset.getKey(decodedPayload.kid)[0];
+                        keySetKey = keyset.getKey(decodedPayload.kid)[0];
+                        keySetKeyFormat = void 0;
+                        switch (keySetKey.toJWK().kty) {
+                            case globals_1.KTYS[globals_1.KTYS.RSA]: {
+                                keySetKeyFormat = globals_1.KEY_FORMATS.PKCS1_PEM;
+                                break;
+                            }
+                            case globals_1.KTYS[globals_1.KTYS.EC]:
+                            case globals_1.KTYS[globals_1.KTYS.OKP]: {
+                                keySetKeyFormat = globals_1.KEY_FORMATS.HEX;
+                                break;
+                            }
+                            default: keySetKeyFormat = globals_1.KEY_FORMATS.HEX;
+                        }
+                        publicKeyInfo = {
+                            key: keySetKey.exportKey(keySetKeyFormat),
+                            kid: keySetKey.toJWK().kid,
+                            alg: globals_1.ALGORITHMS[decodedHeader.alg],
+                            format: keySetKeyFormat
+                        };
                     }
                     catch (err) {
-                        publicKey = undefined;
+                        publicKeyInfo = undefined;
                     }
                     return [3 /*break*/, 4];
                 case 4:
-                    if (publicKey) {
+                    if (publicKeyInfo) {
                         validity = false;
                         try {
-                            validity = JWT.verify(requestJWT, publicKey);
+                            validity = JWT.verify(requestJWT, publicKeyInfo);
                         }
                         catch (err) {
                             return [2 /*return*/, Promise.reject(ErrorResponse_1.ERROR_RESPONSES.invalid_request_object.err)];

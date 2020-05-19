@@ -1,5 +1,18 @@
+import base64url from 'base64url';
+
+export interface SIOPErrorResponse{
+    error: string;
+    description: string;
+    error_uri: string;
+}
+
+export interface SIOPError{
+    err: Error;
+    response: SIOPErrorResponse;
+}
+
 //OAuth 2.0
-const invalid_request = {
+const invalid_request: SIOPError = {
     err: new Error('invalid_request'),
     response: {
         error: 'invalid_request',
@@ -8,7 +21,7 @@ const invalid_request = {
     }
 }
 
-const unauthorized_client = {
+const unauthorized_client: SIOPError = {
     err: new Error('unauthorized_client'),
     response: {
         error: 'unauthorized_client',
@@ -17,7 +30,7 @@ const unauthorized_client = {
     }
 }
 
-const access_denied = {
+const access_denied: SIOPError = {
     err: new Error('access_denied'),
     response: {
         error: 'access_denied',
@@ -26,7 +39,7 @@ const access_denied = {
     }
 }
 
-const unsupported_response_type = {
+const unsupported_response_type: SIOPError = {
     err: new Error('unsupported_response_type'),
     response: {
         error: 'unsupported_response_type',
@@ -35,7 +48,7 @@ const unsupported_response_type = {
     }
 }
 
-const invalid_scope = {
+const invalid_scope: SIOPError = {
     err: new Error('invalid_scope'),
     response: {
         error: 'invalid_scope',
@@ -44,7 +57,7 @@ const invalid_scope = {
     }
 }
 
-const server_error = {
+const server_error: SIOPError = {
     err: new Error('server_error'),
     response: {
         error: 'server_error',
@@ -53,7 +66,7 @@ const server_error = {
     }
 }
 
-const temporarily_unavailable = {
+const temporarily_unavailable: SIOPError = {
     err: new Error('temporarily_unavailable'),
     response: {
         error: 'temporarily_unavailable',
@@ -63,7 +76,7 @@ const temporarily_unavailable = {
 }
 
 //OpenId Connect
-const interaction_required = {
+const interaction_required: SIOPError = {
     err: new Error('interaction_required'),
     response: {
         error: 'interaction_required',
@@ -72,7 +85,7 @@ const interaction_required = {
     }
 }
 
-const login_required = {
+const login_required: SIOPError = {
     err: new Error('login_required'),
     response: {
         error: 'login_required',
@@ -81,7 +94,7 @@ const login_required = {
     }
 }
 
-const account_selection_required = {
+const account_selection_required: SIOPError = {
     err: new Error('account_selection_required'),
     response: {
         error: 'account_selection_required',
@@ -90,7 +103,7 @@ const account_selection_required = {
     }
 }
 
-const consent_required = {
+const consent_required: SIOPError = {
     err: new Error('consent_required'),
     response: {
         error: 'consent_required',
@@ -99,7 +112,7 @@ const consent_required = {
     }
 }
 
-const invalid_request_uri = {
+const invalid_request_uri: SIOPError = {
     err: new Error('invalid_request_uri'),
     response: {
         error: 'invalid_request_uri',
@@ -108,7 +121,7 @@ const invalid_request_uri = {
     }
 }
 
-const invalid_request_object = {
+const invalid_request_object: SIOPError = {
     err: new Error('invalid_request_object'),
     response: {
         error: 'invalid_request_object',
@@ -117,7 +130,7 @@ const invalid_request_object = {
     }
 }
 
-const request_not_supported = {
+const request_not_supported: SIOPError = {
     err: new Error('request_not_supported'),
     response: {
         error: 'request_not_supported',
@@ -126,7 +139,7 @@ const request_not_supported = {
     }
 }
 
-const request_uri_not_supported = {
+const request_uri_not_supported: SIOPError = {
     err: new Error('request_uri_not_supported'),
     response: {
         error: 'request_uri_not_supported',
@@ -135,7 +148,7 @@ const request_uri_not_supported = {
     }
 }
 
-const registration_not_supported = {
+const registration_not_supported: SIOPError = {
     err: new Error('registration_not_supported'),
     response: {
         error: 'registration_not_supported',
@@ -161,4 +174,38 @@ export const ERROR_RESPONSES = {
     request_not_supported,
     request_uri_not_supported,
     registration_not_supported,
+}
+
+
+export function getBase64URLEncodedError(errorMessage: string): string{
+    let error = ERROR_RESPONSES[errorMessage as keyof typeof ERROR_RESPONSES];
+    if(error){
+        return base64url.encode(JSON.stringify(error.response));
+    }
+    else{
+        return base64url.encode(JSON.stringify({
+            error: 'unknown_error',
+            description: 'Unknown error occured.',
+            error_uri: ''
+        }));
+    }
+}
+
+export function checkErrorResponse(responseBase64Encoded: string): SIOPErrorResponse | undefined{
+    try{
+        let errorResponseDecoded = JSON.parse(base64url.decode(responseBase64Encoded));
+        if(
+            errorResponseDecoded.error &&
+            errorResponseDecoded.description !== undefined &&
+            errorResponseDecoded.description !== null &&
+            errorResponseDecoded.error_uri !== undefined &&
+            errorResponseDecoded.error_uri !== null
+        ){
+            return errorResponseDecoded;
+        }
+        return undefined;
+    }
+    catch(err){
+        return undefined;
+    }
 }

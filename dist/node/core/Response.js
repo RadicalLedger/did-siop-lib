@@ -45,12 +45,13 @@ var __importStar = (this && this.__importStar) || function (mod) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var globals_1 = require("./globals");
 var JWT = __importStar(require("./JWT"));
 var Identity_1 = require("./Identity");
 var JWKUtils_1 = require("./JWKUtils");
 var base64url_1 = __importDefault(require("base64url"));
+var ErrorResponse = __importStar(require("./ErrorResponse"));
 var ERRORS = Object.freeze({
     UNSUPPORTED_ALGO: 'Algorithm not supported',
     PUBLIC_KEY_ERROR: 'Cannot resolve public key',
@@ -63,7 +64,7 @@ var ERRORS = Object.freeze({
     NO_EXPIRATION: 'No exp in jwt',
     JWT_VALIDITY_EXPIRED: 'JWT validity has expired',
     INVALID_JWK_THUMBPRINT: 'Invalid sub (sub_jwk thumbprint)',
-    INVALID_SIGNATURE_ERROR: 'Invalid signature error'
+    INVALID_SIGNATURE_ERROR: 'Invalid signature error',
 });
 var DidSiopResponse = /** @class */ (function () {
     function DidSiopResponse() {
@@ -82,11 +83,11 @@ var DidSiopResponse = /** @class */ (function () {
                     else {
                         Promise.reject(ERRORS.UNSUPPORTED_ALGO);
                     }
-                    didPubKey = didSiopUser.getPublicKey(signingInfo.publicKey_kid);
+                    didPubKey = didSiopUser.getPublicKey(signingInfo.kid);
                     header = {
                         typ: 'JWT',
                         alg: alg,
-                        kid: signingInfo.publicKey_kid
+                        kid: signingInfo.kid,
                     };
                     publicKey = void 0;
                     keyInfo = {
@@ -95,7 +96,7 @@ var DidSiopResponse = /** @class */ (function () {
                         use: 'sig',
                         kty: globals_1.KTYS[didPubKey.kty],
                         format: didPubKey.format,
-                        isPrivate: false
+                        isPrivate: false,
                     };
                     switch (didPubKey.kty) {
                         case globals_1.KTYS.RSA:
@@ -103,11 +104,11 @@ var DidSiopResponse = /** @class */ (function () {
                             break;
                         case globals_1.KTYS.EC: {
                             if (didPubKey.format === globals_1.KEY_FORMATS.ETHEREUM_ADDRESS) {
-                                publicKey = signingInfo.privateKey;
+                                keyInfo.key = signingInfo.key;
+                                keyInfo.format = signingInfo.format;
+                                keyInfo.isPrivate = true;
                             }
-                            else {
-                                publicKey = JWKUtils_1.ECKey.fromKey(keyInfo);
-                            }
+                            publicKey = JWKUtils_1.ECKey.fromKey(keyInfo);
                             break;
                         }
                         case globals_1.KTYS.OKP:
@@ -115,7 +116,7 @@ var DidSiopResponse = /** @class */ (function () {
                             break;
                     }
                     payload = {
-                        iss: 'https://self-issued.me'
+                        iss: 'https://self-issued.me',
                     };
                     payload.did = didSiopUser.getDocument().id;
                     if (requestPayload.client_id)
@@ -135,9 +136,9 @@ var DidSiopResponse = /** @class */ (function () {
                     payload.exp = Date.now() + expiresIn;
                     unsigned = {
                         header: header,
-                        payload: payload
+                        payload: payload,
                     };
-                    return [2 /*return*/, JWT.sign(unsigned, signingInfo.privateKey)];
+                    return [2 /*return*/, JWT.sign(unsigned, signingInfo)];
                 }
                 catch (err) {
                     return [2 /*return*/, Promise.reject(err)];
@@ -148,24 +149,19 @@ var DidSiopResponse = /** @class */ (function () {
     };
     DidSiopResponse.validateResponse = function (response, checkParams) {
         return __awaiter(this, void 0, void 0, function () {
-            var decodedHeader, decodedPayload, error, jwkThumbprint, publicKey, identity, didPubKey, keyInfo, err_1, validity;
+            var decodedHeader, decodedPayload, errorResponse, jwkThumbprint, publicKeyInfo, identity, didPubKey, err_1, validity;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         try {
-                            decodedHeader = JSON.parse(base64url_1["default"].decode(response.split('.')[0]));
-                            decodedPayload = JSON.parse(base64url_1["default"].decode(response.split('.')[1]));
+                            errorResponse = ErrorResponse.checkErrorResponse(response);
+                            if (errorResponse)
+                                return [2 /*return*/, errorResponse];
+                            decodedHeader = JSON.parse(base64url_1.default.decode(response.split('.')[0]));
+                            decodedPayload = JSON.parse(base64url_1.default.decode(response.split('.')[1]));
                         }
                         catch (err) {
-                            try {
-                                error = JSON.parse(base64url_1["default"].decode(response));
-                                if (error) {
-                                    return [2 /*return*/, error];
-                                }
-                            }
-                            catch (err) {
-                                return [2 /*return*/, Promise.reject(err)];
-                            }
+                            return [2 /*return*/, Promise.reject(err)];
                         }
                         if (!((decodedHeader.kid && !decodedHeader.kid.match(/^ *$/)) &&
                             (decodedPayload.iss && !decodedPayload.iss.match(/^ *$/)) &&
@@ -200,7 +196,7 @@ var DidSiopResponse = /** @class */ (function () {
                         jwkThumbprint = JWKUtils_1.calculateThumbprint(decodedPayload.sub_jwk);
                         if (jwkThumbprint !== decodedPayload.sub)
                             return [2 /*return*/, Promise.reject(new Error(ERRORS.INVALID_JWK_THUMBPRINT))];
-                        publicKey = void 0;
+                        publicKeyInfo = void 0;
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
@@ -209,39 +205,20 @@ var DidSiopResponse = /** @class */ (function () {
                     case 2:
                         _a.sent();
                         didPubKey = identity.getPublicKey(decodedHeader.kid);
-                        keyInfo = {
+                        publicKeyInfo = {
                             key: didPubKey.keyString,
                             kid: didPubKey.id,
-                            use: 'sig',
-                            kty: globals_1.KTYS[didPubKey.kty],
-                            format: didPubKey.format,
-                            isPrivate: false
+                            alg: globals_1.ALGORITHMS[decodedHeader.alg],
+                            format: didPubKey.format
                         };
-                        switch (didPubKey.kty) {
-                            case globals_1.KTYS.RSA:
-                                publicKey = JWKUtils_1.RSAKey.fromKey(keyInfo);
-                                break;
-                            case globals_1.KTYS.EC: {
-                                if (didPubKey.format === globals_1.KEY_FORMATS.ETHEREUM_ADDRESS) {
-                                    publicKey = keyInfo.key;
-                                }
-                                else {
-                                    publicKey = JWKUtils_1.ECKey.fromKey(keyInfo);
-                                }
-                                break;
-                            }
-                            case globals_1.KTYS.OKP:
-                                publicKey = JWKUtils_1.OKP.fromKey(keyInfo);
-                                break;
-                        }
                         return [3 /*break*/, 4];
                     case 3:
                         err_1 = _a.sent();
                         return [2 /*return*/, Promise.reject(ERRORS.PUBLIC_KEY_ERROR)];
                     case 4:
                         validity = false;
-                        if (publicKey) {
-                            validity = JWT.verify(response, publicKey);
+                        if (publicKeyInfo) {
+                            validity = JWT.verify(response, publicKeyInfo);
                         }
                         else {
                             return [2 /*return*/, Promise.reject(ERRORS.PUBLIC_KEY_ERROR)];
@@ -249,7 +226,7 @@ var DidSiopResponse = /** @class */ (function () {
                         if (validity)
                             return [2 /*return*/, {
                                     header: decodedHeader,
-                                    payload: decodedPayload
+                                    payload: decodedPayload,
                                 }];
                         return [2 /*return*/, Promise.reject(new Error(ERRORS.INVALID_SIGNATURE_ERROR))];
                     case 5: return [2 /*return*/, Promise.reject(new Error(ERRORS.MALFORMED_JWT_ERROR))];
