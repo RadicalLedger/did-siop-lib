@@ -1,5 +1,9 @@
 # did-siop #
 
+## Availability ##
+* [For Node](https://www.npmjs.com/package/did-siop)
+* [For Browser](https://cdn.jsdelivr.net/npm/did-siop@1.3.0/dist/browser/did-siop.min.js)
+
 ## Overview ##
 This implements _Self Issued OpenId Connect Provider (SIOP)_ for _Decentralized Identities (DIDs)_. The library contains two components, **RP (Relying Party)** and **Provider**. Provider is intended to be used inside any piece of software which will provide DID SIOP authentication and RP can be used by relying parties (client apps) to utilize DID SIOP authentication. This library can be used in both client-side (browser) and server-side (Node.js) applications.
 
