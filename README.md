@@ -12,6 +12,8 @@ Following are the primary specifications followed by this implementation.
 * [Self-Issued OpenID Connect Provider DID Profile](https://identity.foundation/did-siop/)
 
 ## Usage ##
+Minimum implementation of SIOP using this package could be found [here](https://github.com/RadicalLedger/did-siop-rp-web-min). Further details on implementation and resources could found with [browser extension project](https://github.com/RadicalLedger/did-siop-chrome-ext).
+
 
 ### RP ###
 ```js
