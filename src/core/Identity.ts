@@ -61,7 +61,7 @@ export class Identity{
                 result &&
                 result.data &&
                 result.data.didDocument &&
-                result.data.didDocument['@context'] === 'https://w3id.org/did/v1' &&
+                //result.data.didDocument['@context'] === 'https://w3id.org/did/v1' &&
                 result.data.didDocument.id == did &&
                 result.data.didDocument.authentication &&
                 result.data.didDocument.authentication.length > 0
@@ -107,7 +107,7 @@ export class Identity{
 
     setDocument(doc: DidDocument, did: string){
         if (
-            doc['@context'] === 'https://w3id.org/did/v1' &&
+            //doc['@context'] === 'https://w3id.org/did/v1' &&
             doc.id == did &&
             doc.authentication &&
             doc.authentication.length > 0
