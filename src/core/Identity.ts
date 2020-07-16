@@ -1,7 +1,8 @@
 import { KEY_FORMATS, KTYS } from './globals';
 import { RESOLVER_URL } from './config';
+import { getKeyType } from './Utils';
 const axios = require('axios').default;
-const { toChecksumAddress } = require('ethereum-checksum-address');
+const { toEthereumChecksumAddress } = require('ethereum-checksum-address');
 
 export interface DidDocument{
     '@context': string;
@@ -10,25 +11,26 @@ export interface DidDocument{
     [propName:string]: any;
 }
 
-interface DidPublicKeyMethod{
+interface DidVerificationKeyMethod{
     id: string;
     type: string;
     publicKeyBase58?: string;
     publicKeyBase64?: string;
     publicKeyHex?: string;
     publicKeyPem?: string;
-    publicKeyJwk?: string;
-    publicKeyPgp?: string;
+    publicKeyJwk?: any;
+    publicKeyGpg?: string;
     ethereumAddress?: string;
     address?: string;
     [propName: string]: any;
 }
 
-export interface DidPublicKey{
+export interface DidVerificationKey{
     id: string;
     kty: KTYS;
     format: KEY_FORMATS;
-    keyString: string;
+    publicKey: any;
+    privateKey?: boolean
 }
 
 export const ERRORS = Object.freeze(
@@ -38,6 +40,7 @@ export const ERRORS = Object.freeze(
         UNSUPPORTED_KEY_TYPE: 'Unsupported key type',
         UNSUPPORTED_KEY_FORMAT: 'Unsupported key format',
         NO_MATCHING_PUBLIC_KEY: 'No public key matching kid',
+        UNSUPPORTED_PUBLIC_KEY_METHOD: 'Unsupported public key method',
         UNRESOLVED_DOCUMENT: 'Unresolved document',
         INVALID_DOCUMENT: 'Invalid did document',
     }
@@ -45,6 +48,7 @@ export const ERRORS = Object.freeze(
 
 export class Identity{
     private doc: DidDocument;
+    private keySet: DidVerificationKey[];
 
     constructor(){
         this.doc = {
@@ -52,6 +56,7 @@ export class Identity{
             id: '',
             authentication: [],
         };
+        this.keySet = [];
     }
 
     async resolve(did: string){
@@ -67,6 +72,7 @@ export class Identity{
                 result.data.didDocument.authentication.length > 0
             ){
                 this.doc = result.data.didDocument;
+                this.keySet = [];
                 return this.doc.id;
             }
             throw new Error(ERRORS.INVALID_DID_ERROR);
@@ -80,25 +86,49 @@ export class Identity{
         return this.doc.id !== '';
     }
 
-    getPublicKey(kid: string): DidPublicKey{
+    extractAuthenticationKeys(extractor?: DidVerificationKeyExtractor): DidVerificationKey[]{
+        if(!extractor) extractor = uniExtractor;
         if(!this.isResolved()) throw new Error(ERRORS.UNRESOLVED_DOCUMENT);
         for (let method of this.doc.authentication) {
-            if (method.id && method.id === kid) return getPublicKeyFromDifferentTypes(method);
-
-            if (method.publicKey && method.publicKey.includes(kid)) {
-                for (let pub of this.doc.publicKey) {
-                    if (pub.id === kid) return getPublicKeyFromDifferentTypes(pub);
+            if (method.id && method.type) {
+                try{
+                    this.keySet.push(extractor.extract(method));
+                }
+                catch(err){
+                    continue;
                 }
             }
 
-            if (method && method === kid) {
+            if (method.publicKey) {
+                for (let key of method.publicKey) {
+                    for(let pub of this.doc.publicKey){
+                        if (pub.id === key){
+                            try{
+                                this.keySet.push(extractor.extract(pub));
+                            }
+                            catch(err){
+                                continue;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (typeof method === 'string') {
                 for (let pub of this.doc.publicKey) {
-                    if (pub.id === kid) return getPublicKeyFromDifferentTypes(pub);
+                    if (pub.id === method){
+                        try{
+                            this.keySet.push(extractor.extract(pub));
+                        }
+                        catch(err){
+                            continue;
+                        }
+                    }
                 }
                 //Implement other verification methods here
             }
         }
-        throw new Error(ERRORS.NO_MATCHING_PUBLIC_KEY);
+        return this.keySet;
     }
 
     getDocument(): DidDocument{
@@ -120,87 +150,207 @@ export class Identity{
     }
 }
 
-function getKtyFromKeyType(type: string): KTYS {
-    switch (type) {
-        case 'RsaVerificationKey2018': return KTYS.RSA;
-        case 'OpenPgpVerificationKey2019': return KTYS.RSA;
-        case 'EcdsaSecp256k1VerificationKey2019': return KTYS.EC;
-        case 'Ed25519VerificationKey2018': return KTYS.OKP;
-        case 'ED25519SignatureVerification': return KTYS.OKP;
-        case 'Curve25519EncryptionPublicKey': return KTYS.OKP;
-        case 'Secp256k1SignatureVerificationKey2018': return KTYS.OKP;
-        case 'Secp256k1VerificationKey2018': return KTYS.EC;
-        default: throw new Error(ERRORS.UNSUPPORTED_KEY_TYPE)
+export class DidVerificationKeyExtractor{
+    protected next: DidVerificationKeyExtractor;
+
+    constructor(next?: DidVerificationKeyExtractor){
+        if(next){
+            this.next = next;
+        }
+        else{
+            this.next = new DidVerificationKeyExtractor();
+        }
+    }
+
+    extract(method: DidVerificationKeyMethod): DidVerificationKey{
+        throw new Error(ERRORS.UNSUPPORTED_PUBLIC_KEY_METHOD);
+    };
+}
+
+class JwsVerificationKey2020Extractor extends DidVerificationKeyExtractor{
+    extract(method: DidVerificationKeyMethod): DidVerificationKey {
+        if (!method || !method.id || method.type) throw new Error(ERRORS.NO_MATCHING_PUBLIC_KEY);
+
+        if(method.type.toUpperCase() == 'JwsVerificationKey2020'.toUpperCase()){
+            if(method.publicKeyJwk){
+                return {
+                    id: method.id,
+                    kty: getKeyType(method.publicKeyJwk.kty),
+                    format: KEY_FORMATS.JWK,
+                    publicKey: method.publicKeyJwk
+                }
+            }
+            else{
+                throw new Error(ERRORS.UNSUPPORTED_PUBLIC_KEY_METHOD);
+            }
+        }
+        else{
+            return this.next.extract(method);
+        }
+    }
+    
+}
+
+class Ed25519VerificationKey2018Extractor extends DidVerificationKeyExtractor{
+    extract(method: DidVerificationKeyMethod): DidVerificationKey {
+        if (!method || !method.id || method.type) throw new Error(ERRORS.NO_MATCHING_PUBLIC_KEY);
+
+        if(method.type.toUpperCase() == 'Ed25519VerificationKey2018'.toUpperCase()){
+            let extracted: DidVerificationKey = {
+                id: method.id,
+                kty: KTYS.OKP,
+                format: KEY_FORMATS.HEX,
+                publicKey: ''
+            }
+            return getVerificationKeyFromDifferentFormats(method, extracted);
+        }
+        else{
+            return this.next.extract(method);
+        }
+    }
+    
+}
+
+class GpgVerificationKey2020Extractor extends DidVerificationKeyExtractor{
+    extract(method: DidVerificationKeyMethod): DidVerificationKey {
+        if (!method || !method.id || method.type) throw new Error(ERRORS.NO_MATCHING_PUBLIC_KEY);
+
+        if(method.type.toUpperCase() == 'GpgVerificationKey2020'.toUpperCase()){
+            if(method.publicKeyGpg){
+                return {
+                    id: method.id,
+                    kty: KTYS.RSA,
+                    format: KEY_FORMATS.PKCS8_PEM,
+                    publicKey: method.publicKeyGpg
+                }
+            }
+            else{
+                throw new Error(ERRORS.UNSUPPORTED_PUBLIC_KEY_METHOD);
+            }
+        }
+        else{
+            return this.next.extract(method);
+        }
     }
 }
 
-function getPublicKeyFromDifferentTypes(key: DidPublicKeyMethod): DidPublicKey {
-    if (!key) throw new Error(ERRORS.UNSUPPORTED_KEY_TYPE);
-    if (key.publicKeyBase64) {
-        return {
-            id: key.id,
-            kty: getKtyFromKeyType(key.type),
-            format: KEY_FORMATS.BASE64,
-            keyString: key.publicKeyBase64,
+class RsaVerificationKey2018Extractor extends DidVerificationKeyExtractor{
+    extract(method: DidVerificationKeyMethod): DidVerificationKey {
+        if (!method || !method.id || method.type) throw new Error(ERRORS.NO_MATCHING_PUBLIC_KEY);
+
+        if(method.type.toUpperCase() == 'RsaVerificationKey2018'.toUpperCase()){
+            let extracted: DidVerificationKey = {
+                id: method.id,
+                kty: KTYS.RSA,
+                format: KEY_FORMATS.HEX,
+                publicKey: ''
+            }
+            return getVerificationKeyFromDifferentFormats(method, extracted);
+        }
+        else{
+            return this.next.extract(method);
         }
     }
-    else if (key.publicKeyBase58) {
-        return {
-            id: key.id,
-            kty: getKtyFromKeyType(key.type),
-            format: KEY_FORMATS.BASE58,
-            keyString: key.publicKeyBase58,
-        }
-    }
-    else if (key.publicKeyHex) {
-        return {
-            id: key.id,
-            kty: getKtyFromKeyType(key.type),
-            format: KEY_FORMATS.HEX,
-            keyString: key.publicKeyHex,
-        }
-    }
-    else if (key.publicKeyPem) {
-        let format = key.publicKeyPem.indexOf('-----BEGIN RSA PUBLIC KEY-----') > -1 ? KEY_FORMATS.PKCS1_PEM : KEY_FORMATS.PKCS8_PEM;
-        return {
-            id: key.id,
-            kty: getKtyFromKeyType(key.type),
-            format: format,
-            keyString: key.publicKeyPem,
-        }
-    }
-    else if (key.publicKeyJwk) {
-        return {
-            id: key.id,
-            kty: getKtyFromKeyType(key.type),
-            format: KEY_FORMATS.JWK,
-            keyString: JSON.stringify(key.publicKeyJwk),
-        }
-    }
-    else if (key.publicKeyPgp) {
-        let format = key.publicKeyPgp.indexOf('-----BEGIN RSA PUBLIC KEY-----') > -1 ? KEY_FORMATS.PKCS1_PEM : KEY_FORMATS.PKCS8_PEM;
-        return {
-            id: key.id,
-            kty: getKtyFromKeyType(key.type),
-            format: format,
-            keyString: key.publicKeyPgp,
-        }
-    }
-    else if (key.ethereumAddress) {
-        return {
-            id: key.id,
-            kty: getKtyFromKeyType(key.type),
-            format: KEY_FORMATS.ETHEREUM_ADDRESS,
-            keyString: toChecksumAddress(key.ethereumAddress),
-        }
-    }
-    else if (key.address) {
-        return {
-            id: key.id,
-            kty: getKtyFromKeyType(key.type),
-            format: KEY_FORMATS.ADDRESS,
-            keyString: key.address,
-        }
-    }
-    else throw new Error(ERRORS.UNSUPPORTED_KEY_FORMAT);
 }
+
+class EcdsaSecp256k1VerificationKey2019Extractor extends DidVerificationKeyExtractor{
+    extract(method: DidVerificationKeyMethod): DidVerificationKey {
+        if (!method || !method.id || method.type) throw new Error(ERRORS.NO_MATCHING_PUBLIC_KEY);
+
+        if(method.type.toUpperCase() == 'EcdsaSecp256k1VerificationKey2019'.toUpperCase()){
+            let extracted: DidVerificationKey = {
+                id: method.id,
+                kty: KTYS.EC,
+                format: KEY_FORMATS.HEX,
+                publicKey: ''
+            }
+            return getVerificationKeyFromDifferentFormats(method, extracted);
+        }
+        else{
+            return this.next.extract(method);
+        }
+    }
+}
+
+class EcdsaSecp256k1RecoveryMethod2020Extractor extends DidVerificationKeyExtractor{
+    extract(method: DidVerificationKeyMethod): DidVerificationKey {
+        if (!method || !method.id || method.type) throw new Error(ERRORS.NO_MATCHING_PUBLIC_KEY);
+
+        if(method.type.toUpperCase() == 'EcdsaSecp256k1RecoveryMethod2020'.toUpperCase()){
+            let extracted: DidVerificationKey = {
+                id: method.id,
+                kty: KTYS.EC,
+                format: KEY_FORMATS.HEX,
+                publicKey: ''
+            }
+            return getVerificationKeyFromDifferentFormats(method, extracted);
+        }
+        else{
+            return this.next.extract(method);
+        }
+    }
+}
+
+class UniversalDidPublicKeyExtractor extends DidVerificationKeyExtractor{
+    extract(method: DidVerificationKeyMethod): DidVerificationKey {
+        return this.next.extract(method);
+    }
+}
+
+// SchnorrSecp256k1VerificationKey2019
+// X25519KeyAgreementKey2019
+
+function getVerificationKeyFromDifferentFormats(method: DidVerificationKeyMethod, holder: DidVerificationKey){
+    if(!method || !holder) throw new Error(ERRORS.UNSUPPORTED_KEY_FORMAT);
+
+    if(method.publicKeyJwk){
+        holder.format = KEY_FORMATS.JWK
+        holder.publicKey = method.publicKeyJwk
+    }
+    else if(method.publicKeyHex){
+        holder.format = KEY_FORMATS.HEX;
+        holder.publicKey = method.publicKeyHex;
+    }
+    else if(method.publicKeyBase58){
+        holder.format = KEY_FORMATS.BASE58;
+        holder.publicKey = method.publicKeyBase58;
+    }
+    else if(method.publicKeyBase64){
+        holder.format = KEY_FORMATS.BASE64;
+        holder.publicKey = method.publicKeyBase64;
+    }
+    else if(method.publicKeyPem){
+        holder.format = KEY_FORMATS.PKCS8_PEM;
+        holder.publicKey = method.publicKeyPem;
+    }
+    else if(method.publicKeyPgp){
+        holder.format = KEY_FORMATS.PKCS8_PEM;
+        holder.publicKey = method.publicKeyGpg;
+    }
+    else if(method.ethereumAddress){
+        holder.format = KEY_FORMATS.ETHEREUM_ADDRESS;
+        holder.publicKey = toEthereumChecksumAddress(method.ethereumAddress);
+    }
+    else if(method.address){
+        holder.format = KEY_FORMATS.ADDRESS;
+        holder.publicKey = method.address;
+    }
+    else{
+        throw new Error(ERRORS.UNSUPPORTED_KEY_FORMAT);
+    }
+    
+    if(holder.format && holder.publicKey){
+        return holder;
+    }
+    else{
+        throw new Error(ERRORS.UNSUPPORTED_KEY_FORMAT);
+    }
+}
+
+const jwsVerificationKey2020Extractor = new JwsVerificationKey2020Extractor();
+const ed25519VerificationKey2018Extractor = new Ed25519VerificationKey2018Extractor(jwsVerificationKey2020Extractor);
+const gpgVerificationKey2020Extractor = new GpgVerificationKey2020Extractor(ed25519VerificationKey2018Extractor);
+const rsaVerificationKey2018Extractor = new RsaVerificationKey2018Extractor(gpgVerificationKey2020Extractor);
+const ecdsaSecp256k1VerificationKey2019Extractor = new EcdsaSecp256k1VerificationKey2019Extractor(rsaVerificationKey2018Extractor);
+const ecdsaSecp256k1RecoveryMethod2020Extractor = new EcdsaSecp256k1RecoveryMethod2020Extractor(ecdsaSecp256k1VerificationKey2019Extractor);
+export const uniExtractor = new UniversalDidPublicKeyExtractor(ecdsaSecp256k1RecoveryMethod2020Extractor);
