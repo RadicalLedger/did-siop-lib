@@ -1,5 +1,5 @@
 import { Key } from "./JWKUtils";
-import { ALGORITHMS, KEY_FORMATS } from "./globals";
+import { ALGORITHMS, KEY_FORMATS, KTYS } from "./globals";
 import { Signer } from "./Signers";
 import { Verifier } from "./Verifiers";
 
@@ -21,4 +21,8 @@ export function getAlgorithm(alg: string): ALGORITHMS{
 
 export function getKeyFormat(format: string): KEY_FORMATS{
     return KEY_FORMATS[format.toUpperCase() as keyof typeof KEY_FORMATS];
+}
+
+export function getKeyType(kty: string): KTYS{
+    return KTYS[kty.toUpperCase() as keyof typeof KTYS];
 }
