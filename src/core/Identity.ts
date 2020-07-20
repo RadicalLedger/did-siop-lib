@@ -1,8 +1,8 @@
-import { KEY_FORMATS, KTYS } from './globals';
+import { KEY_FORMATS, KTYS, ALGORITHMS } from './globals';
 import { RESOLVER_URL } from './config';
-import { getKeyType } from './Utils';
+import { getKeyType, getAlgorithm } from './Utils';
 const axios = require('axios').default;
-const { toEthereumChecksumAddress } = require('ethereum-checksum-address');
+const { toChecksumAddress } = require('ethereum-checksum-address');
 
 export interface DidDocument{
     '@context': string;
@@ -28,6 +28,7 @@ interface DidVerificationKeyMethod{
 export interface DidVerificationKey{
     id: string;
     kty: KTYS;
+    alg: ALGORITHMS,
     format: KEY_FORMATS;
     publicKey: any;
     privateKey?: boolean
@@ -150,32 +151,50 @@ export class Identity{
     }
 }
 
-export class DidVerificationKeyExtractor{
-    protected next: DidVerificationKeyExtractor;
+export abstract class DidVerificationKeyExtractor{
+    protected names: string[];
+    protected next: DidVerificationKeyExtractor | EmptyDidVerificationKeyExtractor;
 
-    constructor(next?: DidVerificationKeyExtractor){
+    constructor(names: string | string[], next?: DidVerificationKeyExtractor){
+        this.names = [];
+        if(typeof names === 'string'){
+            this.names.push(names.toUpperCase());
+        }
+        else{
+            for(let name of names){
+                this.names.push(name.toUpperCase())
+            }
+        }
+
+
         if(next){
             this.next = next;
         }
         else{
-            this.next = new DidVerificationKeyExtractor();
+            this.next = new EmptyDidVerificationKeyExtractor();
         }
     }
 
+    abstract extract(method: DidVerificationKeyMethod): DidVerificationKey;
+}
+
+class EmptyDidVerificationKeyExtractor{
     extract(method: DidVerificationKeyMethod): DidVerificationKey{
+        if(method){}
         throw new Error(ERRORS.UNSUPPORTED_PUBLIC_KEY_METHOD);
     };
 }
 
 class JwsVerificationKey2020Extractor extends DidVerificationKeyExtractor{
     extract(method: DidVerificationKeyMethod): DidVerificationKey {
-        if (!method || !method.id || method.type) throw new Error(ERRORS.NO_MATCHING_PUBLIC_KEY);
+        if (!method || !method.id || !method.type) throw new Error(ERRORS.NO_MATCHING_PUBLIC_KEY);
 
-        if(method.type.toUpperCase() == 'JwsVerificationKey2020'.toUpperCase()){
+        if(this.names.includes(method.type.toUpperCase())){
             if(method.publicKeyJwk){
                 return {
                     id: method.id,
                     kty: getKeyType(method.publicKeyJwk.kty),
+                    alg: getAlgorithm(method.publicKeyJwk.alg),
                     format: KEY_FORMATS.JWK,
                     publicKey: method.publicKeyJwk
                 }
@@ -191,14 +210,15 @@ class JwsVerificationKey2020Extractor extends DidVerificationKeyExtractor{
     
 }
 
-class Ed25519VerificationKey2018Extractor extends DidVerificationKeyExtractor{
+class Ed25519VerificationKeyExtractor extends DidVerificationKeyExtractor{
     extract(method: DidVerificationKeyMethod): DidVerificationKey {
-        if (!method || !method.id || method.type) throw new Error(ERRORS.NO_MATCHING_PUBLIC_KEY);
+        if (!method || !method.id || !method.type) throw new Error(ERRORS.NO_MATCHING_PUBLIC_KEY);
 
-        if(method.type.toUpperCase() == 'Ed25519VerificationKey2018'.toUpperCase()){
+        if(this.names.includes(method.type.toUpperCase())){
             let extracted: DidVerificationKey = {
                 id: method.id,
                 kty: KTYS.OKP,
+                alg: ALGORITHMS.EdDSA,
                 format: KEY_FORMATS.HEX,
                 publicKey: ''
             }
@@ -213,13 +233,14 @@ class Ed25519VerificationKey2018Extractor extends DidVerificationKeyExtractor{
 
 class GpgVerificationKey2020Extractor extends DidVerificationKeyExtractor{
     extract(method: DidVerificationKeyMethod): DidVerificationKey {
-        if (!method || !method.id || method.type) throw new Error(ERRORS.NO_MATCHING_PUBLIC_KEY);
+        if (!method || !method.id || !method.type) throw new Error(ERRORS.NO_MATCHING_PUBLIC_KEY);
 
-        if(method.type.toUpperCase() == 'GpgVerificationKey2020'.toUpperCase()){
+        if(this.names.includes(method.type.toUpperCase())){
             if(method.publicKeyGpg){
                 return {
                     id: method.id,
                     kty: KTYS.RSA,
+                    alg: ALGORITHMS.RS256,
                     format: KEY_FORMATS.PKCS8_PEM,
                     publicKey: method.publicKeyGpg
                 }
@@ -234,14 +255,15 @@ class GpgVerificationKey2020Extractor extends DidVerificationKeyExtractor{
     }
 }
 
-class RsaVerificationKey2018Extractor extends DidVerificationKeyExtractor{
+class RsaVerificationKeyExtractor extends DidVerificationKeyExtractor{
     extract(method: DidVerificationKeyMethod): DidVerificationKey {
-        if (!method || !method.id || method.type) throw new Error(ERRORS.NO_MATCHING_PUBLIC_KEY);
+        if (!method || !method.id || !method.type) throw new Error(ERRORS.NO_MATCHING_PUBLIC_KEY);
 
-        if(method.type.toUpperCase() == 'RsaVerificationKey2018'.toUpperCase()){
+        if(this.names.includes(method.type.toUpperCase())){
             let extracted: DidVerificationKey = {
                 id: method.id,
                 kty: KTYS.RSA,
+                alg: ALGORITHMS.RS256,
                 format: KEY_FORMATS.HEX,
                 publicKey: ''
             }
@@ -253,14 +275,15 @@ class RsaVerificationKey2018Extractor extends DidVerificationKeyExtractor{
     }
 }
 
-class EcdsaSecp256k1VerificationKey2019Extractor extends DidVerificationKeyExtractor{
+class EcdsaSecp256k1VerificationKeyExtractor extends DidVerificationKeyExtractor{
     extract(method: DidVerificationKeyMethod): DidVerificationKey {
-        if (!method || !method.id || method.type) throw new Error(ERRORS.NO_MATCHING_PUBLIC_KEY);
+        if (!method || !method.id || !method.type) throw new Error(ERRORS.NO_MATCHING_PUBLIC_KEY);
 
-        if(method.type.toUpperCase() == 'EcdsaSecp256k1VerificationKey2019'.toUpperCase()){
+        if(this.names.includes(method.type.toUpperCase())){
             let extracted: DidVerificationKey = {
                 id: method.id,
                 kty: KTYS.EC,
+                alg: ALGORITHMS.ES256K,
                 format: KEY_FORMATS.HEX,
                 publicKey: ''
             }
@@ -274,12 +297,13 @@ class EcdsaSecp256k1VerificationKey2019Extractor extends DidVerificationKeyExtra
 
 class EcdsaSecp256k1RecoveryMethod2020Extractor extends DidVerificationKeyExtractor{
     extract(method: DidVerificationKeyMethod): DidVerificationKey {
-        if (!method || !method.id || method.type) throw new Error(ERRORS.NO_MATCHING_PUBLIC_KEY);
+        if (!method || !method.id || !method.type) throw new Error(ERRORS.NO_MATCHING_PUBLIC_KEY);
 
-        if(method.type.toUpperCase() == 'EcdsaSecp256k1RecoveryMethod2020'.toUpperCase()){
+        if(this.names.includes(method.type.toUpperCase()) || method.ethereumAddress){
             let extracted: DidVerificationKey = {
                 id: method.id,
                 kty: KTYS.EC,
+                alg: ALGORITHMS["ES256K-R"],
                 format: KEY_FORMATS.HEX,
                 publicKey: ''
             }
@@ -329,7 +353,7 @@ function getVerificationKeyFromDifferentFormats(method: DidVerificationKeyMethod
     }
     else if(method.ethereumAddress){
         holder.format = KEY_FORMATS.ETHEREUM_ADDRESS;
-        holder.publicKey = toEthereumChecksumAddress(method.ethereumAddress);
+        holder.publicKey = toChecksumAddress(method.ethereumAddress);
     }
     else if(method.address){
         holder.format = KEY_FORMATS.ADDRESS;
@@ -347,10 +371,10 @@ function getVerificationKeyFromDifferentFormats(method: DidVerificationKeyMethod
     }
 }
 
-const jwsVerificationKey2020Extractor = new JwsVerificationKey2020Extractor();
-const ed25519VerificationKey2018Extractor = new Ed25519VerificationKey2018Extractor(jwsVerificationKey2020Extractor);
-const gpgVerificationKey2020Extractor = new GpgVerificationKey2020Extractor(ed25519VerificationKey2018Extractor);
-const rsaVerificationKey2018Extractor = new RsaVerificationKey2018Extractor(gpgVerificationKey2020Extractor);
-const ecdsaSecp256k1VerificationKey2019Extractor = new EcdsaSecp256k1VerificationKey2019Extractor(rsaVerificationKey2018Extractor);
-const ecdsaSecp256k1RecoveryMethod2020Extractor = new EcdsaSecp256k1RecoveryMethod2020Extractor(ecdsaSecp256k1VerificationKey2019Extractor);
-export const uniExtractor = new UniversalDidPublicKeyExtractor(ecdsaSecp256k1RecoveryMethod2020Extractor);
+const jwsVerificationKey2020Extractor = new JwsVerificationKey2020Extractor('JwsVerificationKey2020');
+const ed25519VerificationKeyExtractor = new Ed25519VerificationKeyExtractor('Ed25519VerificationKey2018', jwsVerificationKey2020Extractor);
+const gpgVerificationKey2020Extractor = new GpgVerificationKey2020Extractor('GpgVerificationKey2020', ed25519VerificationKeyExtractor);
+const rsaVerificationKeyExtractor = new RsaVerificationKeyExtractor('RsaVerificationKey2018', gpgVerificationKey2020Extractor);
+const ecdsaSecp256k1VerificationKeyExtractor = new EcdsaSecp256k1VerificationKeyExtractor(['EcdsaSecp256k1VerificationKey2019', 'Secp256k1VerificationKey2018'], rsaVerificationKeyExtractor);
+const ecdsaSecp256k1RecoveryMethod2020Extractor = new EcdsaSecp256k1RecoveryMethod2020Extractor('EcdsaSecp256k1RecoveryMethod2020', ecdsaSecp256k1VerificationKeyExtractor);
+export const uniExtractor = new UniversalDidPublicKeyExtractor([], ecdsaSecp256k1RecoveryMethod2020Extractor);
