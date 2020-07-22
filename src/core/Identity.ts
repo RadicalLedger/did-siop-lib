@@ -103,7 +103,7 @@ export class Identity{
             if (method.publicKey) {
                 for (let key of method.publicKey) {
                     for(let pub of this.doc.publicKey){
-                        if (pub.id === key){
+                        if (pub.id === key || pub.id === this.doc.id + key){
                             try{
                                 this.keySet.push(extractor.extract(pub));
                             }
@@ -165,7 +165,6 @@ export abstract class DidVerificationKeyExtractor{
                 this.names.push(name.toUpperCase())
             }
         }
-
 
         if(next){
             this.next = next;
@@ -375,6 +374,6 @@ const jwsVerificationKey2020Extractor = new JwsVerificationKey2020Extractor('Jws
 const ed25519VerificationKeyExtractor = new Ed25519VerificationKeyExtractor('Ed25519VerificationKey2018', jwsVerificationKey2020Extractor);
 const gpgVerificationKey2020Extractor = new GpgVerificationKey2020Extractor('GpgVerificationKey2020', ed25519VerificationKeyExtractor);
 const rsaVerificationKeyExtractor = new RsaVerificationKeyExtractor('RsaVerificationKey2018', gpgVerificationKey2020Extractor);
-const ecdsaSecp256k1VerificationKeyExtractor = new EcdsaSecp256k1VerificationKeyExtractor(['EcdsaSecp256k1VerificationKey2019', 'Secp256k1VerificationKey2018'], rsaVerificationKeyExtractor);
+const ecdsaSecp256k1VerificationKeyExtractor = new EcdsaSecp256k1VerificationKeyExtractor(['EcdsaSecp256k1VerificationKey2019', 'Secp256k1VerificationKey2018', 'Secp256k1'], rsaVerificationKeyExtractor);
 const ecdsaSecp256k1RecoveryMethod2020Extractor = new EcdsaSecp256k1RecoveryMethod2020Extractor('EcdsaSecp256k1RecoveryMethod2020', ecdsaSecp256k1VerificationKeyExtractor);
 export const uniExtractor = new UniversalDidPublicKeyExtractor([], ecdsaSecp256k1RecoveryMethod2020Extractor);
