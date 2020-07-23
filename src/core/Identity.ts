@@ -60,27 +60,29 @@ export class Identity{
         this.keySet = [];
     }
 
-    async resolve(did: string){
+    async resolve(did: string): Promise<string>{
+        let result;
         try{
-            let result = await axios.get(RESOLVER_URL + did);
-            if(
-                result &&
-                result.data &&
-                result.data.didDocument &&
-                //result.data.didDocument['@context'] === 'https://w3id.org/did/v1' &&
-                result.data.didDocument.id == did &&
-                result.data.didDocument.authentication &&
-                result.data.didDocument.authentication.length > 0
-            ){
-                this.doc = result.data.didDocument;
-                this.keySet = [];
-                return this.doc.id;
-            }
-            throw new Error(ERRORS.INVALID_DID_ERROR);
+            result = await axios.get(RESOLVER_URL + did);
         }
         catch(err){
             throw new Error(ERRORS.DOCUMENT_RESOLUTION_ERROR);
         }
+        
+        if(
+            result &&
+            result.data &&
+            result.data.didDocument &&
+            //result.data.didDocument['@context'] === 'https://w3id.org/did/v1' &&
+            result.data.didDocument.id == did &&
+            result.data.didDocument.authentication &&
+            result.data.didDocument.authentication.length > 0
+        ){
+            this.doc = result.data.didDocument;
+            this.keySet = [];
+            return this.doc.id;
+        }
+        throw new Error(ERRORS.INVALID_DID_ERROR);
     }
 
     isResolved(){
