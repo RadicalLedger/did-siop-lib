@@ -3,7 +3,7 @@ import { Identity, DidDocument } from './Identity';
 import * as queryString from 'query-string';
 import { ERROR_RESPONSES } from './ErrorResponse';
 import base64url from 'base64url';
-import { KeySet } from './JWKUtils';
+import { KeySet, ERRORS } from './JWKUtils';
 import { ALGORITHMS, KTYS, KEY_FORMATS } from './globals';
 import * as JWT from './JWT';
 const axios = require('axios').default;
@@ -110,7 +110,7 @@ async function validateRequestParams(request: string): Promise<string> {
 }
 
 async function validateRequestJWT(requestJWT: string): Promise<JWT.JWTObject> {
-    let decodedHeader;
+    let decodedHeader: JWT.JWTHeader;
     let decodedPayload;
     try {
         decodedHeader = JSON.parse(base64url.decode(requestJWT.split('.')[0]));
@@ -133,12 +133,16 @@ async function validateRequestJWT(requestJWT: string): Promise<JWT.JWTObject> {
             let identity = new Identity();
             await identity.resolve(decodedPayload.iss);
             
-            let didPubKey = identity.getPublicKey(decodedHeader.kid);
-            publicKeyInfo = {
-                key: didPubKey.keyString,
-                kid: didPubKey.id,
-                alg: ALGORITHMS[decodedHeader.alg as keyof typeof ALGORITHMS],
-                format: didPubKey.format
+            let didPubKey = identity.extractAuthenticationKeys().find(authKey => { return authKey.id === decodedHeader.kid});
+            if(didPubKey && ALGORITHMS[didPubKey.alg] === decodedHeader.alg){
+                publicKeyInfo = {
+                    key: didPubKey.publicKey,
+                    kid: didPubKey.id,
+                    alg: didPubKey.alg,
+                    format: didPubKey.format
+                }
+            }else{
+                throw new Error(ERRORS.NO_MATCHING_KEY);
             }
         } catch (err) {
             try {
