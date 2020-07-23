@@ -68,7 +68,7 @@ export class Identity{
         catch(err){
             throw new Error(ERRORS.DOCUMENT_RESOLUTION_ERROR);
         }
-        
+
         if(
             result &&
             result.data &&
@@ -296,6 +296,26 @@ class EcdsaSecp256k1VerificationKeyExtractor extends DidVerificationKeyExtractor
     }
 }
 
+class EcdsaSecp256r1VerificationKey2019Extractor extends DidVerificationKeyExtractor{
+    extract(method: DidVerificationKeyMethod): DidVerificationKey {
+        if (!method || !method.id || !method.type) throw new Error(ERRORS.NO_MATCHING_PUBLIC_KEY);
+
+        if(this.names.includes(method.type.toUpperCase())){
+            let extracted: DidVerificationKey = {
+                id: method.id,
+                kty: KTYS.EC,
+                alg: ALGORITHMS.ES256,
+                format: KEY_FORMATS.HEX,
+                publicKey: ''
+            }
+            return getVerificationKeyFromDifferentFormats(method, extracted);
+        }
+        else{
+            return this.next.extract(method);
+        }
+    }
+}
+
 class EcdsaSecp256k1RecoveryMethod2020Extractor extends DidVerificationKeyExtractor{
     extract(method: DidVerificationKeyMethod): DidVerificationKey {
         if (!method || !method.id || !method.type) throw new Error(ERRORS.NO_MATCHING_PUBLIC_KEY);
@@ -373,9 +393,10 @@ function getVerificationKeyFromDifferentFormats(method: DidVerificationKeyMethod
 }
 
 const jwsVerificationKey2020Extractor = new JwsVerificationKey2020Extractor('JwsVerificationKey2020');
-const ed25519VerificationKeyExtractor = new Ed25519VerificationKeyExtractor('Ed25519VerificationKey2018', jwsVerificationKey2020Extractor);
+const ed25519VerificationKeyExtractor = new Ed25519VerificationKeyExtractor(['Ed25519VerificationKey2018', 'ED25519SignatureVerification'], jwsVerificationKey2020Extractor);
 const gpgVerificationKey2020Extractor = new GpgVerificationKey2020Extractor('GpgVerificationKey2020', ed25519VerificationKeyExtractor);
 const rsaVerificationKeyExtractor = new RsaVerificationKeyExtractor('RsaVerificationKey2018', gpgVerificationKey2020Extractor);
 const ecdsaSecp256k1VerificationKeyExtractor = new EcdsaSecp256k1VerificationKeyExtractor(['EcdsaSecp256k1VerificationKey2019', 'Secp256k1VerificationKey2018', 'Secp256k1'], rsaVerificationKeyExtractor);
-const ecdsaSecp256k1RecoveryMethod2020Extractor = new EcdsaSecp256k1RecoveryMethod2020Extractor('EcdsaSecp256k1RecoveryMethod2020', ecdsaSecp256k1VerificationKeyExtractor);
+const ecdsaSecp256r1VerificationKey2019Extractor = new EcdsaSecp256r1VerificationKey2019Extractor('EcdsaSecp256r1VerificationKey2019', ecdsaSecp256k1VerificationKeyExtractor);
+const ecdsaSecp256k1RecoveryMethod2020Extractor = new EcdsaSecp256k1RecoveryMethod2020Extractor('EcdsaSecp256k1RecoveryMethod2020', ecdsaSecp256r1VerificationKey2019Extractor);
 export const uniExtractor = new UniversalDidPublicKeyExtractor([], ecdsaSecp256k1RecoveryMethod2020Extractor);
