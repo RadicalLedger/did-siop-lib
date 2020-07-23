@@ -1,4 +1,4 @@
-import { Identity, ERRORS, uniExtractor } from './../src/core/Identity';
+import { Identity, ERRORS, uniExtractor } from '../src/core/Identity';
 import nock from 'nock';
 import { DID_TEST_RESOLVER_DATA, invalidDID } from './did_doc.spec.resources'
 
