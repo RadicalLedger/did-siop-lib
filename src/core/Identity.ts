@@ -5,7 +5,7 @@ const axios = require('axios').default;
 const { toChecksumAddress } = require('ethereum-checksum-address');
 
 export interface DidDocument{
-    '@context': string;
+    '@context': any;
     id: string;
     authentication: any[];
     [propName:string]: any;
