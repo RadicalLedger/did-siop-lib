@@ -2,7 +2,6 @@ import { ERROR_RESPONSES } from './../src/core/ErrorResponse';
 import { JWTObject } from './../src/core/JWT';
 import { Provider } from './../src/core/Provider';
 import { RP } from '../src/core/RP';
-import { KEY_FORMATS } from '../src/core/globals';
 import nock from 'nock';
 
 let requestObj: JWTObject = {
@@ -95,11 +94,11 @@ describe('DID SIOP', function () {
         jest.setTimeout(10000);
 
         let rp = await RP.getRP(rpRedirectURI, rpDID, rpRegistrationMetaData);
-        rp.addSigningParams(rpPrivateKey, rpKid, KEY_FORMATS.HEX);
+        rp.addSigningParams(rpPrivateKey, rpKid);
 
         let provider = new Provider();
         await provider.setUser(userDID);
-        provider.addSigningParams(userPrivateKeyHex, userKid, KEY_FORMATS.HEX);
+        provider.addSigningParams(userPrivateKeyHex, userKid);
 
         let request =  await rp.generateRequest();
         let requestJWTDecoded = await provider.validateRequest(request);
@@ -117,11 +116,11 @@ describe('DID SIOP', function () {
         jest.setTimeout(10000);
 
         let rp = await RP.getRP(rpRedirectURI, rpDID, rpRegistrationMetaData);
-        rp.addSigningParams(rpPrivateKey, rpKid, KEY_FORMATS.HEX);
+        rp.addSigningParams(rpPrivateKey, rpKid);
 
         let provider = new Provider();
         await provider.setUser(userDID);
-        provider.addSigningParams(userPrivateKeyHex, userKid, KEY_FORMATS.HEX);
+        provider.addSigningParams(userPrivateKeyHex, userKid);
 
         rp.removeSigningParams('did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner');
         let requestPromise = rp.generateRequest();
@@ -135,11 +134,11 @@ describe('DID SIOP', function () {
         jest.setTimeout(10000);
 
         let rp = await RP.getRP(rpRedirectURI, rpDID, rpRegistrationMetaData);
-        rp.addSigningParams(rpPrivateKey, rpKid, KEY_FORMATS.HEX);
+        rp.addSigningParams(rpPrivateKey, rpKid);
 
         let provider = new Provider();
         await provider.setUser(userDID);
-        provider.addSigningParams(userPrivateKeyHex, userKid, KEY_FORMATS.HEX);
+        provider.addSigningParams(userPrivateKeyHex, userKid);
 
         let requestValidationError = new Error('Unknown error');
         try{
