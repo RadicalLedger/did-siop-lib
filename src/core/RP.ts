@@ -9,8 +9,8 @@ import { RSAVerifier, ES256KRecoverableVerifier, ECVerifier, OKPVerifier } from 
 import { checkKeyPair } from './Utils';
 import { SIOPErrorResponse } from './ErrorResponse';
 
-const ERRORS= Object.freeze({
-    NO_SIGNING_INFO: 'Atleast one SigningInfo is required',
+export const ERRORS= Object.freeze({
+    NO_SIGNING_INFO: 'At least one public key must be confirmed with related private key',
     INVALID_KEY_TYPE: 'Invalid key type',
     KEY_MISMATCH: 'Public and private keys do not match',
     NO_PUBLIC_KEY: 'No key matching kid',

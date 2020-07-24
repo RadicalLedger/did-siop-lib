@@ -9,8 +9,8 @@ import { DidSiopRequest } from './Request';
 import { checkKeyPair } from './Utils';
 import * as ErrorResponse from './ErrorResponse';
 
-const ERRORS= Object.freeze({
-    NO_SIGNING_INFO: 'Atleast one SigningInfo is required',
+export const ERRORS= Object.freeze({
+    NO_SIGNING_INFO: 'At least one public key must be confirmed with related private key',
     UNRESOLVED_IDENTITY: 'Unresolved identity',
     INVALID_KEY_TYPE: 'Invalid key type',
     KEY_MISMATCH: 'Public and private keys do not match',

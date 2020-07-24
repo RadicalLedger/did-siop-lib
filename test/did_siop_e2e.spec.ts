@@ -1,7 +1,7 @@
 import { ERROR_RESPONSES } from './../src/core/ErrorResponse';
 import { JWTObject } from './../src/core/JWT';
-import { Provider } from './../src/core/Provider';
-import { RP } from '../src/core/RP';
+import { Provider, ERRORS as ProviderErrors } from './../src/core/Provider';
+import { RP, ERRORS as RPErrors } from '../src/core/RP';
 import nock from 'nock';
 
 let requestObj: JWTObject = {
@@ -124,11 +124,11 @@ describe('DID SIOP', function () {
 
         rp.removeSigningParams('did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner');
         let requestPromise = rp.generateRequest();
-        expect(requestPromise).rejects.toEqual(new Error('Atleast one SigningInfo is required'));
+        expect(requestPromise).rejects.toEqual(new Error(RPErrors.NO_SIGNING_INFO));
 
         provider.removeSigningParams('did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#owner');
         let responsePromise = provider.generateResponse(requestObj.payload);
-        expect(responsePromise).rejects.toEqual(new Error('Atleast one SigningInfo is required'));
+        expect(responsePromise).rejects.toEqual(new Error(ProviderErrors.NO_SIGNING_INFO));
     });
     test('DID SIOP end to end functions testing - Error Response', async () => {
         jest.setTimeout(10000);
