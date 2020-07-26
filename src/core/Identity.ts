@@ -31,7 +31,6 @@ export interface DidVerificationKey{
     alg: ALGORITHMS,
     format: KEY_FORMATS;
     publicKey: any;
-    privateKey?: boolean
 }
 
 export const ERRORS = Object.freeze(
@@ -92,20 +91,35 @@ export class Identity{
     extractAuthenticationKeys(extractor?: DidVerificationKeyExtractor): DidVerificationKey[]{
         if(!extractor) extractor = uniExtractor;
         if(!this.isResolved()) throw new Error(ERRORS.UNRESOLVED_DOCUMENT);
-        for (let method of this.doc.authentication) {
-            if (method.id && method.type) {
-                try{
-                    this.keySet.push(extractor.extract(method));
+        if(this.keySet.length === 0){
+            for (let method of this.doc.authentication) {
+                if (method.id && method.type) {
+                    try{
+                        this.keySet.push(extractor.extract(method));
+                    }
+                    catch(err){
+                        continue;
+                    }
                 }
-                catch(err){
-                    continue;
+    
+                if (method.publicKey) {
+                    for (let key of method.publicKey) {
+                        for(let pub of this.doc.publicKey){
+                            if (pub.id === key || pub.id === this.doc.id + key){
+                                try{
+                                    this.keySet.push(extractor.extract(pub));
+                                }
+                                catch(err){
+                                    continue;
+                                }
+                            }
+                        }
+                    }
                 }
-            }
-
-            if (method.publicKey) {
-                for (let key of method.publicKey) {
-                    for(let pub of this.doc.publicKey){
-                        if (pub.id === key || pub.id === this.doc.id + key){
+    
+                if (typeof method === 'string') {
+                    for (let pub of this.doc.publicKey) {
+                        if (pub.id === method){
                             try{
                                 this.keySet.push(extractor.extract(pub));
                             }
@@ -114,21 +128,8 @@ export class Identity{
                             }
                         }
                     }
+                    //Implement other verification methods here
                 }
-            }
-
-            if (typeof method === 'string') {
-                for (let pub of this.doc.publicKey) {
-                    if (pub.id === method){
-                        try{
-                            this.keySet.push(extractor.extract(pub));
-                        }
-                        catch(err){
-                            continue;
-                        }
-                    }
-                }
-                //Implement other verification methods here
             }
         }
         return this.keySet;
