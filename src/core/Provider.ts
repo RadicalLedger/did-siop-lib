@@ -12,9 +12,7 @@ import * as ErrorResponse from './ErrorResponse';
 export const ERRORS= Object.freeze({
     NO_SIGNING_INFO: 'At least one public key must be confirmed with related private key',
     UNRESOLVED_IDENTITY: 'Unresolved identity',
-    INVALID_KEY_TYPE: 'Invalid key type',
-    KEY_MISMATCH: 'Public and private keys do not match',
-    NO_PUBLIC_KEY: 'No key matching kid',
+    NO_PUBLIC_KEY: 'No public key matches given private key',
 });
 
 export class Provider{
@@ -34,17 +32,18 @@ export class Provider{
         }
     }
 
-    addSigningParams(key: string, kid: string, format?: KEY_FORMATS | string, algorithm?: ALGORITHMS | string) {
+    addSigningParams(key: string, kid?: string, format?: KEY_FORMATS | string, algorithm?: ALGORITHMS | string): string{
         try{
             if(format){}
             if(algorithm){}
+            if(kid){}
 
-            let didPublicKey = this.identity.extractAuthenticationKeys().find(authKey => { return authKey.id === kid});
+            let didPublicKeySet = this.identity.extractAuthenticationKeys();
 
-            if(didPublicKey){
+            for(let didPublicKey of didPublicKeySet){
                 let publicKeyInfo: KeyInputs.KeyInfo = {
                     key: didPublicKey.publicKey,
-                    kid,
+                    kid: didPublicKey.id,
                     use: 'sig',
                     kty: KTYS[didPublicKey.kty],
                     alg: ALGORITHMS[didPublicKey.alg],
@@ -56,7 +55,7 @@ export class Provider{
 
                     let privateKeyInfo: KeyInputs.KeyInfo = {
                         key: key,
-                        kid,
+                        kid: didPublicKey.id,
                         use: 'sig',
                         kty: KTYS[didPublicKey.kty],
                         alg: ALGORITHMS[didPublicKey.alg],
@@ -100,30 +99,26 @@ export class Provider{
                                 break;
                             };
                             default:{
-                                throw new Error(ERRORS.INVALID_KEY_TYPE);
+                                continue;
                             }
                         }
             
                         if(checkKeyPair(privateKey, publicKey, signer, verifier, didPublicKey.alg)){
                             this.signing_info_set.push({
                                 alg: didPublicKey.alg,
-                                kid: kid,
+                                kid: didPublicKey.id,
                                 key: key,
                                 format: KEY_FORMATS[key_format as keyof typeof KEY_FORMATS],
                             })
-                            return;
+                            return didPublicKey.id;
                         }
                     }
                     catch(err){
                         continue;
                     }
                 }
-                throw new Error(ERRORS.KEY_MISMATCH);
             }
-            else{
-                throw new Error(ERRORS.NO_PUBLIC_KEY);
-            }
-            
+            throw new Error(ERRORS.NO_PUBLIC_KEY);
         }
         catch(err){
             throw err;

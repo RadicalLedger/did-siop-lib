@@ -94,11 +94,13 @@ describe('DID SIOP', function () {
         jest.setTimeout(10000);
 
         let rp = await RP.getRP(rpRedirectURI, rpDID, rpRegistrationMetaData);
-        rp.addSigningParams(rpPrivateKey, rpKid);
+        let kid = rp.addSigningParams(rpPrivateKey);
+        expect(kid).toEqual(rpKid);
 
         let provider = new Provider();
         await provider.setUser(userDID);
-        provider.addSigningParams(userPrivateKeyHex, userKid);
+        kid = provider.addSigningParams(userPrivateKeyHex);
+        expect(kid).toEqual(userKid);
 
         let request =  await rp.generateRequest();
         let requestJWTDecoded = await provider.validateRequest(request);
@@ -116,11 +118,11 @@ describe('DID SIOP', function () {
         jest.setTimeout(10000);
 
         let rp = await RP.getRP(rpRedirectURI, rpDID, rpRegistrationMetaData);
-        rp.addSigningParams(rpPrivateKey, rpKid);
+        rp.addSigningParams(rpPrivateKey);
 
         let provider = new Provider();
         await provider.setUser(userDID);
-        provider.addSigningParams(userPrivateKeyHex, userKid);
+        provider.addSigningParams(userPrivateKeyHex);
 
         rp.removeSigningParams('did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner');
         let requestPromise = rp.generateRequest();
@@ -134,11 +136,11 @@ describe('DID SIOP', function () {
         jest.setTimeout(10000);
 
         let rp = await RP.getRP(rpRedirectURI, rpDID, rpRegistrationMetaData);
-        rp.addSigningParams(rpPrivateKey, rpKid);
+        rp.addSigningParams(rpPrivateKey);
 
         let provider = new Provider();
         await provider.setUser(userDID);
-        provider.addSigningParams(userPrivateKeyHex, userKid);
+        provider.addSigningParams(userPrivateKeyHex);
 
         let requestValidationError = new Error('Unknown error');
         try{
