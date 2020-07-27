@@ -1,8 +1,7 @@
 import { ERROR_RESPONSES } from './../src/core/ErrorResponse';
 import { JWTObject } from './../src/core/JWT';
-import { Provider } from './../src/core/Provider';
-import { RP } from '../src/core/RP';
-import { ALGORITHMS, KEY_FORMATS } from '../src/core/globals';
+import { Provider, ERRORS as ProviderErrors } from './../src/core/Provider';
+import { RP, ERRORS as RPErrors } from '../src/core/RP';
 import nock from 'nock';
 
 let requestObj: JWTObject = {
@@ -95,11 +94,13 @@ describe('DID SIOP', function () {
         jest.setTimeout(10000);
 
         let rp = await RP.getRP(rpRedirectURI, rpDID, rpRegistrationMetaData);
-        rp.addSigningParams(rpPrivateKey, rpKid, KEY_FORMATS.HEX, ALGORITHMS["ES256K-R"]);
+        let kid = rp.addSigningParams(rpPrivateKey);
+        expect(kid).toEqual(rpKid);
 
         let provider = new Provider();
         await provider.setUser(userDID);
-        provider.addSigningParams(userPrivateKeyHex, userKid, KEY_FORMATS.HEX, ALGORITHMS["ES256K-R"]);
+        kid = provider.addSigningParams(userPrivateKeyHex);
+        expect(kid).toEqual(userKid);
 
         let request =  await rp.generateRequest();
         let requestJWTDecoded = await provider.validateRequest(request);
@@ -117,29 +118,29 @@ describe('DID SIOP', function () {
         jest.setTimeout(10000);
 
         let rp = await RP.getRP(rpRedirectURI, rpDID, rpRegistrationMetaData);
-        rp.addSigningParams(rpPrivateKey, rpKid, KEY_FORMATS.HEX, ALGORITHMS["ES256K-R"]);
+        rp.addSigningParams(rpPrivateKey);
 
         let provider = new Provider();
         await provider.setUser(userDID);
-        provider.addSigningParams(userPrivateKeyHex, userKid, KEY_FORMATS.HEX, ALGORITHMS["ES256K-R"]);
+        provider.addSigningParams(userPrivateKeyHex);
 
         rp.removeSigningParams('did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner');
         let requestPromise = rp.generateRequest();
-        expect(requestPromise).rejects.toEqual(new Error('Atleast one SigningInfo is required'));
+        expect(requestPromise).rejects.toEqual(new Error(RPErrors.NO_SIGNING_INFO));
 
         provider.removeSigningParams('did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#owner');
         let responsePromise = provider.generateResponse(requestObj.payload);
-        expect(responsePromise).rejects.toEqual(new Error('Atleast one SigningInfo is required'));
+        expect(responsePromise).rejects.toEqual(new Error(ProviderErrors.NO_SIGNING_INFO));
     });
     test('DID SIOP end to end functions testing - Error Response', async () => {
         jest.setTimeout(10000);
 
         let rp = await RP.getRP(rpRedirectURI, rpDID, rpRegistrationMetaData);
-        rp.addSigningParams(rpPrivateKey, rpKid, KEY_FORMATS.HEX, ALGORITHMS["ES256K-R"]);
+        rp.addSigningParams(rpPrivateKey);
 
         let provider = new Provider();
         await provider.setUser(userDID);
-        provider.addSigningParams(userPrivateKeyHex, userKid, KEY_FORMATS.HEX, ALGORITHMS["ES256K-R"]);
+        provider.addSigningParams(userPrivateKeyHex);
 
         let requestValidationError = new Error('Unknown error');
         try{
