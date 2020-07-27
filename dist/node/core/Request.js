@@ -197,13 +197,18 @@ function validateRequestJWT(requestJWT) {
                     return [4 /*yield*/, identity.resolve(decodedPayload.iss)];
                 case 2:
                     _a.sent();
-                    didPubKey = identity.getPublicKey(decodedHeader.kid);
-                    publicKeyInfo = {
-                        key: didPubKey.keyString,
-                        kid: didPubKey.id,
-                        alg: globals_1.ALGORITHMS[decodedHeader.alg],
-                        format: didPubKey.format
-                    };
+                    didPubKey = identity.extractAuthenticationKeys().find(function (authKey) { return authKey.id === decodedHeader.kid; });
+                    if (didPubKey && globals_1.ALGORITHMS[didPubKey.alg] === decodedHeader.alg) {
+                        publicKeyInfo = {
+                            key: didPubKey.publicKey,
+                            kid: didPubKey.id,
+                            alg: didPubKey.alg,
+                            format: didPubKey.format
+                        };
+                    }
+                    else {
+                        throw new Error(JWKUtils_1.ERRORS.NO_MATCHING_KEY);
+                    }
                     return [3 /*break*/, 4];
                 case 3:
                     err_2 = _a.sent();

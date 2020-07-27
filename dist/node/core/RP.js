@@ -44,10 +44,9 @@ var JWKUtils_1 = require("./JWKUtils");
 var Signers_1 = require("./Signers");
 var Verifiers_1 = require("./Verifiers");
 var Utils_1 = require("./Utils");
-var ERRORS = Object.freeze({
-    NO_SIGNING_INFO: 'Atleast one SigningInfo is required',
-    INVALID_KEY_TYPE: 'Invalid key type',
-    KEY_MISMATCH: 'Public and private keys do not match',
+exports.ERRORS = Object.freeze({
+    NO_SIGNING_INFO: 'At least one public key must be confirmed with related private key',
+    NO_PUBLIC_KEY: 'No public key matches given private key',
 });
 var RP = /** @class */ (function () {
     function RP(redirect_uri, did, registration, did_doc) {
@@ -86,79 +85,89 @@ var RP = /** @class */ (function () {
     };
     RP.prototype.addSigningParams = function (key, kid, format, algorithm) {
         try {
-            algorithm = typeof algorithm === 'string' ? Utils_1.getAlgorithm(algorithm) : algorithm;
-            format = typeof format === 'string' ? Utils_1.getKeyFormat(format) : format;
-            var didPublicKey = this.identity.getPublicKey(kid);
-            var publicKeyInfo = {
-                key: didPublicKey.keyString,
-                kid: kid,
-                use: 'sig',
-                kty: globals_1.KTYS[didPublicKey.kty],
-                alg: globals_1.ALGORITHMS[algorithm],
-                format: didPublicKey.format,
-                isPrivate: false
-            };
-            var privateKeyInfo = {
-                key: key,
-                kid: kid,
-                use: 'sig',
-                kty: globals_1.KTYS[didPublicKey.kty],
-                alg: globals_1.ALGORITHMS[algorithm],
-                format: format,
-                isPrivate: true
-            };
-            var privateKey = void 0;
-            var publicKey = void 0;
-            var signer = void 0, verifier = void 0;
-            switch (didPublicKey.kty) {
-                case globals_1.KTYS.RSA:
-                    {
-                        privateKey = JWKUtils_1.RSAKey.fromKey(privateKeyInfo);
-                        publicKey = JWKUtils_1.RSAKey.fromKey(publicKeyInfo);
-                        signer = new Signers_1.RSASigner();
-                        verifier = new Verifiers_1.RSAVerifier();
-                        break;
+            if (format) { }
+            if (algorithm) { }
+            if (kid) { }
+            var didPublicKeySet = this.identity.extractAuthenticationKeys();
+            for (var _i = 0, didPublicKeySet_1 = didPublicKeySet; _i < didPublicKeySet_1.length; _i++) {
+                var didPublicKey = didPublicKeySet_1[_i];
+                var publicKeyInfo = {
+                    key: didPublicKey.publicKey,
+                    kid: didPublicKey.id,
+                    use: 'sig',
+                    kty: globals_1.KTYS[didPublicKey.kty],
+                    alg: globals_1.ALGORITHMS[didPublicKey.alg],
+                    format: didPublicKey.format,
+                    isPrivate: false
+                };
+                for (var key_format in globals_1.KEY_FORMATS) {
+                    var privateKeyInfo = {
+                        key: key,
+                        kid: didPublicKey.id,
+                        use: 'sig',
+                        kty: globals_1.KTYS[didPublicKey.kty],
+                        alg: globals_1.ALGORITHMS[didPublicKey.alg],
+                        format: globals_1.KEY_FORMATS[key_format],
+                        isPrivate: true
+                    };
+                    var privateKey = void 0;
+                    var publicKey = void 0;
+                    var signer = void 0, verifier = void 0;
+                    try {
+                        switch (didPublicKey.kty) {
+                            case globals_1.KTYS.RSA:
+                                {
+                                    privateKey = JWKUtils_1.RSAKey.fromKey(privateKeyInfo);
+                                    publicKey = JWKUtils_1.RSAKey.fromKey(publicKeyInfo);
+                                    signer = new Signers_1.RSASigner();
+                                    verifier = new Verifiers_1.RSAVerifier();
+                                    break;
+                                }
+                                ;
+                            case globals_1.KTYS.EC: {
+                                if (didPublicKey.format === globals_1.KEY_FORMATS.ETHEREUM_ADDRESS) {
+                                    privateKey = JWKUtils_1.ECKey.fromKey(privateKeyInfo);
+                                    publicKey = didPublicKey.publicKey;
+                                    signer = new Signers_1.ES256KRecoverableSigner();
+                                    verifier = new Verifiers_1.ES256KRecoverableVerifier();
+                                }
+                                else {
+                                    privateKey = JWKUtils_1.ECKey.fromKey(privateKeyInfo);
+                                    publicKey = JWKUtils_1.ECKey.fromKey(publicKeyInfo);
+                                    signer = new Signers_1.ECSigner();
+                                    verifier = new Verifiers_1.ECVerifier();
+                                }
+                                break;
+                            }
+                            case globals_1.KTYS.OKP:
+                                {
+                                    privateKey = JWKUtils_1.OKP.fromKey(privateKeyInfo);
+                                    publicKey = JWKUtils_1.OKP.fromKey(publicKeyInfo);
+                                    signer = new Signers_1.OKPSigner();
+                                    verifier = new Verifiers_1.OKPVerifier();
+                                    break;
+                                }
+                                ;
+                            default: {
+                                continue;
+                            }
+                        }
+                        if (Utils_1.checkKeyPair(privateKey, publicKey, signer, verifier, didPublicKey.alg)) {
+                            this.signing_info_set.push({
+                                alg: didPublicKey.alg,
+                                kid: didPublicKey.id,
+                                key: key,
+                                format: globals_1.KEY_FORMATS[key_format],
+                            });
+                            return didPublicKey.id;
+                        }
                     }
-                    ;
-                case globals_1.KTYS.EC: {
-                    if (didPublicKey.format === globals_1.KEY_FORMATS.ETHEREUM_ADDRESS) {
-                        privateKey = JWKUtils_1.ECKey.fromKey(privateKeyInfo);
-                        publicKey = didPublicKey.keyString;
-                        signer = new Signers_1.ES256KRecoverableSigner();
-                        verifier = new Verifiers_1.ES256KRecoverableVerifier();
+                    catch (err) {
+                        continue;
                     }
-                    else {
-                        privateKey = JWKUtils_1.ECKey.fromKey(privateKeyInfo);
-                        publicKey = JWKUtils_1.ECKey.fromKey(publicKeyInfo);
-                        signer = new Signers_1.ECSigner();
-                        verifier = new Verifiers_1.ECVerifier();
-                    }
-                    break;
                 }
-                case globals_1.KTYS.OKP:
-                    {
-                        privateKey = JWKUtils_1.OKP.fromKey(privateKeyInfo);
-                        publicKey = JWKUtils_1.OKP.fromKey(publicKeyInfo);
-                        signer = new Signers_1.OKPSigner();
-                        verifier = new Verifiers_1.OKPVerifier();
-                        break;
-                    }
-                    ;
-                default: {
-                    throw new Error(ERRORS.INVALID_KEY_TYPE);
-                }
             }
-            if (Utils_1.checkKeyPair(privateKey, publicKey, signer, verifier, algorithm)) {
-                this.signing_info_set.push({
-                    alg: algorithm,
-                    kid: kid,
-                    key: key,
-                    format: format,
-                });
-            }
-            else {
-                throw new Error(ERRORS.KEY_MISMATCH);
-            }
+            throw new Error(exports.ERRORS.NO_PUBLIC_KEY);
         }
         catch (err) {
             throw err;
@@ -184,7 +193,7 @@ var RP = /** @class */ (function () {
                         signing_info = this.signing_info_set[Math.floor(Math.random() * this.signing_info_set.length)];
                         return [4 /*yield*/, Request_1.DidSiopRequest.generateRequest(this.info, signing_info, options)];
                     case 1: return [2 /*return*/, _a.sent()];
-                    case 2: return [2 /*return*/, Promise.reject(new Error(ERRORS.NO_SIGNING_INFO))];
+                    case 2: return [2 /*return*/, Promise.reject(new Error(exports.ERRORS.NO_SIGNING_INFO))];
                     case 3:
                         err_2 = _a.sent();
                         return [2 /*return*/, Promise.reject(err_2)];
@@ -206,7 +215,7 @@ var RP = /** @class */ (function () {
                     case 1: return [2 /*return*/, _a.sent()];
                     case 2:
                         err_3 = _a.sent();
-                        return [2 /*return*/, Promise.reject(ERRORS.NO_SIGNING_INFO)];
+                        return [2 /*return*/, Promise.reject(exports.ERRORS.NO_SIGNING_INFO)];
                     case 3: return [2 /*return*/];
                 }
             });

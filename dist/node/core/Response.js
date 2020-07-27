@@ -83,37 +83,43 @@ var DidSiopResponse = /** @class */ (function () {
                     else {
                         Promise.reject(ERRORS.UNSUPPORTED_ALGO);
                     }
-                    didPubKey = didSiopUser.getPublicKey(signingInfo.kid);
+                    didPubKey = didSiopUser.extractAuthenticationKeys().find(function (authKey) { return authKey.id === signingInfo.kid; });
                     header = {
                         typ: 'JWT',
                         alg: alg,
                         kid: signingInfo.kid,
                     };
                     publicKey = void 0;
-                    keyInfo = {
-                        key: didPubKey.keyString,
-                        kid: didPubKey.id,
-                        use: 'sig',
-                        kty: globals_1.KTYS[didPubKey.kty],
-                        format: didPubKey.format,
-                        isPrivate: false,
-                    };
-                    switch (didPubKey.kty) {
-                        case globals_1.KTYS.RSA:
-                            publicKey = JWKUtils_1.RSAKey.fromKey(keyInfo);
-                            break;
-                        case globals_1.KTYS.EC: {
-                            if (didPubKey.format === globals_1.KEY_FORMATS.ETHEREUM_ADDRESS) {
-                                keyInfo.key = signingInfo.key;
-                                keyInfo.format = signingInfo.format;
-                                keyInfo.isPrivate = true;
+                    keyInfo = void 0;
+                    if (didPubKey) {
+                        keyInfo = {
+                            key: didPubKey.publicKey,
+                            kid: didPubKey.id,
+                            use: 'sig',
+                            kty: globals_1.KTYS[didPubKey.kty],
+                            format: didPubKey.format,
+                            isPrivate: false,
+                        };
+                        switch (didPubKey.kty) {
+                            case globals_1.KTYS.RSA:
+                                publicKey = JWKUtils_1.RSAKey.fromKey(keyInfo);
+                                break;
+                            case globals_1.KTYS.EC: {
+                                if (didPubKey.format === globals_1.KEY_FORMATS.ETHEREUM_ADDRESS) {
+                                    keyInfo.key = signingInfo.key;
+                                    keyInfo.format = signingInfo.format;
+                                    keyInfo.isPrivate = true;
+                                }
+                                publicKey = JWKUtils_1.ECKey.fromKey(keyInfo);
+                                break;
                             }
-                            publicKey = JWKUtils_1.ECKey.fromKey(keyInfo);
-                            break;
+                            case globals_1.KTYS.OKP:
+                                publicKey = JWKUtils_1.OKP.fromKey(keyInfo);
+                                break;
                         }
-                        case globals_1.KTYS.OKP:
-                            publicKey = JWKUtils_1.OKP.fromKey(keyInfo);
-                            break;
+                    }
+                    else {
+                        return [2 /*return*/, Promise.reject(new Error(ERRORS.PUBLIC_KEY_ERROR))];
                     }
                     payload = {
                         iss: 'https://self-issued.me',
@@ -204,13 +210,18 @@ var DidSiopResponse = /** @class */ (function () {
                         return [4 /*yield*/, identity.resolve(decodedPayload.did)];
                     case 2:
                         _a.sent();
-                        didPubKey = identity.getPublicKey(decodedHeader.kid);
-                        publicKeyInfo = {
-                            key: didPubKey.keyString,
-                            kid: didPubKey.id,
-                            alg: globals_1.ALGORITHMS[decodedHeader.alg],
-                            format: didPubKey.format
-                        };
+                        didPubKey = identity.extractAuthenticationKeys().find(function (authKey) { return authKey.id === decodedHeader.kid; });
+                        if (didPubKey) {
+                            publicKeyInfo = {
+                                key: didPubKey.publicKey,
+                                kid: didPubKey.id,
+                                alg: didPubKey.alg,
+                                format: didPubKey.format
+                            };
+                        }
+                        else {
+                            throw new Error(ERRORS.PUBLIC_KEY_ERROR);
+                        }
                         return [3 /*break*/, 4];
                     case 3:
                         err_1 = _a.sent();
