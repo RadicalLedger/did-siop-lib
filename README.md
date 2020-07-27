@@ -28,12 +28,7 @@ const rp = await DID_SIOP.RP.getRP(
   } // RP's registration meta data
 );
 			
-rp.addSigningParams(
-  'CE438802C1F0B6F12BC6E686F372D7D495BC5AA634134B4A7EA4603CB25F0964', // Private key
-  'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner', // Corresponding authentication method in RP's did document (to be used as kid value for key)
-  DID_SIOP.KEY_FORMATS.HEX, //Format in which the key is supplied. List of values is given below
-  DID_SIOP.ALGORITHMS['ES256K-R'] //Algorithm. List of values is given below
-);// If several keys are provided, one will be selected randomly when generating the request. To remove a key use rp.removeSigningParams(kid)
+rp.addSigningParams('CE438802C1F0B6F12BC6E686F372D7D495BC5AA634134B4A7EA4603CB25F0964'); // Private key
 
 //Request generation
 rp.generateRequest([optionsObj]).then(request => {
@@ -55,12 +50,7 @@ const DID_SIOP = require('did-siop');
 const provider = new DID_SIOP.Provider();
 await provider.setUser('did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf');// User's did
 
-provider.addSigningParams(
-  '3f81cb66c8cbba18fbe25f99d2fb4e19f54a1ee69c335ce756a705726189c9e7', // User's private key
-  'did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#owner', // Corresponding authentication method in user's did document (to be used as kid value for key)
-  DID_SIOP.KEY_FORMATS.HEX, //Format in which the key is supplied. List of values is given below
-  DID_SIOP.ALGORITHMS['ES256K-R'] //Algorithm. List of values is given below
-);// If several keys are provided, one will be selected randomly when generating the request. To remove a key use provider.removeSigningParams(kid)
+provider.addSigningParams('3f81cb66c8cbba18fbe25f99d2fb4e19f54a1ee69c335ce756a705726189c9e7') // User's private key
 
 // Request validation and response generation
 provider.validateRequest(request)
@@ -104,15 +94,12 @@ This class provides primary functionality to for Self Issued OpenIDConnect Provi
 Sets the user of the application. If the DID is provied, this function resolves the provided did to a DID Document
 
 ---
-#### addSigningParams(key: string, kid: string, format: KEY_FORMATS | string, algorithm: ALGORITHMS | string) ####
+#### addSigningParams(key: string): string ####
 Add necessary parameters for the user to cryptographically sign a message
 * Parameters
   * key:string - Private Key of the user. Should match with one of the Keys provided in DID Document
-  * kid:string - Key ID, should be one of the key ids in provided DID Document
-  * format:KEY_FORMATS | string - One of the supported key formats as enum value or a string (refer Supported Key Formats)
-  * algorithm:ALGORITHMS | string - One of the supported algorithms as enum value or a string (refer Supported Algorithms)
 * Return
-  * void
+  * KID of the related public key in DID Document
 
 ---
 #### removeSigningParams(kid: string) ####
@@ -157,15 +144,12 @@ Removes an already added key information
   * Promise\<RP\>
 
 ---
-#### addSigningParams(key: string, kid: string, format: KEY_FORMATS | string, algorithm: ALGORITHMS | string) ####
+#### addSigningParams(key: string): string ####
 Add necessary parameters for the user to cryptographically sign a message
 * Parameters
   * key:string - Private Key of the user. Should match with one of the Keys provided in DID Document
-  * kid:string - Key ID, should be one of the key ids in provided DID Document
-  * format:KEY_FORMATS | string - One of the supported key formats as enum value or a string (refer Supported Key Formats)
-  * algorithm:ALGORITHMS | string - One of the supported algorithms as enum value or a string (refer Supported Algorithms)
 * Return
-  * void
+  * KID of the related public key in DID Document
 
 ---
 #### removeSigningParams(kid: string) ####
