@@ -1,15 +1,29 @@
-import { KEY_FORMATS, KTYS } from './globals';
+import { KEY_FORMATS, KTYS, ALGORITHMS } from './globals';
 export interface DidDocument {
-    '@context': string;
+    '@context': any;
     id: string;
     authentication: any[];
     [propName: string]: any;
 }
-export interface DidPublicKey {
+interface DidVerificationKeyMethod {
+    id: string;
+    type: string;
+    publicKeyBase58?: string;
+    publicKeyBase64?: string;
+    publicKeyHex?: string;
+    publicKeyPem?: string;
+    publicKeyJwk?: any;
+    publicKeyGpg?: string;
+    ethereumAddress?: string;
+    address?: string;
+    [propName: string]: any;
+}
+export interface DidVerificationKey {
     id: string;
     kty: KTYS;
+    alg: ALGORITHMS;
     format: KEY_FORMATS;
-    keyString: string;
+    publicKey: any;
 }
 export declare const ERRORS: Readonly<{
     DOCUMENT_RESOLUTION_ERROR: string;
@@ -17,15 +31,31 @@ export declare const ERRORS: Readonly<{
     UNSUPPORTED_KEY_TYPE: string;
     UNSUPPORTED_KEY_FORMAT: string;
     NO_MATCHING_PUBLIC_KEY: string;
+    UNSUPPORTED_PUBLIC_KEY_METHOD: string;
     UNRESOLVED_DOCUMENT: string;
     INVALID_DOCUMENT: string;
 }>;
 export declare class Identity {
     private doc;
+    private keySet;
     constructor();
     resolve(did: string): Promise<string>;
     isResolved(): boolean;
-    getPublicKey(kid: string): DidPublicKey;
+    extractAuthenticationKeys(extractor?: DidVerificationKeyExtractor): DidVerificationKey[];
     getDocument(): DidDocument;
     setDocument(doc: DidDocument, did: string): void;
 }
+export declare abstract class DidVerificationKeyExtractor {
+    protected names: string[];
+    protected next: DidVerificationKeyExtractor | EmptyDidVerificationKeyExtractor;
+    constructor(names: string | string[], next?: DidVerificationKeyExtractor);
+    abstract extract(method: DidVerificationKeyMethod): DidVerificationKey;
+}
+declare class EmptyDidVerificationKeyExtractor {
+    extract(method: DidVerificationKeyMethod): DidVerificationKey;
+}
+declare class UniversalDidPublicKeyExtractor extends DidVerificationKeyExtractor {
+    extract(method: DidVerificationKeyMethod): DidVerificationKey;
+}
+export declare const uniExtractor: UniversalDidPublicKeyExtractor;
+export {};

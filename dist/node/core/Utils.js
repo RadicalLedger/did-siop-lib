@@ -22,4 +22,8 @@ function getKeyFormat(format) {
     return globals_1.KEY_FORMATS[format.toUpperCase()];
 }
 exports.getKeyFormat = getKeyFormat;
+function getKeyType(kty) {
+    return globals_1.KTYS[kty.toUpperCase()];
+}
+exports.getKeyType = getKeyType;
 //# sourceMappingURL=Utils.js.map
