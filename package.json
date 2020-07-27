@@ -33,6 +33,7 @@
   },
   "homepage": "https://github.com/RadicalLedger/did-siop-lib#readme",
   "devDependencies": {
+    "@babel/cli": "^7.10.5",
     "@babel/core": "^7.9.6",
     "@babel/preset-env": "^7.9.6",
     "@types/bs58": "^4.0.1",
