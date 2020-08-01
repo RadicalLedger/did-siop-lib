@@ -1,6 +1,6 @@
 {
   "name": "did-siop",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "A library containing core functionality for DID based Self Issued OpenID Connect authentication. Contains both Relying Party and Provider components.",
   "main": "dist/node/index.js",
   "browser": "dist/browser/did-siop.js",
@@ -10,7 +10,8 @@
     "compile": "babel dist/browser/did-siop.js --out-file dist/browser/did-siop.compiled.js --presets=@babel/preset-env",
     "minify": "uglifyjs --compress --mangle --output dist/browser/did-siop.min.js -- dist/browser/did-siop.compiled.js",
     "browser-build": "browserify src/index.ts -p [ tsify tsconfig.json ] --s DID_SIOP > dist/browser/did-siop.js && npm run-script compile && npm run-script minify",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand",
+    "publish-version": "npm run-script node-build && npm run-script browser-build && npm publish"
   },
   "repository": {
     "type": "git",
