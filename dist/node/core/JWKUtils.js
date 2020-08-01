@@ -514,6 +514,8 @@ var OKP = /** @class */ (function (_super) {
             catch (err) {
                 throw new Error(exports.ERRORS.INVALID_KEY_FORMAT);
             }
+            if (key_buffer.length >= 32)
+                key_buffer = key_buffer.slice(0, 32);
             var ed = new elliptic_1.eddsa('ed25519');
             var ellipticKey = void 0;
             ellipticKey = ed.keyFromSecret(key_buffer);
