@@ -554,6 +554,8 @@ export class OKP extends Key{
                 throw new Error(ERRORS.INVALID_KEY_FORMAT);
             }
 
+            if(key_buffer.length >= 32) key_buffer = key_buffer.slice(0, 32);
+
             let ed = new EdDSA('ed25519');
             let ellipticKey;
             ellipticKey = ed.keyFromSecret(key_buffer);
