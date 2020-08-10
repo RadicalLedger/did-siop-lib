@@ -57,14 +57,28 @@ export class Identity{
                 }
     
                 if (method.publicKey) {
-                    for (let key of method.publicKey) {
+                    if(typeof method.publicKey === 'string'){
                         for(let pub of this.doc.publicKey){
-                            if (pub.id === key || pub.id === this.doc.id + key){
+                            if (pub.id === method.publicKey || pub.id === this.doc.id + method.publicKey){
                                 try{
                                     this.keySet.push(extractor.extract(pub));
                                 }
                                 catch(err){
                                     continue;
+                                }
+                            }
+                        }
+                    }
+                    else{
+                        for (let key of method.publicKey) {
+                            for(let pub of this.doc.publicKey){
+                                if (pub.id === key || pub.id === this.doc.id + key){
+                                    try{
+                                        this.keySet.push(extractor.extract(pub));
+                                    }
+                                    catch(err){
+                                        continue;
+                                    }
                                 }
                             }
                         }
