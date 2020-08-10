@@ -1,7 +1,6 @@
-import { RESOLVER_URL } from '../config';
 import { DidDocument, DidVerificationKey, ERRORS } from './commons';
 import { DidVerificationKeyExtractor, uniExtractor } from './key-extractors';
-const axios = require('axios').default;
+import { combinedDidResolver } from './resolvers';
 
 export class Identity{
     private doc: DidDocument;
@@ -17,9 +16,9 @@ export class Identity{
     }
 
     async resolve(did: string): Promise<string>{
-        let result;
+        let result: DidDocument;
         try{
-            result = await axios.get(RESOLVER_URL + did);
+            result = await combinedDidResolver.resolve(did);
         }
         catch(err){
             throw new Error(ERRORS.DOCUMENT_RESOLUTION_ERROR);
@@ -27,14 +26,12 @@ export class Identity{
 
         if(
             result &&
-            result.data &&
-            result.data.didDocument &&
             //result.data.didDocument['@context'] === 'https://w3id.org/did/v1' &&
-            result.data.didDocument.id == did &&
-            result.data.didDocument.authentication &&
-            result.data.didDocument.authentication.length > 0
+            result.id == did &&
+            result.authentication &&
+            result.authentication.length > 0
         ){
-            this.doc = result.data.didDocument;
+            this.doc = result;
             this.keySet = [];
             return this.doc.id;
         }
