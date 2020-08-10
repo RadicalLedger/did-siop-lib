@@ -1460,4 +1460,4 @@ export const DID_TEST_RESOLVER_DATA = [
    }
 ]
 
-export const invalidDID = 'did:eth:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83';
+export const invalidDID = 'did:ethr:0xB07Ead9717b44B6cF439c474362b9C0877CBBF8';
