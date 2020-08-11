@@ -8,7 +8,12 @@ import ed2curve from 'ed2curve';
 const axios = require('axios').default;
 
 abstract class DidResolver{
-    abstract async resolve(did: string): Promise<DidDocument>;
+    constructor(protected methodName: string){}
+    abstract async resolveDidDocumet(did: string): Promise<DidDocument>;
+    resolve(did: string): Promise<DidDocument>{
+        if(did.split(':')[1] !== this.methodName) throw new Error('Incorrect did method');
+        return this.resolve(did);
+    }
 }
 
 class CombinedDidResolver extends DidResolver{
@@ -19,7 +24,7 @@ class CombinedDidResolver extends DidResolver{
         return this;
     }
 
-    async resolve(did: string): Promise<DidDocument>{
+    async resolveDidDocumet(did: string): Promise<DidDocument>{
         let doc: DidDocument | undefined;
 
         for(let resolver of this.resolvers){
@@ -38,10 +43,14 @@ class CombinedDidResolver extends DidResolver{
         }
         throw new Error(ERRORS.DOCUMENT_RESOLUTION_ERROR);
     }
+
+    resolve(did: string): Promise<DidDocument>{
+        return this.resolveDidDocumet(did);
+    }
 }
 
 class EthrDidResolver extends DidResolver{
-    async resolve(did: string): Promise<DidDocument> {
+    async resolveDidDocumet(did: string): Promise<DidDocument> {
         const providerConfig = { rpcUrl: 'https://ropsten.infura.io/v3/e0a6ac9a2c4a4722970325c36b728415'};
         let resolve = getResolver(providerConfig).ethr;
         return await resolve(did, {
@@ -54,7 +63,7 @@ class EthrDidResolver extends DidResolver{
 }
 
 class KeyDidResolver extends DidResolver{
-    resolve(did: string): Promise<DidDocument> {
+    resolveDidDocumet(did: string): Promise<DidDocument> {
         if(!did) {
             throw new TypeError('"did" must be a string.');
         }
@@ -104,15 +113,17 @@ class KeyDidResolver extends DidResolver{
 }
 
 class UniversalDidResolver extends DidResolver{
-    async resolve(did: string): Promise<DidDocument>{
+    async resolveDidDocumet(did: string): Promise<DidDocument>{
         let returned = await axios.get('https://dev.uniresolver.io/1.0/identifiers/' + did);
         return returned.data.didDocument;
     }
+
+    resolve(did: string): Promise<DidDocument>{
+        return this.resolveDidDocumet(did);
+    }
 }
 
-
-
-export const combinedDidResolver = new CombinedDidResolver()
-    .addResolver(new EthrDidResolver())
-    .addResolver(new KeyDidResolver())
-    .addResolver(new UniversalDidResolver());
+export const combinedDidResolver = new CombinedDidResolver('all')
+    .addResolver(new EthrDidResolver('eth'))
+    .addResolver(new KeyDidResolver('key'))
+    .addResolver(new UniversalDidResolver('uniresolver'));
