@@ -12,7 +12,7 @@ describe("Identity functions", function() {
     test("Tests resolve(did)", async () => {
         let identity;
         for(let resolverData of DID_TEST_RESOLVER_DATA){
-            nock('https://uniresolver.io/1.0/identifiers').get('/' + resolverData.did).reply(200, resolverData.resolverReturn).get('/' + invalidDID).reply(404, 'Not found');
+            nock('https://dev.uniresolver.io/1.0/identifiers/').get('/' + resolverData.did).reply(200, resolverData.resolverReturn).get('/' + invalidDID).reply(404, 'Not found');
             identity = new Identity();
             let resolvedDID = await identity.resolve(resolverData.did);
             expect(resolvedDID).toEqual(resolverData.did);
@@ -31,7 +31,7 @@ describe("Identity functions", function() {
         }).toThrow(new Error(ERRORS.UNRESOLVED_DOCUMENT));
 
         for(let resolverData of DID_TEST_RESOLVER_DATA){
-            nock('https://uniresolver.io/1.0/identifiers').get('/' + resolverData.did).reply(200, resolverData.resolverReturn).get('/' + invalidDID).reply(404, 'Not found');
+            nock('https://dev.uniresolver.io/1.0/identifiers/').get('/' + resolverData.did).reply(200, resolverData.resolverReturn).get('/' + invalidDID).reply(404, 'Not found');
 
             identity = new Identity();
             await identity.resolve(resolverData.did);
