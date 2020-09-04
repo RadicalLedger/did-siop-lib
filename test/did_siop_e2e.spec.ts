@@ -1,5 +1,5 @@
 import { ERROR_RESPONSES } from './../src/core/ErrorResponse';
-import { JWTObject } from './../src/core/JWT';
+import { JWTObject } from './../src/core/JWS';
 import { Provider, ERRORS as ProviderErrors } from './../src/core/Provider';
 import { RP, ERRORS as RPErrors } from '../src/core/RP';
 import nock from 'nock';

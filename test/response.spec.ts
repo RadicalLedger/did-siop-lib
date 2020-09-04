@@ -1,6 +1,6 @@
 import { DidSiopResponse } from './../src/core/Response';
 import { Identity } from './../src/core/Identity';
-import { SigningInfo } from './../src/core/JWT';
+import { SigningInfo } from './../src/core/JWS';
 import { ALGORITHMS, KEY_FORMATS } from '../src/core/globals';
 import nock from 'nock';
 

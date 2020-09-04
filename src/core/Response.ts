@@ -1,5 +1,5 @@
 import { ALGORITHMS, KTYS, KEY_FORMATS } from './globals';
-import * as JWT from './JWT';
+import * as JWT from './JWS';
 import { Identity } from './Identity';
 import { KeyInputs, Key, RSAKey, ECKey, OKP, calculateThumbprint } from './JWKUtils';
 import base64url from 'base64url';

@@ -1,6 +1,5 @@
 import { ALGORITHMS, KEY_FORMATS } from './../src/core/globals';
-import { JWTObject } from './../src/core/JWT';
-import { sign } from '../src/core/JWT';
+import { JWTObject, sign } from './../src/core/JWS';
 
 const jwtGoodDecoded = {
     header: {

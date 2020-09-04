@@ -5,7 +5,7 @@ import { ERROR_RESPONSES } from './ErrorResponse';
 import base64url from 'base64url';
 import { KeySet, ERRORS } from './JWKUtils';
 import { ALGORITHMS, KTYS, KEY_FORMATS } from './globals';
-import * as JWT from './JWT';
+import * as JWT from './JWS';
 const axios = require('axios').default;
 
 const RESPONSE_TYPES = ['id_token',];

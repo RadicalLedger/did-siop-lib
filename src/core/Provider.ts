@@ -3,7 +3,7 @@ import { RSASigner, ECSigner, OKPSigner, ES256KRecoverableSigner } from './Signe
 import { Key, RSAKey, OKP, ECKey, KeyInputs } from './JWKUtils';
 import { KEY_FORMATS, ALGORITHMS, KTYS } from './globals';
 import { DidSiopResponse } from './Response';
-import { SigningInfo, JWTObject } from './JWT';
+import { SigningInfo, JWTObject } from './JWS';
 import { Identity, DidDocument } from './Identity';
 import { DidSiopRequest } from './Request';
 import { checkKeyPair } from './Utils';

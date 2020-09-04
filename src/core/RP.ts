@@ -1,6 +1,6 @@
 import { DidSiopResponse, CheckParams } from './Response';
 import { RPInfo, DidSiopRequest } from './Request';
-import { SigningInfo, JWTObject } from './JWT';
+import { SigningInfo, JWTObject } from './JWS';
 import { DidDocument, Identity } from './Identity';
 import { KEY_FORMATS, ALGORITHMS, KTYS } from './globals';
 import { KeyInputs, Key, RSAKey, ECKey, OKP } from './JWKUtils';
