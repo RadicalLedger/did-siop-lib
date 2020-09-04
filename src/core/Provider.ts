@@ -3,7 +3,7 @@ import { RSASigner, ECSigner, OKPSigner, ES256KRecoverableSigner } from './Signe
 import { Key, RSAKey, OKP, ECKey, KeyInputs } from './JWKUtils';
 import { KEY_FORMATS, ALGORITHMS, KTYS } from './globals';
 import { DidSiopResponse } from './Response';
-import { SigningInfo, JWTObject } from './JWS';
+import { SigningInfo, JWSObject } from './JWS';
 import { Identity, DidDocument } from './Identity';
 import { DidSiopRequest } from './Request';
 import { checkKeyPair } from './Utils';
@@ -134,7 +134,7 @@ export class Provider{
         }
     }
 
-    async validateRequest(request: string): Promise<JWTObject>{
+    async validateRequest(request: string): Promise<JWSObject>{
         try {
             return DidSiopRequest.validateRequest(request);
         } catch (err) {

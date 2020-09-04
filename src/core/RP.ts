@@ -1,6 +1,6 @@
 import { DidSiopResponse, CheckParams } from './Response';
 import { RPInfo, DidSiopRequest } from './Request';
-import { SigningInfo, JWTObject } from './JWS';
+import { SigningInfo, JWSObject } from './JWS';
 import { DidDocument, Identity } from './Identity';
 import { KEY_FORMATS, ALGORITHMS, KTYS } from './globals';
 import { KeyInputs, Key, RSAKey, ECKey, OKP } from './JWKUtils';
@@ -168,7 +168,7 @@ export class RP {
         }
     }
 
-    async validateResponse(response: string, checkParams: CheckParams = {redirect_uri: this.info.redirect_uri}): Promise<JWTObject | SIOPErrorResponse> {
+    async validateResponse(response: string, checkParams: CheckParams = {redirect_uri: this.info.redirect_uri}): Promise<JWSObject | SIOPErrorResponse> {
         try {
             return await DidSiopResponse.validateResponse(response, checkParams);
         } catch (err) {

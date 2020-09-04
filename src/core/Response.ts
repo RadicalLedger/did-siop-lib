@@ -1,5 +1,5 @@
 import { ALGORITHMS, KTYS, KEY_FORMATS } from './globals';
-import * as JWT from './JWS';
+import * as JWS from './JWS';
 import { Identity } from './Identity';
 import { KeyInputs, Key, RSAKey, ECKey, OKP, calculateThumbprint } from './JWKUtils';
 import base64url from 'base64url';
@@ -29,9 +29,9 @@ export interface CheckParams{
 }
 
 export class DidSiopResponse{
-    static async generateResponse(requestPayload: any, signingInfo: JWT.SigningInfo, didSiopUser: Identity, expiresIn: number = 1000): Promise<string>{
+    static async generateResponse(requestPayload: any, signingInfo: JWS.SigningInfo, didSiopUser: Identity, expiresIn: number = 1000): Promise<string>{
         try {
-            let header: JWT.JWTHeader;
+            let header: JWS.JWSHeader;
             let alg = '';
         
             if (requestPayload.registration.id_token_signed_response_alg.includes(ALGORITHMS[signingInfo.alg])){
@@ -101,19 +101,19 @@ export class DidSiopResponse{
             payload.iat = Date.now();
             payload.exp = Date.now() + expiresIn;
 
-            let unsigned: JWT.JWTObject = {
+            let unsigned: JWS.JWSObject = {
                 header: header,
                 payload: payload,
             }
     
-            return JWT.sign(unsigned, signingInfo);
+            return JWS.sign(unsigned, signingInfo);
         } catch (err) {
             return Promise.reject(err);
         }
     }
 
-    static async validateResponse(response: string, checkParams: CheckParams): Promise<JWT.JWTObject | ErrorResponse.SIOPErrorResponse>{
-        let decodedHeader: JWT.JWTHeader;
+    static async validateResponse(response: string, checkParams: CheckParams): Promise<JWS.JWSObject | ErrorResponse.SIOPErrorResponse>{
+        let decodedHeader: JWS.JWSHeader;
         let decodedPayload;
         try {
             let errorResponse = ErrorResponse.checkErrorResponse(response);
@@ -159,7 +159,7 @@ export class DidSiopResponse{
             let jwkThumbprint = calculateThumbprint(decodedPayload.sub_jwk);
             if (jwkThumbprint !== decodedPayload.sub) return Promise.reject(new Error(ERRORS.INVALID_JWK_THUMBPRINT));
 
-            let publicKeyInfo: JWT.SigningInfo | undefined;
+            let publicKeyInfo: JWS.SigningInfo | undefined;
             try{
                 let identity = new Identity();
                 await identity.resolve(decodedPayload.did);
@@ -184,7 +184,7 @@ export class DidSiopResponse{
 
             let validity: boolean = false; 
             if(publicKeyInfo){
-                validity = JWT.verify(response, publicKeyInfo);
+                validity = JWS.verify(response, publicKeyInfo);
             }
             else{
                 return Promise.reject(ERRORS.PUBLIC_KEY_ERROR);

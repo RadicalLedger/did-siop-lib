@@ -4,18 +4,18 @@ import { ALGORITHMS, RSA_ALGORITHMS, EC_ALGORITHMS, OKP_ALGORITHMS, SPECIAL_ALGO
 import { Signer, RSASigner, ECSigner, OKPSigner, ES256KRecoverableSigner } from './Signers';
 import { Verifier, RSAVerifier, ECVerifier, OKPVerifier, ES256KRecoverableVerifier } from './Verifiers';
 
-export interface JWTHeader{
+export interface JWSHeader{
     typ: string;
     alg: string;
     kid: string;
 }
 
-export interface JWTObject{
-    header: JWTHeader;
+export interface JWSObject{
+    header: JWSHeader;
     payload: any;
 }
 
-export interface JWTSignedObject extends JWTObject{
+export interface JWSSignedObject extends JWSObject{
     signed: string;
     signature: Buffer;
 }
@@ -34,7 +34,7 @@ export const ERRORS = Object.freeze({
     INVALID_SIGNATURE: 'Invalid signature',
 });
 
-export function sign(jwtObject: JWTObject, signingInfo: SigningInfo): string {
+export function sign(jwtObject: JWSObject, signingInfo: SigningInfo): string {
     let unsigned = base64url.encode(JSON.stringify(jwtObject.header)) + '.' + base64url.encode(JSON.stringify(jwtObject.payload));
 
     let algorithm: ALGORITHMS = ALGORITHMS[jwtObject.header.alg as keyof typeof ALGORITHMS];
@@ -160,7 +160,7 @@ export function verify(jwt: string, signingInfo: SigningInfo): boolean{
 
 }
 
-function decodeJWT(jwt: string): JWTSignedObject{
+function decodeJWT(jwt: string): JWSSignedObject{
     try {
         let decodedHeader = JSON.parse(base64url.decode(jwt.split('.')[0]));
         let payload = JSON.parse(base64url.decode(jwt.split('.')[1]));

@@ -5,7 +5,7 @@ import { ERROR_RESPONSES } from './ErrorResponse';
 import base64url from 'base64url';
 import { KeySet, ERRORS } from './JWKUtils';
 import { ALGORITHMS, KTYS, KEY_FORMATS } from './globals';
-import * as JWT from './JWS';
+import * as JWS from './JWS';
 const axios = require('axios').default;
 
 const RESPONSE_TYPES = ['id_token',];
@@ -21,13 +21,13 @@ export interface RPInfo{
 }
 
 export class DidSiopRequest{
-    static async validateRequest(request: string): Promise<JWT.JWTObject>{
+    static async validateRequest(request: string): Promise<JWS.JWSObject>{
         let requestJWT = await validateRequestParams(request);
         let jwtDecoded = await validateRequestJWT(requestJWT);
         return jwtDecoded;
     }
 
-    static async generateRequest(rp: RPInfo, signingInfo: JWT.SigningInfo, options: any): Promise<string> {
+    static async generateRequest(rp: RPInfo, signingInfo: JWS.SigningInfo, options: any): Promise<string> {
         const url = 'openid://';
         const query: any = {
             response_type: 'id_token',
@@ -54,12 +54,12 @@ export class DidSiopRequest{
                 ...options
             }
 
-            let jwtObject: JWT.JWTObject = {
+            let jwtObject: JWS.JWSObject = {
                 header: jwtHeader,
                 payload: jwtPayload
             }
 
-            let jwt = JWT.sign(jwtObject, signingInfo);
+            let jwt = JWS.sign(jwtObject, signingInfo);
 
             query.request = jwt;
         }
@@ -109,8 +109,8 @@ async function validateRequestParams(request: string): Promise<string> {
     }
 }
 
-async function validateRequestJWT(requestJWT: string): Promise<JWT.JWTObject> {
-    let decodedHeader: JWT.JWTHeader;
+async function validateRequestJWT(requestJWT: string): Promise<JWS.JWSObject> {
+    let decodedHeader: JWS.JWSHeader;
     let decodedPayload;
     try {
         decodedHeader = JSON.parse(base64url.decode(requestJWT.split('.')[0]));
@@ -127,7 +127,7 @@ async function validateRequestJWT(requestJWT: string): Promise<JWT.JWTObject> {
         (decodedPayload.scope && decodedPayload.scope.indexOf('did_authn') > -1) &&
         (decodedPayload.registration && !JSON.stringify(decodedPayload.registration).match(/^ *$/))
     ) {
-        let publicKeyInfo: JWT.SigningInfo | undefined;
+        let publicKeyInfo: JWS.SigningInfo | undefined;
 
         try {
             let identity = new Identity();
@@ -182,7 +182,7 @@ async function validateRequestJWT(requestJWT: string): Promise<JWT.JWTObject> {
             let validity = false;
 
             try {
-                validity = JWT.verify(requestJWT, publicKeyInfo);
+                validity = JWS.verify(requestJWT, publicKeyInfo);
             } catch (err) {
                 return Promise.reject(ERROR_RESPONSES.invalid_request_object.err);
             }
