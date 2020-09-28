@@ -34,6 +34,14 @@ export const ERRORS = Object.freeze({
     INVALID_SIGNATURE: 'Invalid signature',
 });
 
+/**
+ * @param {JWTObject} jwtObject - JWT which needs to be signed
+ * @param {SigningInfo} signingInfo - Information about signing key and algorithm
+ * @returns {string} - A signed JWT (JWS) https://tools.ietf.org/html/rfc7515
+ * @remarks This method first checks for the validity of signingInfo and header part of jwtObject.
+ * If information provided are valid then jwtObject will be signed with an appropriate Signer and the
+ * signed object (encoded jwt + signature) (JWS) will be returned.
+ */
 export function sign(jwtObject: JWTObject, signingInfo: SigningInfo): string {
     let unsigned = base64url.encode(JSON.stringify(jwtObject.header)) + '.' + base64url.encode(JSON.stringify(jwtObject.payload));
 
@@ -97,6 +105,14 @@ export function sign(jwtObject: JWTObject, signingInfo: SigningInfo): string {
     }
 }
 
+/**
+ * @param {sting} jwt - A signed and encoded jwt (JWS) which needs to be verified.
+ * @param {SigningInfo} signingInfo - Information about verification key and algorithm
+ * @returns {boolean} - A boolean which indicates whether JWS is verifiable with given information.
+ * @remarks This method first decodes the JWT and then checks for the validity of signingInfo and header part of jwtObject.
+ * If information provided are valid then jwt will be verified using the related Verifier and the resulting boolean value will be 
+ * returned.
+ */
 export function verify(jwt: string, signingInfo: SigningInfo): boolean{
     let decoded = decodeJWT(jwt);
     
@@ -160,6 +176,12 @@ export function verify(jwt: string, signingInfo: SigningInfo): boolean{
 
 }
 
+/**
+ * @param {string} jwt - A signed jwt (JWS)
+ * @returns {JWTSignedObject} - An object containing decoded parts
+ * @remarks - This is a helper method used to decode a signed jwt (base64url encoded) and return its parts in
+ * separate fields. 
+ */
 function decodeJWT(jwt: string): JWTSignedObject{
     try {
         let decodedHeader = JSON.parse(base64url.decode(jwt.split('.')[0]));
