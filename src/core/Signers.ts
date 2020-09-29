@@ -9,11 +9,35 @@ export const ERRORS = Object.freeze({
     INVALID_ALGORITHM: 'Invalid algorithm',
 });
 
+/**
+ * @classdesc This abstract class defines the interface for classes used to cryptographically sign messages
+ */
 export abstract class Signer{
+    /**
+     * @param {string} message - Message which needs to be signed 
+     * @param {Key} key - A Key object used to sign the message 
+     * @param {ALGORITHMS} [algorithm] - The algorithm used for the signing process.
+     * This param is defined as optional here because some Signers only support a specific algorithm
+     * @returns {Buffer} - A Buffer object which contains the generated signature in binary form
+     * @remarks This is the method which will essentially be used for signing process.
+     * Any extending subclass must provide a concrete definition for this method.
+     */
     abstract sign(message: string, key: Key | string,  algorithm?: ALGORITHMS): Buffer;
 }
 
+/**
+ * @classdesc This class provides RSA message signing
+ * @extends {Signer}
+ */
 export class RSASigner extends Signer{
+    /**
+     * @param {string} message - Message which needs to be signed 
+     * @param {RSAKey} key - An RSAKey object used to sign the message 
+     * @param {ALGORITHMS} algorithm - The algorithm used for the signing process. Must be one of RSA + SHA variant
+     * @returns {Buffer} - A Buffer object which contains the generated signature in binary form
+     * @remarks This method first checks if the key provided has private part. Then it proceed to sign the message using 
+     * selected algorithm (RSA + given SHA variant)
+     */
     sign(message: string, key: RSAKey, algorithm: ALGORITHMS): Buffer {
         if(key.isPrivate()){
             let signer;
@@ -54,7 +78,19 @@ export class RSASigner extends Signer{
 
 }
 
+/**
+ * @classdesc This class provides Elliptic Curve message signing
+ * @extends {Signer}
+ */
 export class ECSigner extends Signer{
+    /**
+     * @param {string} message - Message which needs to be signed 
+     * @param {ECKey} key - An ECKey object used to sign the message 
+     * @param {ALGORITHMS} algorithm - The algorithm used for the signing process. Must be one of Curve variant + SHA variant
+     * @returns {Buffer} - A Buffer object which contains the generated signature in binary form
+     * @remarks This method first checks if the key provided has private part. Then it proceed to sign the message using 
+     * selected algorithm (given Curve + given SHA variant)
+     */
     sign(message: string, key: ECKey, algorithm: ALGORITHMS): Buffer {
         if(key.isPrivate()){
             let sha;
@@ -108,7 +144,19 @@ export class ECSigner extends Signer{
     
 }
 
+/**
+ * @classdesc This class provides Edwards Curve message signing
+ * @extends {Signer}
+ */
 export class OKPSigner extends Signer{
+    /**
+     * @param {string} message - Message which needs to be signed 
+     * @param {OKP} key - An OKP object used to sign the message 
+     * @param {ALGORITHMS} algorithm - The algorithm used for the signing process. (ed25519 curve)
+     * @returns {Buffer} - A Buffer object which contains the generated signature in binary form
+     * @remarks This method first checks if the key provided has private part. Then it proceed to sign the message using 
+     * selected algorithm (ed25519)
+     */
     sign(message: string, key: OKP, algorithm: ALGORITHMS): Buffer {
         if(key.isPrivate()){
             let ed;
@@ -133,7 +181,18 @@ export class OKPSigner extends Signer{
 
 }
 
+/**
+ * @classdesc This class provides message signing using ES256K-R algorithm
+ * @extends {Signer}
+ */
 export class ES256KRecoverableSigner extends Signer{
+    /**
+     * @param {string} message - Message which needs to be signed 
+     * @param {ECKey | string} key - The key either as an ECKey or a hex string
+     * @returns {Buffer} - A Buffer object which contains the generated signature in binary form
+     * @remarks This method first checks whether the key is a string. If it is not then it will be converted to string
+     * using ECKey.exportKey(). This class supports only one algorithm which is curve secp256k1 recoverable method.
+     */
     sign(message: string, key: ECKey | string): Buffer {
         let keyHexString;
         if(typeof key === 'string'){
