@@ -52,9 +52,9 @@ export class Provider{
      * @returns {string} - kid of the added key
      * @remarks This method is used to add signing information to 'signing_info_set'.
      * All optional parameters are not used and only there to make the library backward compatible.
-     * Instead of using those optional parameters, given key is iteratively tried with every key format, every algorithm,
-     * and every public key listed in the 'authentication' field of the user's DID Document,
-     * until a compatible combination of those information which can be used for the signing process is found. 
+     * Instead of using those optional parameters, given key is iteratively tried with 
+     * every public key listed in the 'authentication' field of RP's DID Document and every key format
+     * until a compatible combination of those information which can be used for the signing process is found.
      */
     addSigningParams(key: string, kid?: string, format?: KEY_FORMATS | string, algorithm?: ALGORITHMS | string): string{
         try{
@@ -164,7 +164,7 @@ export class Provider{
 
     /**
      * @param {string} request - A DID SIOP request
-     * @returns {JWT.JWTObject} - Decoded request JWT
+     * @returns {Promise<JWT.JWTObject>} - A Promise which resolves to a decoded request JWT
      * @remarks This method is used to validate requests coming from Relying Parties.
      */
     async validateRequest(request: string): Promise<JWTObject>{
@@ -179,7 +179,7 @@ export class Provider{
      * @param {any} requestPayload - Payload of the request JWT for which a response needs to be generated
      * @param {number} expiresIn - Number of miliseconds under which the generated response is valid. Relying Parties can
      * either consider this value or ignore it
-     * @returns {string} - Encoded DID SIOP response JWT
+     * @returns {Promise<string>} - A Promise which resolves to an encoded DID SIOP response JWT
      * @remarks This method is used to generate a response to a given DID SIOP request.
      */
     async generateResponse(requestPayload: any, expiresIn: number = 1000): Promise<string>{
