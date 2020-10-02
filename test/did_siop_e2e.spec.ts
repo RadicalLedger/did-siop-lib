@@ -8,7 +8,7 @@ let requestObj: JWTObject = {
     header: {
         "alg": "ES256K-R",
         "typ": "JWT",
-        "kid": "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner"
+        "kid": "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#controller"
     },
     payload:{
         "iss": "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83",
@@ -37,13 +37,13 @@ let rpDidDoc = {
         {
             "type": "Secp256k1SignatureAuthentication2018",
             "publicKey": [
-            "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner"
+            "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#controller"
             ]
         }
         ],
         "publicKey": [
         {
-            "id": "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner",
+            "id": "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#controller",
             "type": "Secp256k1VerificationKey2018",
             "ethereumAddress": "0xb07ead9717b44b6cf439c474362b9b0877cbbf83",
             "owner": "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83"
@@ -58,7 +58,7 @@ let rpRegistrationMetaData = {
         "id_token_signed_response_alg": ["ES256K", "ES256K-R", "EdDSA", "RS256"]
 };
 let rpPrivateKey = 'CE438802C1F0B6F12BC6E686F372D7D495BC5AA634134B4A7EA4603CB25F0964';
-let rpKid = 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner';
+let rpKid = 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#controller';
 
 let userDidDoc = {
     didDocument: {
@@ -68,13 +68,13 @@ let userDidDoc = {
         {
             "type": "Secp256k1SignatureAuthentication2018",
             "publicKey": [
-            "did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#owner"
+            "did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#controller"
             ]
         }
         ],
         "publicKey": [
         {
-            "id": "did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#owner",
+            "id": "did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#controller",
             "type": "Secp256k1VerificationKey2018",
             "ethereumAddress": "0x30d1707aa439f215756d67300c95bb38b5646aef",
             "owner": "did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf"
@@ -84,7 +84,7 @@ let userDidDoc = {
   }
 let userDID = 'did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf';
 let userPrivateKeyHex = '3f81cb66c8cbba18fbe25f99d2fb4e19f54a1ee69c335ce756a705726189c9e7';
-let userKid = 'did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#owner';
+let userKid = 'did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#controller';
 
 describe('DID SIOP', function () {
     beforeEach(() => {
@@ -124,11 +124,11 @@ describe('DID SIOP', function () {
         await provider.setUser(userDID);
         provider.addSigningParams(userPrivateKeyHex);
 
-        rp.removeSigningParams('did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner');
+        rp.removeSigningParams('did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#controller');
         let requestPromise = rp.generateRequest();
         expect(requestPromise).rejects.toEqual(new Error(RPErrors.NO_SIGNING_INFO));
 
-        provider.removeSigningParams('did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#owner');
+        provider.removeSigningParams('did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#controller');
         let responsePromise = provider.generateResponse(requestObj.payload);
         expect(responsePromise).rejects.toEqual(new Error(ProviderErrors.NO_SIGNING_INFO));
     });

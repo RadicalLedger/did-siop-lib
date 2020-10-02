@@ -11,13 +11,13 @@ let rpDidDoc = {
         {
             "type": "Secp256k1SignatureAuthentication2018",
             "publicKey": [
-            "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner"
+            "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#controller"
             ]
         }
         ],
         "publicKey": [
         {
-            "id": "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#owner",
+            "id": "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#controller",
             "type": "Secp256k1VerificationKey2018",
             "ethereumAddress": "0xb07ead9717b44b6cf439c474362b9b0877cbbf83",
             "owner": "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83"
@@ -35,13 +35,13 @@ let userDidDoc = {
         {
             "type": "Secp256k1SignatureAuthentication2018",
             "publicKey": [
-            "did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#owner"
+            "did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#controller"
             ]
         }
         ],
         "publicKey": [
         {
-            "id": "did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#owner",
+            "id": "did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#controller",
             "type": "Secp256k1VerificationKey2018",
             "ethereumAddress": "0x30d1707aa439f215756d67300c95bb38b5646aef",
             "owner": "did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf"
