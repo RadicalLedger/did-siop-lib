@@ -55,7 +55,7 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.8.7",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "base64url": "^3.0.1",
     "bs58": "^4.0.1",
     "ed2curve": "^0.3.0",
