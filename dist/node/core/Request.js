@@ -69,9 +69,18 @@ var axios = require('axios').default;
 var RESPONSE_TYPES = ['id_token',];
 var SUPPORTED_SCOPES = ['openid', 'did_authn',];
 var REQUIRED_SCOPES = ['openid', 'did_authn',];
+/**
+ * @classdesc This class contains static methods related to DID SIOP request generation and validation
+ */
 var DidSiopRequest = /** @class */ (function () {
     function DidSiopRequest() {
     }
+    /**
+     * @param {string} request - A request which needs to be checked for validity
+     * @returns {Promise<JWT.JWTObject>} - A Promise which resolves to the decoded request JWT
+     * @remarks This method make use of two functions which first validates the url parameters of the request
+     * and then the request JWT contained in 'request' or 'requestURI' parameter
+     */
     DidSiopRequest.validateRequest = function (request) {
         return __awaiter(this, void 0, void 0, function () {
             var requestJWT, jwtDecoded;
@@ -88,6 +97,18 @@ var DidSiopRequest = /** @class */ (function () {
             });
         });
     };
+    /**
+     * @param {RPInfo} rp - Information about the Relying Party (the issuer of the request)
+     * @param {JWT.SigningInfo} signingInfo - Information used in the request signing process
+     * @param {any} options - Optional fields. Directly included in the request JWT.
+     * Any optional field if not supported will be ignored
+     * @returns {Promise<string>} - A Promise which resolves to the request
+     * @remarks This method is used to generate a DID SIOP request using information provided by the Relying Party.
+     * Process has two steps. First generates the request with URL params
+     * and then creates the signed JWT (unless the 'requestURI' field is specified in RPInfo).
+     * JWT is then added to the 'request' param of the request.
+     * https://identity.foundation/did-siop/#generate-siop-request
+     */
     DidSiopRequest.generateRequest = function (rp, signingInfo, options) {
         return __awaiter(this, void 0, void 0, function () {
             var url, query, jwtHeader, jwtPayload, jwtObject, jwt;
@@ -125,6 +146,13 @@ var DidSiopRequest = /** @class */ (function () {
     return DidSiopRequest;
 }());
 exports.DidSiopRequest = DidSiopRequest;
+/**
+ * @param {string} request - A DID SIOP request which needs to be validated
+ * @returns {string} - An encoded JWT which is extracted from 'request' or 'requestURI' fields
+ * @remarks This method is used to check the validity of DID SIOP request URL parameters.
+ * If the parameters in the request url is valid then this method returns the encoded request JWT
+ * https://identity.foundation/did-siop/#siop-request-validation
+ */
 function validateRequestParams(request) {
     return __awaiter(this, void 0, void 0, function () {
         var parsed, requestedScopes_1, returnedValue, err_1;
@@ -171,6 +199,17 @@ function validateRequestParams(request) {
         });
     });
 }
+/**
+ * @param {string} requestJWT - An encoded JWT
+ * @returns {Promise<JWT.JWTObject>} - A Promise which resolves to a decoded request JWT
+ * @remarks This method is used to verify the authenticity of the request JWT which comes in 'request' or 'requestURI'
+ * url parameter of the original request.
+ * At first after decoding the JWT, this method checks for mandatory fields and their values.
+ * Then it will proceed to verify the signature using a public key retrieved from Relying Party's DID Document.
+ * The specific public key used to verify the signature is determined by the 'kid' field in JWT header.
+ * If the JWT is successfully verified then this method will return the decoded JWT
+ * https://identity.foundation/did-siop/#siop-request-validation
+ */
 function validateRequestJWT(requestJWT) {
     return __awaiter(this, void 0, void 0, function () {
         var decodedHeader, decodedPayload, publicKeyInfo, identity, didPubKey, err_2, keyset, keySetKey, keySetKeyFormat, validity;

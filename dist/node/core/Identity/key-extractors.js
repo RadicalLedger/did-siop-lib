@@ -17,7 +17,24 @@ var commons_1 = require("./commons");
 var globals_1 = require("../globals");
 var Utils_1 = require("../Utils");
 var toChecksumAddress = require('ethereum-checksum-address').toChecksumAddress;
+/**
+ * @classdesc Abstract class which defines the interface for classes used to extract key
+ * information from Verification Methods listed in DID Documents. https://www.w3.org/TR/did-spec-registries/#verification-method-types.
+ * Cryptographic Key information used to verify an identity is determined by the Verification Method.
+ * In order to extract key info from a specific Verification Method, there must be a subclass extending this class which relates to that
+ * Verification Method.
+ * @property {string[]} names - A list of names used to refer to a specific Verification Method. Some verification methods have several names.
+ * @property {DidVerificationKeyExtractor | EmptyDidVerificationKeyExtractor} next - If this DidVerificationKeyExtractor cannot extract information,
+ * it is delegated to another one referenced by next.
+ * @remarks This implements Chain-of-responsibility pattern and several extractors can be chained together using next property. This is helpful in
+ * situations where the type of Verification Method is not known.
+ */
 var DidVerificationKeyExtractor = /** @class */ (function () {
+    /**
+     * @constructor
+     * @param {string | string[]} names - Name(s) of the Verification Method
+     * @param {DidVerificationKeyExtractor} next - Next extractor. If not provided, EmptyDidVerificationKeyExtractor will be used.
+     */
     function DidVerificationKeyExtractor(names, next) {
         this.names = [];
         if (typeof names === 'string') {
@@ -39,6 +56,10 @@ var DidVerificationKeyExtractor = /** @class */ (function () {
     return DidVerificationKeyExtractor;
 }());
 exports.DidVerificationKeyExtractor = DidVerificationKeyExtractor;
+/**
+ * @classdesc A separate extractor class whose extract() method simply returns an error. Used in case reference to next is not provided.
+ * Can be used to mark the end of the extractors chain.
+ */
 var EmptyDidVerificationKeyExtractor = /** @class */ (function () {
     function EmptyDidVerificationKeyExtractor() {
     }
@@ -49,6 +70,10 @@ var EmptyDidVerificationKeyExtractor = /** @class */ (function () {
     ;
     return EmptyDidVerificationKeyExtractor;
 }());
+/**
+ * @classdesc Verification Key Extractor class for https://www.w3.org/TR/did-spec-registries/#jwsverificationkey2020
+ * @extends {DidVerificationKeyExtractor}
+ */
 var JwsVerificationKey2020Extractor = /** @class */ (function (_super) {
     __extends(JwsVerificationKey2020Extractor, _super);
     function JwsVerificationKey2020Extractor() {
@@ -77,6 +102,10 @@ var JwsVerificationKey2020Extractor = /** @class */ (function (_super) {
     };
     return JwsVerificationKey2020Extractor;
 }(DidVerificationKeyExtractor));
+/**
+ * @classdesc Verification Key Extractor class for https://www.w3.org/TR/did-spec-registries/#ed25519verificationkey2018
+ * @extends {DidVerificationKeyExtractor}
+ */
 var Ed25519VerificationKeyExtractor = /** @class */ (function (_super) {
     __extends(Ed25519VerificationKeyExtractor, _super);
     function Ed25519VerificationKeyExtractor() {
@@ -101,6 +130,10 @@ var Ed25519VerificationKeyExtractor = /** @class */ (function (_super) {
     };
     return Ed25519VerificationKeyExtractor;
 }(DidVerificationKeyExtractor));
+/**
+ * @classdesc Verification Key Extractor class for https://www.w3.org/TR/did-spec-registries/#gpgverificationkey2020
+ * @extends {DidVerificationKeyExtractor}
+ */
 var GpgVerificationKey2020Extractor = /** @class */ (function (_super) {
     __extends(GpgVerificationKey2020Extractor, _super);
     function GpgVerificationKey2020Extractor() {
@@ -129,6 +162,10 @@ var GpgVerificationKey2020Extractor = /** @class */ (function (_super) {
     };
     return GpgVerificationKey2020Extractor;
 }(DidVerificationKeyExtractor));
+/**
+ * @classdesc Verification Key Extractor class for https://www.w3.org/TR/did-spec-registries/#rsaverificationkey2018
+ * @extends {DidVerificationKeyExtractor}
+ */
 var RsaVerificationKeyExtractor = /** @class */ (function (_super) {
     __extends(RsaVerificationKeyExtractor, _super);
     function RsaVerificationKeyExtractor() {
@@ -153,6 +190,10 @@ var RsaVerificationKeyExtractor = /** @class */ (function (_super) {
     };
     return RsaVerificationKeyExtractor;
 }(DidVerificationKeyExtractor));
+/**
+ * @classdesc Verification Key Extractor class for https://www.w3.org/TR/did-spec-registries/#ecdsasecp256k1verificationkey2019
+ * @extends {DidVerificationKeyExtractor}
+ */
 var EcdsaSecp256k1VerificationKeyExtractor = /** @class */ (function (_super) {
     __extends(EcdsaSecp256k1VerificationKeyExtractor, _super);
     function EcdsaSecp256k1VerificationKeyExtractor() {
@@ -177,6 +218,10 @@ var EcdsaSecp256k1VerificationKeyExtractor = /** @class */ (function (_super) {
     };
     return EcdsaSecp256k1VerificationKeyExtractor;
 }(DidVerificationKeyExtractor));
+/**
+ * @classdesc Verification Key Extractor class for EcdsaSecp256r1VerificationKey2019. Related algorithm is ES256. Not mentioned in the spec.
+ * @extends {DidVerificationKeyExtractor}
+ */
 var EcdsaSecp256r1VerificationKey2019Extractor = /** @class */ (function (_super) {
     __extends(EcdsaSecp256r1VerificationKey2019Extractor, _super);
     function EcdsaSecp256r1VerificationKey2019Extractor() {
@@ -201,6 +246,10 @@ var EcdsaSecp256r1VerificationKey2019Extractor = /** @class */ (function (_super
     };
     return EcdsaSecp256r1VerificationKey2019Extractor;
 }(DidVerificationKeyExtractor));
+/**
+ * @classdesc Verification Key Extractor class for https://www.w3.org/TR/did-spec-registries/#ecdsasecp256k1recoverymethod2020
+ * @extends {DidVerificationKeyExtractor}
+ */
 var EcdsaSecp256k1RecoveryMethod2020Extractor = /** @class */ (function (_super) {
     __extends(EcdsaSecp256k1RecoveryMethod2020Extractor, _super);
     function EcdsaSecp256k1RecoveryMethod2020Extractor() {
@@ -225,6 +274,10 @@ var EcdsaSecp256k1RecoveryMethod2020Extractor = /** @class */ (function (_super)
     };
     return EcdsaSecp256k1RecoveryMethod2020Extractor;
 }(DidVerificationKeyExtractor));
+/**
+ * @classdesc This class is not based on specific Verification Method but simply calls the next. Can be used as the first one in the chain.
+ * @extends {DidVerificationKeyExtractor}
+ */
 var UniversalDidPublicKeyExtractor = /** @class */ (function (_super) {
     __extends(UniversalDidPublicKeyExtractor, _super);
     function UniversalDidPublicKeyExtractor() {
@@ -235,8 +288,14 @@ var UniversalDidPublicKeyExtractor = /** @class */ (function (_super) {
     };
     return UniversalDidPublicKeyExtractor;
 }(DidVerificationKeyExtractor));
-// SchnorrSecp256k1VerificationKey2019
-// X25519KeyAgreementKey2019
+/**
+ *
+ * @param {DidVerificationKeyMethod} method
+ * @param {DidVerificationKey} holder
+ * @returns holder
+ * @remarks Cryptographic keys can come in many different formats. This method is used to select the specific key format from a verification method and
+ * retreive the key. holder instance holds other information extracted from the Verification Method and this method fills 'format' and 'publicKey' fields.
+ */
 function getVerificationKeyFromDifferentFormats(method, holder) {
     if (!method || !holder)
         throw new Error(commons_1.ERRORS.UNSUPPORTED_KEY_FORMAT);
@@ -289,5 +348,8 @@ var rsaVerificationKeyExtractor = new RsaVerificationKeyExtractor('RsaVerificati
 var ecdsaSecp256k1VerificationKeyExtractor = new EcdsaSecp256k1VerificationKeyExtractor(['EcdsaSecp256k1VerificationKey2019', 'Secp256k1VerificationKey2018', 'Secp256k1'], rsaVerificationKeyExtractor);
 var ecdsaSecp256r1VerificationKey2019Extractor = new EcdsaSecp256r1VerificationKey2019Extractor('EcdsaSecp256r1VerificationKey2019', ecdsaSecp256k1VerificationKeyExtractor);
 var ecdsaSecp256k1RecoveryMethod2020Extractor = new EcdsaSecp256k1RecoveryMethod2020Extractor('EcdsaSecp256k1RecoveryMethod2020', ecdsaSecp256r1VerificationKey2019Extractor);
+/**
+ * @exports UniversalDidPublicKeyExtractor An instance of UniversalDidPublicKeyExtractor which combines all the other key extractors and act as the head of the chain.
+ */
 exports.uniExtractor = new UniversalDidPublicKeyExtractor([], ecdsaSecp256k1RecoveryMethod2020Extractor);
 //# sourceMappingURL=key-extractors.js.map

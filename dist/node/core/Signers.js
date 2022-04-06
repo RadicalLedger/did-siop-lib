@@ -21,17 +21,32 @@ exports.ERRORS = Object.freeze({
     NO_PRIVATE_KEY: 'Not a private key',
     INVALID_ALGORITHM: 'Invalid algorithm',
 });
+/**
+ * @classdesc This abstract class defines the interface for classes used to cryptographically sign messages
+ */
 var Signer = /** @class */ (function () {
     function Signer() {
     }
     return Signer;
 }());
 exports.Signer = Signer;
+/**
+ * @classdesc This class provides RSA message signing
+ * @extends {Signer}
+ */
 var RSASigner = /** @class */ (function (_super) {
     __extends(RSASigner, _super);
     function RSASigner() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
+    /**
+     * @param {string} message - Message which needs to be signed
+     * @param {RSAKey} key - An RSAKey object used to sign the message
+     * @param {ALGORITHMS} algorithm - The algorithm used for the signing process. Must be one of RSA + SHA variant
+     * @returns {Buffer} - A Buffer object which contains the generated signature in binary form
+     * @remarks This method first checks if the key provided has private part. Then it proceed to sign the message using
+     * selected algorithm (RSA + given SHA variant)
+     */
     RSASigner.prototype.sign = function (message, key, algorithm) {
         if (key.isPrivate()) {
             var signer = void 0;
@@ -77,11 +92,23 @@ var RSASigner = /** @class */ (function (_super) {
     return RSASigner;
 }(Signer));
 exports.RSASigner = RSASigner;
+/**
+ * @classdesc This class provides Elliptic Curve message signing
+ * @extends {Signer}
+ */
 var ECSigner = /** @class */ (function (_super) {
     __extends(ECSigner, _super);
     function ECSigner() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
+    /**
+     * @param {string} message - Message which needs to be signed
+     * @param {ECKey} key - An ECKey object used to sign the message
+     * @param {ALGORITHMS} algorithm - The algorithm used for the signing process. Must be one of Curve variant + SHA variant
+     * @returns {Buffer} - A Buffer object which contains the generated signature in binary form
+     * @remarks This method first checks if the key provided has private part. Then it proceed to sign the message using
+     * selected algorithm (given Curve + given SHA variant)
+     */
     ECSigner.prototype.sign = function (message, key, algorithm) {
         if (key.isPrivate()) {
             var sha = void 0;
@@ -129,11 +156,23 @@ var ECSigner = /** @class */ (function (_super) {
     return ECSigner;
 }(Signer));
 exports.ECSigner = ECSigner;
+/**
+ * @classdesc This class provides Edwards Curve message signing
+ * @extends {Signer}
+ */
 var OKPSigner = /** @class */ (function (_super) {
     __extends(OKPSigner, _super);
     function OKPSigner() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
+    /**
+     * @param {string} message - Message which needs to be signed
+     * @param {OKP} key - An OKP object used to sign the message
+     * @param {ALGORITHMS} algorithm - The algorithm used for the signing process. (ed25519 curve)
+     * @returns {Buffer} - A Buffer object which contains the generated signature in binary form
+     * @remarks This method first checks if the key provided has private part. Then it proceed to sign the message using
+     * selected algorithm (ed25519)
+     */
     OKPSigner.prototype.sign = function (message, key, algorithm) {
         if (key.isPrivate()) {
             var ed = void 0;
@@ -155,11 +194,22 @@ var OKPSigner = /** @class */ (function (_super) {
     return OKPSigner;
 }(Signer));
 exports.OKPSigner = OKPSigner;
+/**
+ * @classdesc This class provides message signing using ES256K-R algorithm
+ * @extends {Signer}
+ */
 var ES256KRecoverableSigner = /** @class */ (function (_super) {
     __extends(ES256KRecoverableSigner, _super);
     function ES256KRecoverableSigner() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
+    /**
+     * @param {string} message - Message which needs to be signed
+     * @param {ECKey | string} key - The key either as an ECKey or a hex string
+     * @returns {Buffer} - A Buffer object which contains the generated signature in binary form
+     * @remarks This method first checks whether the key is a string. If it is not then it will be converted to string
+     * using ECKey.exportKey(). This class supports only one algorithm which is curve secp256k1 recoverable method.
+     */
     ES256KRecoverableSigner.prototype.sign = function (message, key) {
         var keyHexString;
         if (typeof key === 'string') {

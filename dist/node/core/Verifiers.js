@@ -22,17 +22,32 @@ exports.ERRORS = Object.freeze({
     INVALID_ALGORITHM: 'Invalid algorithm',
     INVALID_SIGNATURE: 'Invalid signature',
 });
+/**
+ * @classdesc This abstract class defines the interface for classes used to verify cryptographically signed messages
+ */
 var Verifier = /** @class */ (function () {
     function Verifier() {
     }
     return Verifier;
 }());
 exports.Verifier = Verifier;
+/**
+ * @classdesc This class provides RSA signature verification
+ * @extends {Verifier}
+ */
 var RSAVerifier = /** @class */ (function (_super) {
     __extends(RSAVerifier, _super);
     function RSAVerifier() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
+    /**
+     * @param {string} msg - The message which needs to be verified
+     * @param {Buffer} signature - The signature of the message
+     * @param {RSAKey} key - An RSAKey object used for verification (Public Key)
+     * @param {ALGORITHMS} algorithm - The algorithm used for the verification process. Must be one of RSA + SHA variant
+     * @returns {boolean} - The result of the verification. Indicates whether the given signature matches the message.
+     * @remarks This method will verify the message using selected algorithm and return the result.
+     */
     RSAVerifier.prototype.verify = function (msg, signature, key, algorithm) {
         try {
             var verifier = void 0;
@@ -78,11 +93,23 @@ var RSAVerifier = /** @class */ (function (_super) {
     return RSAVerifier;
 }(Verifier));
 exports.RSAVerifier = RSAVerifier;
+/**
+ * @classdesc This class provides Elliptic Curve signature verification
+ * @extends {Verifier}
+ */
 var ECVerifier = /** @class */ (function (_super) {
     __extends(ECVerifier, _super);
     function ECVerifier() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
+    /**
+     * @param {string} msg - The message which needs to be verified
+     * @param {Buffer} signature - The signature of the message
+     * @param {ECKey} key - An ECKey object used for verification (Public Key)
+     * @param {ALGORITHMS} algorithm - The algorithm used for the verification process. Must be one of Curve variant + SHA variant
+     * @returns {boolean} - The result of the verification. Indicates whether the given signature matches the message.
+     * @remarks This method will verify the message using selected algorithm and return the result.
+     */
     ECVerifier.prototype.verify = function (msg, signature, key, algorithm) {
         try {
             var sha = void 0;
@@ -132,11 +159,23 @@ var ECVerifier = /** @class */ (function (_super) {
     return ECVerifier;
 }(Verifier));
 exports.ECVerifier = ECVerifier;
+/**
+ * @classdesc This class provides Edwards Curve signature verification
+ * @extends {Verifier}
+ */
 var OKPVerifier = /** @class */ (function (_super) {
     __extends(OKPVerifier, _super);
     function OKPVerifier() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
+    /**
+     * @param {string} msg - The message which needs to be verified
+     * @param {Buffer} signature - The signature of the message
+     * @param {OKP} key - An OKP object used for verification (Public Key)
+     * @param {ALGORITHMS} algorithm - The algorithm used for the verification process. (ed25519)
+     * @returns {boolean} - The result of the verification. Indicates whether the given signature matches the message.
+     * @remarks This method will verify the message using selected algorithm (ed25519) and return the result.
+     */
     OKPVerifier.prototype.verify = function (msg, signature, key, algorithm) {
         try {
             var ed = void 0;
@@ -157,11 +196,23 @@ var OKPVerifier = /** @class */ (function (_super) {
     return OKPVerifier;
 }(Verifier));
 exports.OKPVerifier = OKPVerifier;
+/**
+ * @classdesc This class provides signature verification using ES256K-R algorithm
+ * @extends {Verifier}
+ */
 var ES256KRecoverableVerifier = /** @class */ (function (_super) {
     __extends(ES256KRecoverableVerifier, _super);
     function ES256KRecoverableVerifier() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
+    /**
+     * @param {string} msg - The message which needs to be verified
+     * @param {Buffer} signature - The signature of the message
+     * @param {ECKey | string} key - Public Key either as an ECKey or a hex string
+     * @returns {boolean} - The result of the verification. Indicates whether the given signature matches the message.
+     * @remarks This method first checks whether the key is a string. If it is not then it will be converted to string
+     * using ECKey.exportKey(). This class supports only one algorithm which is curve secp256k1 recoverable method.
+     */
     ES256KRecoverableVerifier.prototype.verify = function (msg, signature, key) {
         var keyHexString;
         if (typeof key === 'string') {

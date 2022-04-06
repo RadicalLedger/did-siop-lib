@@ -57,11 +57,23 @@ exports.ERRORS = Object.freeze({
     UNRESOLVED_IDENTITY: 'Unresolved identity',
     NO_PUBLIC_KEY: 'No public key matches given private key',
 });
+/**
+ * @classdesc This class provides the functionality of a DID based Self Issued OpenID Connect Provider
+ * @property {Identity} identity  - Used to store Decentralized Identity information of the Provider (end user)
+ * @property {SigningInfo[]} signing_info_set - Used to store a list of cryptographic information used to sign id_tokens
+ */
 var Provider = /** @class */ (function () {
     function Provider() {
         this.identity = new Identity_1.Identity();
         this.signing_info_set = [];
     }
+    /**
+     * @param {string} did - The DID of the provider (end user)
+     * @param {DidDocument} [doc] - DID Document of the provider (end user).
+     * @remarks This method is used to set the decentralized identity for the provider (end user).
+     * doc parameter is optional and if provided it will be used to directly set the identity.
+     * Otherwise the DID Document will be resolved over a related network.
+     */
     Provider.prototype.setUser = function (did, doc) {
         return __awaiter(this, void 0, void 0, function () {
             var err_1;
@@ -85,6 +97,18 @@ var Provider = /** @class */ (function () {
             });
         });
     };
+    /**
+     * @param {string} key - Private part of any cryptographic key listed in the 'authentication' field of the user's DID Document
+     * @param {string} [kid] - kid value of the key. Optional and not used
+     * @param {KEY_FORMATS| string} [format] - Format in which the private key is supplied. Optional and not used
+     * @param {ALGORITHMS} [algorithm] - Algorithm to use the key with. Optional and not used
+     * @returns {string} - kid of the added key
+     * @remarks This method is used to add signing information to 'signing_info_set'.
+     * All optional parameters are not used and only there to make the library backward compatible.
+     * Instead of using those optional parameters, given key is iteratively tried with
+     * every public key listed in the 'authentication' field of RP's DID Document and every key format
+     * until a compatible combination of those information which can be used for the signing process is found.
+     */
     Provider.prototype.addSigningParams = function (key, kid, format, algorithm) {
         try {
             if (format) { }
@@ -175,6 +199,10 @@ var Provider = /** @class */ (function () {
             throw err;
         }
     };
+    /**
+     * @param {string} kid - kid value of the SigningInfo which needs to be removed from the list
+     * @remarks This method is used to remove a certain SigningInfo (key) which has the given kid value from the list.
+     */
     Provider.prototype.removeSigningParams = function (kid) {
         try {
             this.signing_info_set = this.signing_info_set.filter(function (s) { return s.kid !== kid; });
@@ -183,6 +211,11 @@ var Provider = /** @class */ (function () {
             throw err;
         }
     };
+    /**
+     * @param {string} request - A DID SIOP request
+     * @returns {Promise<JWT.JWTObject>} - A Promise which resolves to a decoded request JWT
+     * @remarks This method is used to validate requests coming from Relying Parties.
+     */
     Provider.prototype.validateRequest = function (request) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -196,6 +229,13 @@ var Provider = /** @class */ (function () {
             });
         });
     };
+    /**
+     * @param {any} requestPayload - Payload of the request JWT for which a response needs to be generated
+     * @param {number} expiresIn - Number of miliseconds under which the generated response is valid. Relying Parties can
+     * either consider this value or ignore it
+     * @returns {Promise<string>} - A Promise which resolves to an encoded DID SIOP response JWT
+     * @remarks This method is used to generate a response to a given DID SIOP request.
+     */
     Provider.prototype.generateResponse = function (requestPayload, expiresIn) {
         if (expiresIn === void 0) { expiresIn = 1000; }
         return __awaiter(this, void 0, void 0, function () {
@@ -219,6 +259,11 @@ var Provider = /** @class */ (function () {
             });
         });
     };
+    /**
+     * @param {string} errorMessage - Message of a specific SIOPErrorResponse
+     * @returns {string} - Encoded SIOPErrorResponse object
+     * @remarks This method is used to generate error responses.
+     */
     Provider.prototype.generateErrorResponse = function (errorMessage) {
         try {
             return ErrorResponse.getBase64URLEncodedError(errorMessage);

@@ -25,5 +25,16 @@ export declare const ERROR_RESPONSES: {
     request_uri_not_supported: SIOPError;
     registration_not_supported: SIOPError;
 };
+/**
+ * @param {string} errorMessage - The message of the SIOPErrorResponse which needs to be base64url encoded
+ * @returns {string} - Base64url encoded SIOPErrorResponse
+ * @remarks This method is used to get the base64url encoded version of a specific SIOPErrorResponse.
+ */
 export declare function getBase64URLEncodedError(errorMessage: string): string;
+/**
+ * @param {string} responseBase64Encoded - A base64url string which needs to be checked
+ * @returns {SIOPErrorResponse | undefined} - SIOPErrorResponse or undefined
+ * @remarks This method is used to check whether a given base64url encoded string is a SIOPErrorResponse.
+ * If successful it will return the decoded SIOPErrorResponse or otherwise, undefined.
+ */
 export declare function checkErrorResponse(responseBase64Encoded: string): SIOPErrorResponse | undefined;

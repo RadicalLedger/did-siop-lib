@@ -152,6 +152,11 @@ exports.ERROR_RESPONSES = {
     request_uri_not_supported: request_uri_not_supported,
     registration_not_supported: registration_not_supported,
 };
+/**
+ * @param {string} errorMessage - The message of the SIOPErrorResponse which needs to be base64url encoded
+ * @returns {string} - Base64url encoded SIOPErrorResponse
+ * @remarks This method is used to get the base64url encoded version of a specific SIOPErrorResponse.
+ */
 function getBase64URLEncodedError(errorMessage) {
     var error = exports.ERROR_RESPONSES[errorMessage];
     if (error) {
@@ -166,6 +171,12 @@ function getBase64URLEncodedError(errorMessage) {
     }
 }
 exports.getBase64URLEncodedError = getBase64URLEncodedError;
+/**
+ * @param {string} responseBase64Encoded - A base64url string which needs to be checked
+ * @returns {SIOPErrorResponse | undefined} - SIOPErrorResponse or undefined
+ * @remarks This method is used to check whether a given base64url encoded string is a SIOPErrorResponse.
+ * If successful it will return the decoded SIOPErrorResponse or otherwise, undefined.
+ */
 function checkErrorResponse(responseBase64Encoded) {
     try {
         var errorResponseDecoded = JSON.parse(base64url_1.default.decode(responseBase64Encoded));

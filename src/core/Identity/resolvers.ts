@@ -38,7 +38,7 @@ abstract class DidResolver{
      */
     resolve(did: string): Promise<DidDocument | undefined>{
         if(did.split(':')[1] !== this.methodName) throw new Error('Incorrect did method');
-        return this.resolve(did);
+        return this.resolveDidDocumet(did);
     }
 }
 
@@ -197,6 +197,6 @@ class UniversalDidResolver extends DidResolver{
  * @exports CombinedDidResolver An instance of CombinedResolver which includes resolvers for currenlty implemented DID Methods.
  */
 export const combinedDidResolver = new CombinedDidResolver('all')
-    .addResolver(new EthrDidResolver('eth'))
+    .addResolver(new EthrDidResolver('ethr'))
     .addResolver(new KeyDidResolver('key'))
     .addResolver(new UniversalDidResolver('uniresolver'));

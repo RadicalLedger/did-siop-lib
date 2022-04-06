@@ -48,7 +48,23 @@ exports.ERRORS = Object.freeze({
     NO_SIGNING_INFO: 'At least one public key must be confirmed with related private key',
     NO_PUBLIC_KEY: 'No public key matches given private key',
 });
+/**
+ * @classdesc This class provides the Relying Party functionality of DID based Self Issued OpenID Connect
+ * @property {RPInfo} - Used to hold Relying Party information needed in issuing requests (ex:- redirect_uri)
+ * @property {Identity} identity  - Used to store Decentralized Identity information of the Relying Party
+ * @property {SigningInfo[]} signing_info_set - Used to store a list of cryptographic information used to sign DID SIOP requests
+ */
 var RP = /** @class */ (function () {
+    /**
+     * @private
+     * @constructor
+     * @param {string} redirect_uri - Redirect uri of the RP. Response from the Provider is sent to this uri
+     * @param {string} did - Decentralized Identity of the Relying Party
+     * @param {any} registration - Registration information of the Relying Party
+     * https://openid.net/specs/openid-connect-core-1_0.html#RegistrationParameter
+     * @param {DidDocument} [did_doc] - DID Document of the RP. Optional
+     * @remarks - This is a private constructor used inside static async method getRP
+     */
     function RP(redirect_uri, did, registration, did_doc) {
         this.identity = new Identity_1.Identity();
         this.signing_info_set = [];
@@ -59,6 +75,16 @@ var RP = /** @class */ (function () {
             did_doc: did_doc
         };
     }
+    /**
+     * @param {string} redirect_uri - Redirect uri of the RP. Response from the Provider is sent to this uri
+     * @param {string} did - Decentralized Identity of the Relying Party
+     * @param {any} registration - Registration information of the Relying Party
+     * https://openid.net/specs/openid-connect-core-1_0.html#RegistrationParameter
+     * @param {DidDocument} [did_doc] - DID Document of the RP. Optional
+     * @returns {Promise<RP>} - A Promise which resolves to an instance of RP class
+     * @remarks Creating RP instances involves some async code and cannot be implemented as a constructor.
+     * Hence this static method is used in place of the constructor.
+     */
     RP.getRP = function (redirect_uri, did, registration, did_doc) {
         return __awaiter(this, void 0, void 0, function () {
             var rp, err_1;
@@ -83,6 +109,18 @@ var RP = /** @class */ (function () {
             });
         });
     };
+    /**
+     * @param {string} key - Private part of any cryptographic key listed in the 'authentication' field of RP's DID Document
+     * @param {string} [kid] - kid value of the key. Optional and not used
+     * @param {KEY_FORMATS| string} [format] - Format in which the private key is supplied. Optional and not used
+     * @param {ALGORITHMS} [algorithm] - Algorithm to use the key with. Optional and not used
+     * @returns {string} - kid of the added key
+     * @remarks This method is used to add signing information to 'signing_info_set'.
+     * All optional parameters are not used and only there to make the library backward compatible.
+     * Instead of using those optional parameters, given key is iteratively tried with
+     * every public key listed in the 'authentication' field of RP's DID Document and every key format
+     * until a compatible combination of those information which can be used for the signing process is found.
+     */
     RP.prototype.addSigningParams = function (key, kid, format, algorithm) {
         try {
             if (format) { }
@@ -173,6 +211,10 @@ var RP = /** @class */ (function () {
             throw err;
         }
     };
+    /**
+     * @param {string} kid - kid value of the SigningInfo which needs to be removed from the list
+     * @remarks This method is used to remove a certain SigningInfo (key) which has the given kid value from the list.
+     */
     RP.prototype.removeSigningParams = function (kid) {
         try {
             this.signing_info_set = this.signing_info_set.filter(function (s) { return s.kid !== kid; });
@@ -181,6 +223,12 @@ var RP = /** @class */ (function () {
             throw err;
         }
     };
+    /**
+     * @param {any} [options = {}] - Any optional field which should be included in the request JWT. Any field which is not supported
+     * at Provider's end will be ignored
+     * @returns {Promise<string>} - A Promise which resolves to a DID SIOP request
+     * @remarks This method is used to generate a request sent to a DID SIOP Provider.
+     */
     RP.prototype.generateRequest = function (options) {
         if (options === void 0) { options = {}; }
         return __awaiter(this, void 0, void 0, function () {
@@ -202,6 +250,14 @@ var RP = /** @class */ (function () {
             });
         });
     };
+    /**
+     * @param {string} request_uri - A uri from which a pre-configured and signed request JWT can be obtained
+     * @param {any} [options = {}] - Any optional field which should be included in the request JWT. Any field which is not supported
+     * at Provider's end will be ignored
+     * @returns {Promise<string>} - A Promise which resolves to a DID SIOP request
+     * @remarks This method is used to generate a request which has 'request_uri' in place of the 'request' parameter.
+     * https://identity.foundation/did-siop/#generate-siop-request
+     */
     RP.prototype.generateUriRequest = function (request_uri, options) {
         if (options === void 0) { options = {}; }
         return __awaiter(this, void 0, void 0, function () {
@@ -221,6 +277,12 @@ var RP = /** @class */ (function () {
             });
         });
     };
+    /**
+     * @param {string} response - A DID SIOP response
+     * @param {CheckParams} [checkParams = {redirect_uri: this.info.redirect_uri}] - Parameters against which the response needs to be validated
+     * @returns {Promise<JWT.JWTObject> | SIOPErrorResponse} - A Promise which resolves either to a decoded response or a SIOPErrorResponse
+     * @remarks This method is used to validate responses coming from DID SIOP Providers.
+     */
     RP.prototype.validateResponse = function (response, checkParams) {
         if (checkParams === void 0) { checkParams = { redirect_uri: this.info.redirect_uri }; }
         return __awaiter(this, void 0, void 0, function () {
