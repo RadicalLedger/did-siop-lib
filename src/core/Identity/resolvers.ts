@@ -1,5 +1,6 @@
 import { DidDocument } from "./commons";
 import { ERRORS } from "./commons";
+import { Resolver } from 'did-resolver'
 import { getResolver } from 'ethr-did-resolver';
 import * as base58 from 'bs58';
 import multibase from "multibase";
@@ -26,7 +27,7 @@ abstract class DidResolver{
      * @returns A promise which resolves to a {DidDocument}
      * @remarks Any inheriting child class must implement this abstract method. Relates to the Read operation of the DID Method.
      */
-    abstract async resolveDidDocumet(did: string): Promise<DidDocument>;
+    abstract resolveDidDocumet(did: string): Promise<DidDocument | undefined>;
 
     /**
      * 
@@ -35,7 +36,7 @@ abstract class DidResolver{
      * @remarks A wrapper method which make use of methodName property and resolveDidDocumet(did) method
      * to resolve documents for related DIDs only. Throws an error for DIDs of other DID Methods.
      */
-    resolve(did: string): Promise<DidDocument>{
+    resolve(did: string): Promise<DidDocument | undefined>{
         if(did.split(':')[1] !== this.methodName) throw new Error('Incorrect did method');
         return this.resolve(did);
     }
@@ -98,16 +99,19 @@ class CombinedDidResolver extends DidResolver{
  * @classdesc Resolver class for Ethereum DIDs
  * @extends {DidResolver}
  */
-class EthrDidResolver extends DidResolver{
-    async resolveDidDocumet(did: string): Promise<DidDocument> {
-        const providerConfig = { rpcUrl: 'https://ropsten.infura.io/v3/e0a6ac9a2c4a4722970325c36b728415'};
-        let resolve = getResolver(providerConfig).ethr;
-        return await resolve(did, {
-            did,
-            method: 'ethr',
-            id: did.split(':')[2],
-            didUrl: did
-        });
+ class EthrDidResolver extends DidResolver{
+    async resolveDidDocumet(did: string): Promise<DidDocument | undefined> {
+        const providerConfig = { name : "rinkeby", rpcUrl: 'https://rinkeby.infura.io/v3/e0a6ac9a2c4a4722970325c36b728415'};
+        let ethrDidResolver = getResolver(providerConfig);
+        const didResolver = new Resolver(ethrDidResolver)
+        try {
+            let result:any = await didResolver.resolve(did);
+            let didDoc : DidDocument = {...result.didDocument}
+            return didDoc;
+        }
+        catch(e) {
+            return undefined;
+        }
     }
 }
 
