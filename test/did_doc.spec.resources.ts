@@ -1,5 +1,108 @@
 import { KTYS, KEY_FORMATS, ALGORITHMS } from "../src/core/globals";
 
+export const DID_TEST_RESOLVER_DATA_NEW = [
+   { //0
+      method: 'did:ethr',
+      did: "did:ethr:rinkeby:0x0345dd0c781893a801588a36051e3bdc61f15f0dd51aa716915e763bd2a2f613f6",
+      resolverReturn: {
+         "didDocument":{
+            "@context": [
+               "https://www.w3.org/ns/did/v1",
+               "https://identity.foundation/EcdsaSecp256k1RecoverySignature2020/lds-ecdsa-secp256k1-recovery2020-0.0.jsonld"
+             ],
+             "id": "did:ethr:rinkeby:0x0345dd0c781893a801588a36051e3bdc61f15f0dd51aa716915e763bd2a2f613f6",
+             "verificationMethod": [
+               {
+                 "id": "did:ethr:rinkeby:0x0345dd0c781893a801588a36051e3bdc61f15f0dd51aa716915e763bd2a2f613f6#controller",
+                 "type": "EcdsaSecp256k1RecoveryMethod2020",
+                 "controller": "did:ethr:rinkeby:0x0345dd0c781893a801588a36051e3bdc61f15f0dd51aa716915e763bd2a2f613f6",
+                 "blockchainAccountId": "0x1471b1ca1E8515b07825a690c9D6CAbBfAa42e49@eip155:4"
+               },
+               {
+                 "id": "did:ethr:rinkeby:0x0345dd0c781893a801588a36051e3bdc61f15f0dd51aa716915e763bd2a2f613f6#controllerKey",
+                 "type": "EcdsaSecp256k1VerificationKey2019",
+                 "controller": "did:ethr:rinkeby:0x0345dd0c781893a801588a36051e3bdc61f15f0dd51aa716915e763bd2a2f613f6",
+                 "publicKeyHex": "0345dd0c781893a801588a36051e3bdc61f15f0dd51aa716915e763bd2a2f613f6"
+               }
+             ],
+             "authentication": [
+               "did:ethr:rinkeby:0x0345dd0c781893a801588a36051e3bdc61f15f0dd51aa716915e763bd2a2f613f6#controller",
+               "did:ethr:rinkeby:0x0345dd0c781893a801588a36051e3bdc61f15f0dd51aa716915e763bd2a2f613f6#controllerKey"
+             ],
+             "assertionMethod": [
+               "did:ethr:rinkeby:0x0345dd0c781893a801588a36051e3bdc61f15f0dd51aa716915e763bd2a2f613f6#controller",
+               "did:ethr:rinkeby:0x0345dd0c781893a801588a36051e3bdc61f15f0dd51aa716915e763bd2a2f613f6#controllerKey"
+             ]         
+          },
+      },
+      keys: [
+         {
+            id: 'did:ethr:rinkeby:0x02fc5d9954170fb9bd2d1d18bb9ca645828bc3555edf5f501f0b3cd0dfa8cc17e1#owner',
+            kty: KTYS.EC,
+            alg: ALGORITHMS["ES256K-R"],
+            format: KEY_FORMATS.ETHEREUM_ADDRESS,
+            publicKey: '0x02fc5d9954170fb9bd2d1d18bb9ca645828bc3555edf5f501f0b3cd0dfa8cc17e1'
+         }
+      ],
+      keyInfo: {
+         address: '0x1471b1ca1E8515b07825a690c9D6CAbBfAa42e49',
+         privateKey: '2d0651990af6802bf1509cafe5784f98ec35932cb57ee2d8ef7ab0f8f43cf83e',
+         publicKey: '0345dd0c781893a801588a36051e3bdc61f15f0dd51aa716915e763bd2a2f613f6',
+         identifier: '0x0345dd0c781893a801588a36051e3bdc61f15f0dd51aa716915e763bd2a2f613f6' 
+      }
+   },
+   { //1
+      method: 'did:ethr',
+      did: "did:ethr:rinkeby:0x02be73dcaa2013a714b6745f54ff8576df151f8226cc3923538bfbfb9a014584fe",
+      resolverReturn: {
+         "didDocument":{
+            "@context": [
+               "https://www.w3.org/ns/did/v1",
+               "https://identity.foundation/EcdsaSecp256k1RecoverySignature2020/lds-ecdsa-secp256k1-recovery2020-0.0.jsonld"
+             ],
+             "id": "did:ethr:rinkeby:0x02be73dcaa2013a714b6745f54ff8576df151f8226cc3923538bfbfb9a014584fe",
+             "verificationMethod": [
+               {
+                 "id": "did:ethr:rinkeby:0x02be73dcaa2013a714b6745f54ff8576df151f8226cc3923538bfbfb9a014584fe#controller",
+                 "type": "EcdsaSecp256k1RecoveryMethod2020",
+                 "controller": "did:ethr:rinkeby:0x02be73dcaa2013a714b6745f54ff8576df151f8226cc3923538bfbfb9a014584fe",
+                 "blockchainAccountId": "0xAf425F2104E9450aB070F03dc6097144C169391d@eip155:4"
+               },
+               {
+                 "id": "did:ethr:rinkeby:0x02be73dcaa2013a714b6745f54ff8576df151f8226cc3923538bfbfb9a014584fe#controllerKey",
+                 "type": "EcdsaSecp256k1VerificationKey2019",
+                 "controller": "did:ethr:rinkeby:0x02be73dcaa2013a714b6745f54ff8576df151f8226cc3923538bfbfb9a014584fe",
+                 "publicKeyHex": "02be73dcaa2013a714b6745f54ff8576df151f8226cc3923538bfbfb9a014584fe"
+               }
+             ],
+             "authentication": [
+               "did:ethr:rinkeby:0x02be73dcaa2013a714b6745f54ff8576df151f8226cc3923538bfbfb9a014584fe#controller",
+               "did:ethr:rinkeby:0x02be73dcaa2013a714b6745f54ff8576df151f8226cc3923538bfbfb9a014584fe#controllerKey"
+             ],
+             "assertionMethod": [
+               "did:ethr:rinkeby:0x02be73dcaa2013a714b6745f54ff8576df151f8226cc3923538bfbfb9a014584fe#controller",
+               "did:ethr:rinkeby:0x02be73dcaa2013a714b6745f54ff8576df151f8226cc3923538bfbfb9a014584fe#controllerKey"
+             ]           
+          },
+      },
+      keys: [
+         {
+            id: 'did:ethr:rinkeby:0x02fc5d9954170fb9bd2d1d18bb9ca645828bc3555edf5f501f0b3cd0dfa8cc17e1#owner',
+            kty: KTYS.EC,
+            alg: ALGORITHMS["ES256K-R"],
+            format: KEY_FORMATS.ETHEREUM_ADDRESS,
+            publicKey: '0x02fc5d9954170fb9bd2d1d18bb9ca645828bc3555edf5f501f0b3cd0dfa8cc17e1'
+         }
+      ],
+      keyInfo: {
+         address: '0xAf425F2104E9450aB070F03dc6097144C169391d',
+         privateKey: 'c4873e901915343baf7302b0b87bae70bf5726e9280d415b3f7fc85908cc9d5a',
+         publicKey: '02be73dcaa2013a714b6745f54ff8576df151f8226cc3923538bfbfb9a014584fe',
+         identifier: '0x02be73dcaa2013a714b6745f54ff8576df151f8226cc3923538bfbfb9a014584fe'         
+      }
+   }              
+]
+
 export const DID_TEST_RESOLVER_DATA = [
    {
       method: 'did:btcr',
@@ -1461,289 +1564,3 @@ export const DID_TEST_RESOLVER_DATA = [
 ]
 
 export const invalidDID = 'did:ethr:0xB07Ead9717b44B6cF439c474362b9C0877CBBF8';
-
-export const DID_TEST_RESOLVER_DATA_NEW = [
-   { //0
-      method: 'did:ethr',
-      did: 'did:ethr:rinkeby:0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9',
-      resolverReturn: {
-         "didDocument":{
-            "@context": [
-              "https://www.w3.org/ns/did/v1",
-              "https://identity.foundation/EcdsaSecp256k1RecoverySignature2020/lds-ecdsa-secp256k1-recovery2020-0.0.jsonld"
-            ],
-            "id": "did:ethr:rinkeby:0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9",
-            "verificationMethod": [
-              {
-                "id": "did:ethr:rinkeby:0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9#controller",
-                "type": "EcdsaSecp256k1RecoveryMethod2020",
-                "controller": "did:ethr:rinkeby:0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9",
-                "blockchainAccountId": "0x7ECe23CBC21B216fEccc8Be90b48E3E1158fC398@eip155:4"
-              },
-              {
-                "id": "did:ethr:rinkeby:0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9#controllerKey",
-                "type": "EcdsaSecp256k1VerificationKey2019",
-                "controller": "did:ethr:rinkeby:0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9",
-                "publicKeyHex": "02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9"
-              }
-            ],
-            "authentication": [
-              "did:ethr:rinkeby:0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9#controller",
-              "did:ethr:rinkeby:0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9#controllerKey"
-            ],
-            "assertionMethod": [
-              "did:ethr:rinkeby:0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9#controller",
-              "did:ethr:rinkeby:0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9#controllerKey"
-            ]
-          },
-         "content":null,
-         "contentType":null,
-         "resolverMetadata":{
-            "duration":143,
-            "identifier":"did:ethr:rinkeby:0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9",
-            "driverId":"driver-uport/uni-resolver-driver-did-uport-9",
-            "didUrl":{
-               "didUrlString":"did:ethr:rinkeby:0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9",
-               "did":{
-                  "didString":"did:ethr:rinkeby:0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9",
-                  "method":"ethr",
-                  "methodSpecificId":"rinkeby:0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9",
-                  "parseTree":null,
-                  "parseRuleCount":null
-               },
-               "parameters":null,
-               "parametersMap":{
-      
-               },
-               "path":"",
-               "query":null,
-               "fragment":null,
-               "parseTree":null,
-               "parseRuleCount":null
-            }
-         },
-         "methodMetadata":{
-      
-         }
-      },
-      keys: [
-         {
-            id: 'did:ethr:rinkeby:0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9#owner',
-            kty: KTYS.EC,
-            alg: ALGORITHMS["ES256K-R"],
-            format: KEY_FORMATS.ETHEREUM_ADDRESS,
-            publicKey: '0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9'
-         },
-      ]      
-   },
-   { //1
-      method: 'did:ethr',
-      did: 'did:ethr:0x3b0BC51Ab9De1e5B7B6E34E5b960285805C41736',
-      resolverReturn: {
-         "didDocument":{
-            "@context": [
-              "https://www.w3.org/ns/did/v1",
-              "https://identity.foundation/EcdsaSecp256k1RecoverySignature2020/lds-ecdsa-secp256k1-recovery2020-0.0.jsonld"
-            ],
-            "id": "did:ethr:0x3b0BC51Ab9De1e5B7B6E34E5b960285805C41736",
-            "verificationMethod": [
-              {
-                "id": "did:ethr:0x3b0BC51Ab9De1e5B7B6E34E5b960285805C41736#controller",
-                "type": "EcdsaSecp256k1RecoveryMethod2020",
-                "controller": "did:ethr:0x3b0BC51Ab9De1e5B7B6E34E5b960285805C41736",
-                "blockchainAccountId": "0x3b0BC51Ab9De1e5B7B6E34E5b960285805C41736@eip155:1"
-              }
-            ],
-            "authentication": [
-              "did:ethr:0x3b0BC51Ab9De1e5B7B6E34E5b960285805C41736#controller"
-            ],
-            "assertionMethod": [
-              "did:ethr:0x3b0BC51Ab9De1e5B7B6E34E5b960285805C41736#controller"
-            ]
-          },
-         "content":null,
-         "contentType":null,
-         "resolverMetadata":{
-            "duration":143,
-            "identifier":"did:ethr:0x3b0BC51Ab9De1e5B7B6E34E5b960285805C41736",
-            "driverId":"driver-uport/uni-resolver-driver-did-uport-9",
-            "didUrl":{
-               "didUrlString":"did:ethr:rinkeby:0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9",
-               "did":{
-                  "didString":"did:ethr:rinkeby:0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9",
-                  "method":"ethr",
-                  "methodSpecificId":"rinkeby:0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9",
-                  "parseTree":null,
-                  "parseRuleCount":null
-               },
-               "parameters":null,
-               "parametersMap":{
-      
-               },
-               "path":"",
-               "query":null,
-               "fragment":null,
-               "parseTree":null,
-               "parseRuleCount":null
-            }
-         },
-         "methodMetadata":{
-      
-         }
-      },
-      keys: [
-         {
-            id: 'did:ethr:rinkeby:0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9#owner',
-            kty: KTYS.EC,
-            alg: ALGORITHMS["ES256K-R"],
-            format: KEY_FORMATS.ETHEREUM_ADDRESS,
-            publicKey: '0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9'
-         },
-      ]      
-   },
-   { //2
-      method: 'did:ethr',
-      did: 'did:ethr:0x1e:0x03fdd57adec3d438ea237fe46b33ee1e016eda6b585c3e27ea66686c2ea5358479',
-      resolverReturn: {
-         "didDocument":{
-            "@context": [
-              "https://www.w3.org/ns/did/v1",
-              "https://identity.foundation/EcdsaSecp256k1RecoverySignature2020/lds-ecdsa-secp256k1-recovery2020-0.0.jsonld"
-            ],
-            "id": "did:ethr:0x1e:0x03fdd57adec3d438ea237fe46b33ee1e016eda6b585c3e27ea66686c2ea5358479",
-            "verificationMethod": [
-              {
-                "id": "did:ethr:0x1e:0x03fdd57adec3d438ea237fe46b33ee1e016eda6b585c3e27ea66686c2ea5358479#controller",
-                "type": "EcdsaSecp256k1RecoveryMethod2020",
-                "controller": "did:ethr:0x1e:0x03fdd57adec3d438ea237fe46b33ee1e016eda6b585c3e27ea66686c2ea5358479",
-                "blockchainAccountId": "0xF3beAC30C498D9E26865F34fCAa57dBB935b0D74@eip155:30"
-              },
-              {
-                "id": "did:ethr:0x1e:0x03fdd57adec3d438ea237fe46b33ee1e016eda6b585c3e27ea66686c2ea5358479#controllerKey",
-                "type": "EcdsaSecp256k1VerificationKey2019",
-                "controller": "did:ethr:0x1e:0x03fdd57adec3d438ea237fe46b33ee1e016eda6b585c3e27ea66686c2ea5358479",
-                "publicKeyHex": "03fdd57adec3d438ea237fe46b33ee1e016eda6b585c3e27ea66686c2ea5358479"
-              }
-            ],
-            "authentication": [
-              "did:ethr:0x1e:0x03fdd57adec3d438ea237fe46b33ee1e016eda6b585c3e27ea66686c2ea5358479#controller",
-              "did:ethr:0x1e:0x03fdd57adec3d438ea237fe46b33ee1e016eda6b585c3e27ea66686c2ea5358479#controllerKey"
-            ],
-            "assertionMethod": [
-              "did:ethr:0x1e:0x03fdd57adec3d438ea237fe46b33ee1e016eda6b585c3e27ea66686c2ea5358479#controller",
-              "did:ethr:0x1e:0x03fdd57adec3d438ea237fe46b33ee1e016eda6b585c3e27ea66686c2ea5358479#controllerKey"
-            ]
-          },
-         "content":null,
-         "contentType":null,
-         "resolverMetadata":{
-            "duration":143,
-            "identifier":"did:ethr:0x3b0BC51Ab9De1e5B7B6E34E5b960285805C41736",
-            "driverId":"driver-uport/uni-resolver-driver-did-uport-9",
-            "didUrl":{
-               "didUrlString":"did:ethr:rinkeby:0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9",
-               "did":{
-                  "didString":"did:ethr:rinkeby:0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9",
-                  "method":"ethr",
-                  "methodSpecificId":"rinkeby:0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9",
-                  "parseTree":null,
-                  "parseRuleCount":null
-               },
-               "parameters":null,
-               "parametersMap":{
-      
-               },
-               "path":"",
-               "query":null,
-               "fragment":null,
-               "parseTree":null,
-               "parseRuleCount":null
-            }
-         },
-         "methodMetadata":{
-      
-         }
-      },
-      keys: [
-         {
-            id: 'did:ethr:rinkeby:0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9#owner',
-            kty: KTYS.EC,
-            alg: ALGORITHMS["ES256K-R"],
-            format: KEY_FORMATS.ETHEREUM_ADDRESS,
-            publicKey: '0x02474b06ad8f25055b38cd08d0ad72abe46525b19f3c31775a0fe257bc198d5ca9'
-         },
-      ]      
-   },
-   { //3
-      method: 'did:ethr',
-      did: 'did:ethr:rinkeby:0x02fc5d9954170fb9bd2d1d18bb9ca645828bc3555edf5f501f0b3cd0dfa8cc17e1',
-      resolverReturn: {
-         "didDocument":{
-            "@context": [
-               "https://www.w3.org/ns/did/v1",
-               "https://identity.foundation/EcdsaSecp256k1RecoverySignature2020/lds-ecdsa-secp256k1-recovery2020-0.0.jsonld"
-             ],
-             "id": "did:ethr:rinkeby:0x02fc5d9954170fb9bd2d1d18bb9ca645828bc3555edf5f501f0b3cd0dfa8cc17e1",
-             "verificationMethod": [
-               {
-                 "id": "did:ethr:rinkeby:0x02fc5d9954170fb9bd2d1d18bb9ca645828bc3555edf5f501f0b3cd0dfa8cc17e1#controller",
-                 "type": "EcdsaSecp256k1RecoveryMethod2020",
-                 "controller": "did:ethr:rinkeby:0x02fc5d9954170fb9bd2d1d18bb9ca645828bc3555edf5f501f0b3cd0dfa8cc17e1",
-                 "blockchainAccountId": "0x1B5174CD91683E13356437dcF567bEa338A23de5@eip155:4"
-               },
-               {
-                 "id": "did:ethr:rinkeby:0x02fc5d9954170fb9bd2d1d18bb9ca645828bc3555edf5f501f0b3cd0dfa8cc17e1#controllerKey",
-                 "type": "EcdsaSecp256k1VerificationKey2019",
-                 "controller": "did:ethr:rinkeby:0x02fc5d9954170fb9bd2d1d18bb9ca645828bc3555edf5f501f0b3cd0dfa8cc17e1",
-                 "publicKeyHex": "02fc5d9954170fb9bd2d1d18bb9ca645828bc3555edf5f501f0b3cd0dfa8cc17e1"
-               }
-             ],
-             "authentication": [
-               "did:ethr:rinkeby:0x02fc5d9954170fb9bd2d1d18bb9ca645828bc3555edf5f501f0b3cd0dfa8cc17e1#controller",
-               "did:ethr:rinkeby:0x02fc5d9954170fb9bd2d1d18bb9ca645828bc3555edf5f501f0b3cd0dfa8cc17e1#controllerKey"
-             ],
-             "assertionMethod": [
-               "did:ethr:rinkeby:0x02fc5d9954170fb9bd2d1d18bb9ca645828bc3555edf5f501f0b3cd0dfa8cc17e1#controller",
-               "did:ethr:rinkeby:0x02fc5d9954170fb9bd2d1d18bb9ca645828bc3555edf5f501f0b3cd0dfa8cc17e1#controllerKey"
-             ]
-          },
-         "content":null,
-         "contentType":null,
-         "resolverMetadata":{
-            "duration":143,
-            "identifier":"did:ethr:rinkeby:0x02fc5d9954170fb9bd2d1d18bb9ca645828bc3555edf5f501f0b3cd0dfa8cc17e1",
-            "driverId":"driver-uport/uni-resolver-driver-did-uport-9",
-            "didUrl":{
-               "didUrlString":"did:ethr:rinkeby:0x02fc5d9954170fb9bd2d1d18bb9ca645828bc3555edf5f501f0b3cd0dfa8cc17e1",
-               "did":{
-                  "didString":"did:ethr:rinkeby:0x02fc5d9954170fb9bd2d1d18bb9ca645828bc3555edf5f501f0b3cd0dfa8cc17e1",
-                  "method":"ethr",
-                  "methodSpecificId":"rinkeby:0x02fc5d9954170fb9bd2d1d18bb9ca645828bc3555edf5f501f0b3cd0dfa8cc17e1",
-                  "parseTree":null,
-                  "parseRuleCount":null
-               },
-               "parameters":null,
-               "parametersMap":{
-      
-               },
-               "path":"",
-               "query":null,
-               "fragment":null,
-               "parseTree":null,
-               "parseRuleCount":null
-            }
-         },
-         "methodMetadata":{
-         }
-      },
-      keys: [
-         {
-            id: 'did:ethr:rinkeby:0x02fc5d9954170fb9bd2d1d18bb9ca645828bc3555edf5f501f0b3cd0dfa8cc17e1#owner',
-            kty: KTYS.EC,
-            alg: ALGORITHMS["ES256K-R"],
-            format: KEY_FORMATS.ETHEREUM_ADDRESS,
-            publicKey: '0x02fc5d9954170fb9bd2d1d18bb9ca645828bc3555edf5f501f0b3cd0dfa8cc17e1'
-         },
-      ]      
-   }        
-]

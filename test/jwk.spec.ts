@@ -252,7 +252,7 @@ pwIDAQAB
         expect(thumbprint).toEqual(publicJWKThumbprint);
     });
 })
-describe('JWKS', function () {
+describe.skip('JWKS', function () {
     test('KeySet functions', async () => {
         let jwks = new KeySet();
         expect(jwks.size()).toEqual(0);

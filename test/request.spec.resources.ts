@@ -1,15 +1,21 @@
 import { ALGORITHMS, KEY_FORMATS } from './../src/core/globals';
 import { JWTObject } from './../src/core/JWT';
 import { sign } from '../src/core/JWT';
+import {DID_TEST_RESOLVER_DATA_NEW as DIDS } from './did_doc.spec.resources'
+
+let testDidDoc  = DIDS[0].resolverReturn.didDocument;
+let testDID     = DIDS[0].did;
+let testKeyInfo = DIDS[0].keyInfo;
+
 
 const jwtGoodDecoded = {
     header: {
         "typ": "JWT",
-        "alg": "ES256K-R",
-        "kid": "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#controller"
+        "alg": "ES256K",
+        "kid": testDidDoc.verificationMethod[1].id,
     },
     payload: {
-        "iss": "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83",
+        "iss": testDID,
         "response_type": "id_token",
         "client_id": "https://my.rp.com/cb",
         "scope": "openid did_authn",
@@ -25,15 +31,15 @@ const jwtGoodDecoded = {
 
 const keyPair = {
     privateKey: {
-        alg: ALGORITHMS["ES256K-R"],
-        key: 'CE438802C1F0B6F12BC6E686F372D7D495BC5AA634134B4A7EA4603CB25F0964',
-        kid: 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#controller',
+        alg: ALGORITHMS["ES256K"],
+        key: testKeyInfo.privateKey,
+        kid: testDidDoc.verificationMethod[1].id,
         format: KEY_FORMATS.HEX,
     },
     publicKey: {
-        alg: ALGORITHMS["ES256K-R"],
-        key: '0xB07Ead9717b44B6cF439c474362b9B0877CBBF83',
-        kid: 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#controller',
+        alg: ALGORITHMS["ES256K"],
+        key: testKeyInfo.publicKey,
+        kid: testDidDoc.verificationMethod[1].id,
         format: KEY_FORMATS.HEX,
     }
 }
@@ -107,13 +113,13 @@ export const requests = {
     },
     components: {
         signingInfo: {
-            alg: ALGORITHMS["ES256K-R"],
-            key: 'CE438802C1F0B6F12BC6E686F372D7D495BC5AA634134B4A7EA4603CB25F0964',
-            kid: 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#controller',
+            alg: ALGORITHMS["ES256K"],
+            key: testKeyInfo.privateKey,
+            kid: testDidDoc.verificationMethod[1].id,
             format: KEY_FORMATS.HEX,
         },
         rp: {
-            did: 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83',
+            did: testDID,
             redirect_uri: 'https://my.rp.com/cb',
             registration: {
                 "jwks_uri": "https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks",

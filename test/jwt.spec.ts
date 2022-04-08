@@ -194,12 +194,16 @@ describe('JWT functions', function() {
         expect(validity).toBeFalsy();
     });
     test('JWT signing and verification ES256K', async () => {
-        let jwt = sign(es256kTestResource.jwtDecoded, {
+        let signing: any = {
             key: es256kTestResource.privateKey.exportKey(KEY_FORMATS.HEX),
             kid: es256kTestResource.jwtDecoded.header.kid,
             alg: ALGORITHMS.ES256K,
             format: KEY_FORMATS.HEX
-        });
+        }
+        console.log("sigining", signing);
+        
+
+        let jwt = sign(es256kTestResource.jwtDecoded, signing);
         let validity = verify(jwt, {
             key: es256kTestResource.publicKey.exportKey(KEY_FORMATS.HEX),
             kid: es256kTestResource.jwtDecoded.header.kid,

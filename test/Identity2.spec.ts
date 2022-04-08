@@ -15,28 +15,4 @@ describe("NEW Identity2 functions", function() {
         expect(identity.isResolved()).toBeTruthy();
     
     });
-
-    // test("1.NEW Tests resolve(did)", async () => {
-    //     let identity;
-    //     let resolverData = DID_TEST_RESOLVER_DATA_NEW[1]
-    //     // nock('https://dev.uniresolver.io/1.0/identifiers/').get('/' + resolverData.did).reply(200, resolverData.resolverReturn).get('/' + invalidDID).reply(404, 'Not found');
-
-    //     identity = new Identity();
-    //     let resolvedDID = await identity.resolve(resolverData.did);
-    //     expect(resolvedDID).toEqual(resolverData.did);
-    //     expect(identity.isResolved()).toBeTruthy();
-    
-    // });
-
-    // test("2.NEW Tests resolve(did)", async () => {
-    //     let identity;
-    //     let resolverData = DID_TEST_RESOLVER_DATA_NEW[2]
-    //     // nock('https://dev.uniresolver.io/1.0/identifiers/').get('/' + resolverData.did).reply(200, resolverData.resolverReturn).get('/' + invalidDID).reply(404, 'Not found');
-
-    //     identity = new Identity();
-    //     let resolvedDID = await identity.resolve(resolverData.did);
-    //     expect(resolvedDID).toEqual(resolverData.did);
-    //     expect(identity.isResolved()).toBeTruthy();
-    
-    // });
 });

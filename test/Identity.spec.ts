@@ -2,7 +2,7 @@ import { Identity, ERRORS, uniExtractor } from '../src/core/Identity';
 import nock from 'nock';
 import { DID_TEST_RESOLVER_DATA, invalidDID } from './did_doc.spec.resources'
 
-describe("Identity functions", function() {
+describe.skip("Identity functions", function() {
 
     test("Tests constructor", async () => {
         let identity = new Identity();

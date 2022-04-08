@@ -52,7 +52,7 @@ let userDidDoc = {
   }
 let userDID = 'did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf';
 
-describe("Response", function () {
+describe.skip("Response", function () {
     beforeEach(() => {
         nock('https://uniresolver.io/1.0/identifiers').persist().get('/'+rpDID).reply(200, rpDidDoc).get('/'+userDID).reply(200, userDidDoc);
     });
