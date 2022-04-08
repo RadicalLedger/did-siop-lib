@@ -113,9 +113,8 @@ export class Identity{
                         }
                     }
                 }
-    
                 if (typeof method === 'string') {
-                    for (let pub of this.doc.publicKey) {
+                    for (let pub of this.doc.verificationMethod) {                        
                         if (pub.id === method){
                             try{
                                 this.keySet.push(extractor.extract(pub));

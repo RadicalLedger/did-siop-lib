@@ -56,8 +56,8 @@ export class DidSiopResponse{
             else{
                 Promise.reject(ERRORS.UNSUPPORTED_ALGO);
             }
-
-            let didPubKey = didSiopUser.extractAuthenticationKeys().find(authKey => { return authKey.id === signingInfo.kid});
+            let keys = didSiopUser.extractAuthenticationKeys();
+            let didPubKey = keys.find(authKey => { return authKey.id === signingInfo.kid});
             header = {
                 typ: 'JWT',
                 alg: alg,
