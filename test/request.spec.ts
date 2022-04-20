@@ -1,64 +1,32 @@
-import { ERROR_RESPONSES } from './../src/core/ErrorResponse';
-import { DidSiopRequest } from './../src/core/Request';
-import { jwts, requests } from './request.spec.resources';
+import { ERROR_RESPONSES } from '../src/core/ErrorResponse';
+import { DidSiopRequest } from '../src/core/Request';
+import { jwts, requests, claims } from './request.spec.resources';
 import nock from 'nock';
+import {DID_TEST_RESOLVER_DATA_NEW as DIDS } from './did_doc.spec.resources'
 
-let rpDidDoc = {
-    didDocument: {
-        "@context": "https://w3id.org/did/v1",
-        "id": "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83",
-        "authentication": [
-        {
-            "type": "Secp256k1SignatureAuthentication2018",
-            "publicKey": [
-            "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#controller"
-            ]
-        }
-        ],
-        "publicKey": [
-        {
-            "id": "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#controller",
-            "type": "Secp256k1VerificationKey2018",
-            "ethereumAddress": "0xb07ead9717b44b6cf439c474362b9b0877cbbf83",
-            "owner": "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83"
-        }
-        ]
-    }
-}
-let rpDID = 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83';
+let userDidDoc  = DIDS[0].resolverReturn.didDocument;
+let userDID     = DIDS[0].did;
 
-let userDidDoc = {
-    didDocument: {
-        "@context": "https://w3id.org/did/v1",
-        "id": "did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf",
-        "authentication": [
-        {
-            "type": "Secp256k1SignatureAuthentication2018",
-            "publicKey": [
-            "did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#controller"
-            ]
-        }
-        ],
-        "publicKey": [
-        {
-            "id": "did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#controller",
-            "type": "Secp256k1VerificationKey2018",
-            "ethereumAddress": "0x30d1707aa439f215756d67300c95bb38b5646aef",
-            "owner": "did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf"
-        }
-        ]
-    }
-  }
-let userDID = 'did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf';
+let rpDidDoc    = DIDS[1].resolverReturn.didDocument;
+let rpDID       = DIDS[1].did;
 
-describe.skip("Request validation/generation", function () {
+
+describe("Modify request object", function () {
+    test('Include claims - expect truthy', async () => {
+        jest.setTimeout(17000);
+        let returnedJWT = await DidSiopRequest.validateRequest(requests.good.requestGoodWithClaims);        
+        expect(returnedJWT.payload.claims).toEqual(claims.good);
+    });
+});
+
+describe("Request validation/generation", function () {
     beforeEach(() => {
         nock('http://localhost').get('/requestJWT').reply(200, jwts.jwtGoodEncoded).get('/incorrectRequestJWT').reply(404, 'Not found');
         nock('https://uniresolver.io/1.0/identifiers').persist().get('/'+rpDID).reply(200, rpDidDoc).get('/'+userDID).reply(200, userDidDoc);
     });
 
     test('Request validation - expect truthy', async () => {
-        jest.setTimeout(7000);
+        jest.setTimeout(17000);
         let returnedJWT = await DidSiopRequest.validateRequest(requests.good.requestGoodEmbeddedJWT);
         expect(returnedJWT).toEqual(jwts.jwtGoodDecoded);
 
@@ -67,7 +35,7 @@ describe.skip("Request validation/generation", function () {
     });
 
     test('Request validation - expect falsy', async () => {
-        jest.setTimeout(7000);
+        jest.setTimeout(17000);
         let validityPromise = DidSiopRequest.validateRequest(requests.bad.requestBadProtocol);
         await expect(validityPromise).rejects.toEqual(ERROR_RESPONSES.invalid_request.err);
 
@@ -116,11 +84,25 @@ describe.skip("Request validation/generation", function () {
         validityPromise = DidSiopRequest.validateRequest(requests.bad.requestBadJWTIncorrectScope);
         await expect(validityPromise).rejects.toEqual(ERROR_RESPONSES.invalid_request_object.err);
     });
+});
+describe("Request validation/generation", function () {
     test("Generate request - expect truthy", async () => {
-        jest.setTimeout(7000);
+        jest.setTimeout(17000);
         let rqst = await DidSiopRequest.generateRequest(requests.components.rp, requests.components.signingInfo, requests.components.options);
         let decoded = await DidSiopRequest.validateRequest(rqst);
         expect(decoded).toHaveProperty('header');
         expect(decoded).toHaveProperty('payload');
+    });
+    test("Generate request with vp_token and validate - expect truthy", async () => {
+        jest.setTimeout(17000);
+        let rqst = await DidSiopRequest.generateRequest(requests.components.rp, requests.components.signingInfo, requests.components.optionsWithClaims);
+        let decoded = await DidSiopRequest.validateRequest(rqst);
+        expect(decoded.payload.claims).toHaveProperty('vp_token');
+    });
+    test("Generate request with claim but no vp_token - expect reject", async () => {
+        jest.setTimeout(17000);
+
+        let validityPromise = DidSiopRequest.validateRequest(requests.bad.requestBadJWTClaimsNoVPToken);
+        await expect(validityPromise).rejects.toEqual(ERROR_RESPONSES.vp_token_missing_presentation_definition.err);
     });
 });

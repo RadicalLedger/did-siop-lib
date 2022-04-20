@@ -1,65 +1,25 @@
-import { DidSiopResponse } from './../src/core/Response';
-import { Identity } from './../src/core/Identity';
-import { SigningInfo } from './../src/core/JWT';
+import { DidSiopResponse } from '../src/core/Response';
+import { Identity } from '../src/core/Identity';
+import { SigningInfo } from '../src/core/JWT';
 import { ALGORITHMS, KEY_FORMATS } from '../src/core/globals';
 import nock from 'nock';
+import {DID_TEST_RESOLVER_DATA_NEW as DIDS } from './did_doc.spec.resources'
 
-let rpDidDoc = {
-    didDocument: {
-        "@context": "https://w3id.org/did/v1",
-        "id": "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83",
-        "authentication": [
-        {
-            "type": "Secp256k1SignatureAuthentication2018",
-            "publicKey": [
-            "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#controller"
-            ]
-        }
-        ],
-        "publicKey": [
-        {
-            "id": "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#controller",
-            "type": "Secp256k1VerificationKey2018",
-            "ethereumAddress": "0xb07ead9717b44b6cf439c474362b9b0877cbbf83",
-            "owner": "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83"
-        }
-        ]
-    }
-}
-let rpDID = 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83';
+let userDidDoc  = DIDS[0].resolverReturn.didDocument;
+let userDID     = DIDS[0].did;
+let userKeyInfo = DIDS[0].keyInfo;
 
-let userDidDoc = {
-    didDocument: {
-        "@context": "https://w3id.org/did/v1",
-        "id": "did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf",
-        "authentication": [
-        {
-            "type": "Secp256k1SignatureAuthentication2018",
-            "publicKey": [
-            "did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#controller"
-            ]
-        }
-        ],
-        "publicKey": [
-        {
-            "id": "did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf#controller",
-            "type": "Secp256k1VerificationKey2018",
-            "ethereumAddress": "0x30d1707aa439f215756d67300c95bb38b5646aef",
-            "owner": "did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf"
-        }
-        ]
-    }
-  }
-let userDID = 'did:ethr:0x30D1707AA439F215756d67300c95bB38B5646aEf';
+let rpDidDoc    = DIDS[1].resolverReturn.didDocument;
+let rpDID       = DIDS[1].did;
 
-describe.skip("Response", function () {
+describe("Response2", function () {
     beforeEach(() => {
         nock('https://uniresolver.io/1.0/identifiers').persist().get('/'+rpDID).reply(200, rpDidDoc).get('/'+userDID).reply(200, userDidDoc);
     });
     test("Response generation and validation", async () => {
-        jest.setTimeout(7000);
+        jest.setTimeout(30000);
         let requestPayload = {
-            "iss": "did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83",
+            "iss": userDID,
             "response_type": "id_token",
             "client_id": "https://my.rp.com/cb",
             "scope": "openid did_authn",
@@ -72,21 +32,20 @@ describe.skip("Response", function () {
             }
         }
         let signing: SigningInfo = {
-            alg: ALGORITHMS["ES256K-R"],
-            key: 'CE438802C1F0B6F12BC6E686F372D7D495BC5AA634134B4A7EA4603CB25F0964',
-            kid: 'did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83#controller',
+            alg: ALGORITHMS["ES256K"],
+            kid: userDidDoc.verificationMethod[1].id,
+            key: userKeyInfo.privateKey,
             format: KEY_FORMATS.HEX,
         }
-
         let user = new Identity();
-        await user.resolve('did:ethr:0xB07Ead9717b44B6cF439c474362b9B0877CBBF83')
+        await user.resolve(userDID)
 
-        let response = await DidSiopResponse.generateResponse(requestPayload, signing, user, 5000);
+        let response = await DidSiopResponse.generateResponse(requestPayload, signing, user, 30000);
 
         let checkParams = {
             redirect_uri: 'https://my.rp.com/cb',
             nonce: "n-0S6_WzA2Mj",
-            validBefore: 1000,
+            validBefore: 30000,
             isExpirable: true,
         }
         let validity = await DidSiopResponse.validateResponse(response, checkParams);
