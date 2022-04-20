@@ -6,6 +6,9 @@ import base64url from 'base64url';
 import { KeySet, ERRORS } from './JWKUtils';
 import { ALGORITHMS, KTYS, KEY_FORMATS } from './globals';
 import * as JWT from './JWT';
+import { validJsonObject} from './Utils';
+
+// import { type } from 'os';
 const axios = require('axios').default;
 
 const RESPONSE_TYPES = ['id_token',];
@@ -216,10 +219,15 @@ async function validateRequestJWT(requestJWT: string): Promise<JWT.JWTObject> {
                 publicKeyInfo = undefined;
             }
         }
+        try {
+            await validateRequestJWTOptionalParams(decodedPayload)
+        }
+        catch (err){
+            return Promise.reject(err);
+        }
 
         if (publicKeyInfo) {
-            let validity = false;
-
+            let validity = false;                
             try {
                 validity = JWT.verify(requestJWT, publicKeyInfo);
             } catch (err) {
@@ -243,4 +251,29 @@ async function validateRequestJWT(requestJWT: string): Promise<JWT.JWTObject> {
     else {
         return Promise.reject(ERROR_RESPONSES.invalid_request_object.err);
     }
+}
+
+/**
+ * @param {any} decodedPayload - Decoded payload of the JWT
+ * @returns {boolean>} - true if all optional parameters are valid, false otherwise
+ * @remarks This method is used to validate optional elements of the Authentication Request. 
+ * https://openid.net/specs/openid-connect-4-verifiable-presentations-1_0.html#name-vp_token
+ */
+async function validateRequestJWTOptionalParams(decodedPayload: any): Promise<any> {
+    if (decodedPayload.claims) {
+        if (!validJsonObject(decodedPayload.claims))
+            return Promise.reject(ERROR_RESPONSES.invalid_claim.err)
+        if (decodedPayload.claims.vp_token) {
+            if (!validJsonObject(decodedPayload.claims.vp_token))
+                return Promise.reject(ERROR_RESPONSES.invalid_vp_token.err)
+            if (decodedPayload.claims.vp_token.presentation_definition) {
+                if (!validJsonObject(decodedPayload.claims.vp_token.presentation_definition))
+                    return Promise.reject(ERROR_RESPONSES.invalid_vp_token.err)
+            }
+            else{
+                return Promise.reject(ERROR_RESPONSES.vp_token_missing_presentation_definition.err) // if vp_token exist,so the presentation_definition must exist
+            }    
+        }
+    }
+    return Promise.resolve()
 }

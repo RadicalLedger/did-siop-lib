@@ -57,3 +57,18 @@ export function getKeyFormat(format: string): KEY_FORMATS{
 export function getKeyType(kty: string): KTYS{
     return KTYS[kty.toUpperCase() as keyof typeof KTYS];
 }
+
+export function validJsonObject(obj: any): boolean {
+    let valid:boolean = true;
+    if (obj)
+    {
+       try {
+            if (JSON.parse(JSON.stringify(obj)) == undefined)
+                valid = false;
+        }
+        catch (err){
+            valid = false;
+        }
+    }
+    return valid;
+}

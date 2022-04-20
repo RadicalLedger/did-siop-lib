@@ -44,10 +44,54 @@ const keyPair = {
     }
 }
 
+export const claims ={
+    good:{
+        "id_token": {
+            "email": null
+        },
+        "vp_token": {
+            "presentation_definition": {
+                "id": "vp token example",
+                "input_descriptors": [
+                    {
+                        "id": "id card credential",
+                        "format": {
+                            "ldp_vc": {
+                                "proof_type": [
+                                    "Ed25519Signature2018"
+                                ]
+                            }
+                        },
+                        "constraints": {
+                            "fields": [
+                                {
+                                    "path": [
+                                        "$.type"
+                                    ],
+                                    "filter": {
+                                        "type": "string",
+                                        "pattern": "IDCardCredential"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    bad:{
+        "id_token": {
+            "email": null
+        },
+        "vp_token": {}    
+    }
+}
+
 const jwtGoodEncoded = sign(jwtGoodDecoded, keyPair.privateKey);
 const jwt_uri = 'http://localhost/requestJWT';
 
-const getBadRequestJWT = function (jwt: JWTObject, isPayload: boolean, property: string, value?: string) {
+const getModifiedRequestJWT = function (jwt: JWTObject, isPayload: boolean, property: string, value?: any) {    
     let newJWT = JSON.parse(JSON.stringify(jwt));
     if (isPayload) {
         if (value === null) {
@@ -71,11 +115,16 @@ export const jwts = {
     jwtGoodDecoded,
     jwtGoodEncoded,
     bad: {
-        jwtBadNoKid: getBadRequestJWT(jwtGoodDecoded, false, 'kid'),
-        jwtBadNoIss: getBadRequestJWT(jwtGoodDecoded, true, 'iss'),
-        jwtBadNoScope: getBadRequestJWT(jwtGoodDecoded, true, 'scope'),
-        jwtBadIncorrectScope: getBadRequestJWT(jwtGoodDecoded, true, 'scope', 'openid'),
-        jwtBadNoRegistration: getBadRequestJWT(jwtGoodDecoded, true, 'registration'),
+        jwtBadNoKid: getModifiedRequestJWT(jwtGoodDecoded, false, 'kid'),
+        jwtBadNoIss: getModifiedRequestJWT(jwtGoodDecoded, true, 'iss'),
+        jwtBadNoScope: getModifiedRequestJWT(jwtGoodDecoded, true, 'scope'),
+        jwtBadIncorrectScope: getModifiedRequestJWT(jwtGoodDecoded, true, 'scope', 'openid'),
+        jwtBadNoRegistration: getModifiedRequestJWT(jwtGoodDecoded, true, 'registration'),
+        jwtBadInvalidClaims: getModifiedRequestJWT(jwtGoodDecoded, true, 'registration'),
+        jwtBadClaimsNoVPToken: getModifiedRequestJWT(jwtGoodDecoded, true, 'claims',claims.bad),
+    },
+    good: {
+        jwtWithClaims: getModifiedRequestJWT(jwtGoodDecoded, true, 'claims',claims.good),        
     }
 }
 
@@ -89,7 +138,8 @@ export const queryObj = {
 export const requests = {
     good: {
         requestGoodEmbeddedJWT: 'openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid did_authn&request=' + jwtGoodEncoded,
-        requestGoodUriJWT: 'openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid did_authn&request_uri=' + jwt_uri
+        requestGoodUriJWT: 'openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid did_authn&request_uri=' + jwt_uri,
+        requestGoodWithClaims: 'openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid did_authn&request=' + jwts.good.jwtWithClaims,
     },
     bad: {
         requestBadProtocol: 'opend://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid did_authn&request=' + jwtGoodEncoded,
@@ -108,8 +158,7 @@ export const requests = {
         requestBadJWTNoScope: 'openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid did_authn&request=' + jwts.bad.jwtBadNoScope,
         requestBadJWTIncorrectScope: 'openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid did_authn&request=' + jwts.bad.jwtBadIncorrectScope,
         requestBadJWTNoRegistration: 'openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid did_authn&request=' + jwts.bad.jwtBadNoRegistration,
-
-
+        requestBadJWTClaimsNoVPToken: 'openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid did_authn&request=' + jwts.bad.jwtBadClaimsNoVPToken,        
     },
     components: {
         signingInfo: {
@@ -130,6 +179,12 @@ export const requests = {
             state: 'af0ifjsldkj',
             nonce: 'n-0S6_WzA2Mj',
             response_mode: "form_post",
+        },
+        optionsWithClaims: {
+            state: 'af0ifjsldkj',
+            nonce: 'n-0S6_WzA2Mj',
+            response_mode: "form_post",
+            claims : claims.good
         }
     }
 }
