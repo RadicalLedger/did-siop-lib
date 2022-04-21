@@ -1,6 +1,6 @@
 import { ALGORITHMS, KEY_FORMATS } from './../src/core/globals';
-import { JWTObject } from './../src/core/JWT';
 import { sign } from '../src/core/JWT';
+import { getModifiedJWT } from './common.spec';
 import {DID_TEST_RESOLVER_DATA_NEW as DIDS } from './did_doc.spec.resources'
 
 let testDidDoc  = DIDS[0].resolverReturn.didDocument;
@@ -91,40 +91,40 @@ export const claims ={
 const jwtGoodEncoded = sign(jwtGoodDecoded, keyPair.privateKey);
 const jwt_uri = 'http://localhost/requestJWT';
 
-const getModifiedRequestJWT = function (jwt: JWTObject, isPayload: boolean, property: string, value?: any) {    
-    let newJWT = JSON.parse(JSON.stringify(jwt));
-    if (isPayload) {
-        if (value === null) {
-            delete newJWT.payload[property];
-        }
-        else {
-            newJWT.payload[property] = value;
-        }
-    }
-    else {
-        if (!value) {
-            delete newJWT.header[property];
-        } else {
-            newJWT.header[property] = value;
-        }
-    }
-    return sign(newJWT, keyPair.privateKey);
-}
+// const getModifiedJWT = function (jwt: JWTObject, isPayload: boolean, property: string, value?: any) {    
+//     let newJWT = JSON.parse(JSON.stringify(jwt));
+//     if (isPayload) {
+//         if (value === null) {
+//             delete newJWT.payload[property];
+//         }
+//         else {
+//             newJWT.payload[property] = value;
+//         }
+//     }
+//     else {
+//         if (!value) {
+//             delete newJWT.header[property];
+//         } else {
+//             newJWT.header[property] = value;
+//         }
+//     }
+//     return sign(newJWT, keyPair.privateKey);
+// }
 
 export const jwts = {
     jwtGoodDecoded,
     jwtGoodEncoded,
     bad: {
-        jwtBadNoKid: getModifiedRequestJWT(jwtGoodDecoded, false, 'kid'),
-        jwtBadNoIss: getModifiedRequestJWT(jwtGoodDecoded, true, 'iss'),
-        jwtBadNoScope: getModifiedRequestJWT(jwtGoodDecoded, true, 'scope'),
-        jwtBadIncorrectScope: getModifiedRequestJWT(jwtGoodDecoded, true, 'scope', 'openid'),
-        jwtBadNoRegistration: getModifiedRequestJWT(jwtGoodDecoded, true, 'registration'),
-        jwtBadInvalidClaims: getModifiedRequestJWT(jwtGoodDecoded, true, 'registration'),
-        jwtBadClaimsNoVPToken: getModifiedRequestJWT(jwtGoodDecoded, true, 'claims',claims.bad),
+        jwtBadNoKid: getModifiedJWT(jwtGoodDecoded,keyPair.privateKey, false, 'kid'),
+        jwtBadNoIss: getModifiedJWT(jwtGoodDecoded,keyPair.privateKey, true, 'iss'),
+        jwtBadNoScope: getModifiedJWT(jwtGoodDecoded,keyPair.privateKey, true, 'scope'),
+        jwtBadIncorrectScope: getModifiedJWT(jwtGoodDecoded,keyPair.privateKey, true, 'scope', 'openid'),
+        jwtBadNoRegistration: getModifiedJWT(jwtGoodDecoded,keyPair.privateKey, true, 'registration'),
+        jwtBadInvalidClaims: getModifiedJWT(jwtGoodDecoded,keyPair.privateKey, true, 'registration'),
+        jwtBadClaimsNoVPToken: getModifiedJWT(jwtGoodDecoded,keyPair.privateKey, true, 'claims',claims.bad),
     },
     good: {
-        jwtWithClaims: getModifiedRequestJWT(jwtGoodDecoded, true, 'claims',claims.good),        
+        jwtWithClaims: getModifiedJWT(jwtGoodDecoded,keyPair.privateKey, true, 'claims',claims.good),        
     }
 }
 
