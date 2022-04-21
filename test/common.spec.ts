@@ -1,4 +1,5 @@
-import { JWTObject } from '../src/core/JWT';
+import { sign } from '../src/core/JWT';
+import { JWTObject, SigningInfo } from '../src/core/JWT';
 
 const jwtGoodDecoded = {
     header: {
@@ -84,6 +85,10 @@ export const getModifiedJWT = function (jwt: JWTObject, isPayload: boolean, prop
     return newJWT;
 }
 
+export const getModifiedJWTSigned = function (jwt: JWTObject,privateKey:SigningInfo, isPayload: boolean, property: string, value?: any) {
+    let newJwt = getModifiedJWT(jwt,isPayload,property,value);
+    return sign(newJwt,privateKey);
+}
 export const getBasicJWT = function(kid:string, iss:string):JWTObject{
 
     let clonedJWT = JSON.parse(JSON.stringify(jwtGoodDecoded)) //To make a deep copy in an ugly way

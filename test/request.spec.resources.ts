@@ -1,6 +1,6 @@
 import { ALGORITHMS, KEY_FORMATS } from './../src/core/globals';
 import { sign } from '../src/core/JWT';
-import { getModifiedJWT } from './common.spec';
+import { getModifiedJWTSigned } from './common.spec';
 import {DID_TEST_RESOLVER_DATA_NEW as DIDS } from './did_doc.spec.resources'
 
 let testDidDoc  = DIDS[0].resolverReturn.didDocument;
@@ -115,16 +115,16 @@ export const jwts = {
     jwtGoodDecoded,
     jwtGoodEncoded,
     bad: {
-        jwtBadNoKid: getModifiedJWT(jwtGoodDecoded,keyPair.privateKey, false, 'kid'),
-        jwtBadNoIss: getModifiedJWT(jwtGoodDecoded,keyPair.privateKey, true, 'iss'),
-        jwtBadNoScope: getModifiedJWT(jwtGoodDecoded,keyPair.privateKey, true, 'scope'),
-        jwtBadIncorrectScope: getModifiedJWT(jwtGoodDecoded,keyPair.privateKey, true, 'scope', 'openid'),
-        jwtBadNoRegistration: getModifiedJWT(jwtGoodDecoded,keyPair.privateKey, true, 'registration'),
-        jwtBadInvalidClaims: getModifiedJWT(jwtGoodDecoded,keyPair.privateKey, true, 'registration'),
-        jwtBadClaimsNoVPToken: getModifiedJWT(jwtGoodDecoded,keyPair.privateKey, true, 'claims',claims.bad),
+        jwtBadNoKid: getModifiedJWTSigned(jwtGoodDecoded,keyPair.privateKey, false, 'kid'),
+        jwtBadNoIss: getModifiedJWTSigned(jwtGoodDecoded,keyPair.privateKey, true, 'iss'),
+        jwtBadNoScope: getModifiedJWTSigned(jwtGoodDecoded,keyPair.privateKey, true, 'scope'),
+        jwtBadIncorrectScope: getModifiedJWTSigned(jwtGoodDecoded,keyPair.privateKey, true, 'scope', 'openid'),
+        jwtBadNoRegistration: getModifiedJWTSigned(jwtGoodDecoded,keyPair.privateKey, true, 'registration'),
+        jwtBadInvalidClaims: getModifiedJWTSigned(jwtGoodDecoded,keyPair.privateKey, true, 'registration'),
+        jwtBadClaimsNoVPToken: getModifiedJWTSigned(jwtGoodDecoded,keyPair.privateKey, true, 'claims',claims.bad),
     },
     good: {
-        jwtWithClaims: getModifiedJWT(jwtGoodDecoded,keyPair.privateKey, true, 'claims',claims.good),        
+        jwtWithClaims: getModifiedJWTSigned(jwtGoodDecoded,keyPair.privateKey, true, 'claims',claims.good),        
     }
 }
 
