@@ -1,3 +1,4 @@
+import { ERROR_RESPONSES } from '../src/core/ErrorResponse';
 import { DidSiopResponse } from '../src/core/Response';
 import { Identity } from '../src/core/Identity';
 import { SigningInfo } from '../src/core/JWT';
@@ -48,5 +49,13 @@ describe("Response", function () {
         let response = await DidSiopResponse.generateResponse(requestJWT.good.withVPToken.payload, signing, user, 30000);
         let validity = await DidSiopResponse.validateResponse(response, checkParams);
         expect(validity).toBeTruthy();
-    });    
+    });
+    test(" with invalid vp_token : generation", async () => {
+        jest.setTimeout(30000);
+        let user = new Identity();
+        await user.resolve(userDID)
+
+        let validityPromise = DidSiopResponse.generateResponse(requestJWT.bad.withVPToken.payload, signing, user, 30000);
+        await expect(validityPromise).rejects.toEqual(ERROR_RESPONSES.vp_token_missing_presentation_definition.err);
+    });
 });

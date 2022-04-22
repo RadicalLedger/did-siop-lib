@@ -4,7 +4,8 @@ import { Identity } from './Identity';
 import { KeyInputs, Key, RSAKey, ECKey, OKP, calculateThumbprint } from './JWKUtils';
 import base64url from 'base64url';
 import * as ErrorResponse from './ErrorResponse';
-
+import { validateRequestJWTClaims } from './Claims';
+import { ERROR_RESPONSES } from './ErrorResponse';
 
 const ERRORS = Object.freeze({
     UNSUPPORTED_ALGO: 'Algorithm not supported',
@@ -117,6 +118,13 @@ export class DidSiopResponse{
             payload.iat = Date.now();
             payload.exp = Date.now() + expiresIn;
 
+            try {
+                await validateRequestJWTClaims(requestPayload)
+            }
+            catch (err){
+                return Promise.reject(ERROR_RESPONSES.vp_token_missing_presentation_definition.err);                
+            }
+    
             let unsigned: JWT.JWTObject = {
                 header: header,
                 payload: payload,

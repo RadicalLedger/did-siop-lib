@@ -101,7 +101,6 @@ describe("Request validation/generation", function () {
     });
     test("Generate request with claim but no vp_token - expect reject", async () => {
         jest.setTimeout(17000);
-
         let validityPromise = DidSiopRequest.validateRequest(requests.bad.requestBadJWTClaimsNoVPToken);
         await expect(validityPromise).rejects.toEqual(ERROR_RESPONSES.vp_token_missing_presentation_definition.err);
     });
