@@ -1,4 +1,4 @@
-import { getBasicJWT, getModifiedJWT, claims } from './common.spec';
+import { getBasicJWT, getModifiedJWT, claims } from './common.spec.resources';
 import {DID_TEST_RESOLVER_DATA_NEW as DIDS } from './did_doc.spec.resources'
 
 let testDidDoc  = DIDS[0].resolverReturn.didDocument;
