@@ -200,8 +200,6 @@ describe('JWT functions', function() {
             alg: ALGORITHMS.ES256K,
             format: KEY_FORMATS.HEX
         }
-        console.log("sigining", signing);
-        
 
         let jwt = sign(es256kTestResource.jwtDecoded, signing);
         let validity = verify(jwt, {
