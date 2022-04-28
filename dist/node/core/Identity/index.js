@@ -157,7 +157,7 @@ var Identity = /** @class */ (function () {
                     }
                 }
                 if (typeof method === 'string') {
-                    for (var _h = 0, _j = this.doc.publicKey; _h < _j.length; _h++) {
+                    for (var _h = 0, _j = this.doc.verificationMethod; _h < _j.length; _h++) {
                         var pub = _j[_h];
                         if (pub.id === method) {
                             try {

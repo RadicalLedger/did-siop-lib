@@ -134,6 +134,46 @@ var registration_not_supported = {
         error_uri: ''
     }
 };
+var invalid_claim = {
+    err: new Error('invalid_claim'),
+    response: {
+        error: 'invalid_claim',
+        description: 'Value of claim is not a valid JSON',
+        error_uri: ''
+    }
+};
+var invalid_vp_token = {
+    err: new Error('invalid_vp_token'),
+    response: {
+        error: 'invalid_vp_token',
+        description: 'Value of vp_token is not a valid JSON',
+        error_uri: ''
+    }
+};
+var invalid_presentation_definition = {
+    err: new Error('invalid_presentation_definition'),
+    response: {
+        error: 'invalid_presentation_definition',
+        description: 'Value of presentation_definition is not a valid JSON',
+        error_uri: ''
+    }
+};
+var vp_token_missing_presentation_definition = {
+    err: new Error('vp_token_missing_presentation_definition'),
+    response: {
+        error: 'vp_token_missing_presentation_definition',
+        description: 'Property presentation_definition is missing in vp_token',
+        error_uri: ''
+    }
+};
+var vp_token_missing_verifiableCredential = {
+    err: new Error('vp_token_missing_verifiableCredential'),
+    response: {
+        error: 'vp_token_missing_verifiableCredential',
+        description: 'Property verifiableCredential is missing in vp_token',
+        error_uri: ''
+    }
+};
 exports.ERROR_RESPONSES = {
     invalid_request: invalid_request,
     unauthorized_client: unauthorized_client,
@@ -151,6 +191,11 @@ exports.ERROR_RESPONSES = {
     request_not_supported: request_not_supported,
     request_uri_not_supported: request_uri_not_supported,
     registration_not_supported: registration_not_supported,
+    invalid_claim: invalid_claim,
+    invalid_vp_token: invalid_vp_token,
+    invalid_presentation_definition: invalid_presentation_definition,
+    vp_token_missing_presentation_definition: vp_token_missing_presentation_definition,
+    vp_token_missing_verifiableCredential: vp_token_missing_verifiableCredential,
 };
 /**
  * @param {string} errorMessage - The message of the SIOPErrorResponse which needs to be base64url encoded

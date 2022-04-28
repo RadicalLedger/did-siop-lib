@@ -38,3 +38,4 @@ export declare function getKeyFormat(format: string): KEY_FORMATS;
  * @remarks This function is used to convert a key type name given as a string to a KTYS value
  */
 export declare function getKeyType(kty: string): KTYS;
+export declare function validJsonObject(obj: any): boolean;

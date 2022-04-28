@@ -57,4 +57,18 @@ function getKeyType(kty) {
     return globals_1.KTYS[kty.toUpperCase()];
 }
 exports.getKeyType = getKeyType;
+function validJsonObject(obj) {
+    var valid = true;
+    if (obj) {
+        try {
+            if (JSON.parse(JSON.stringify(obj)) == undefined)
+                valid = false;
+        }
+        catch (err) {
+            valid = false;
+        }
+    }
+    return valid;
+}
+exports.validJsonObject = validJsonObject;
 //# sourceMappingURL=Utils.js.map

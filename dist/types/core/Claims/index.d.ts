@@ -5,3 +5,6 @@
  * https://openid.net/specs/openid-connect-4-verifiable-presentations-1_0.html#name-vp_token
  */
 export declare function validateRequestJWTClaims(decodedPayload: any): Promise<any>;
+export declare function validateResponseVPToken(vp_token: any): Promise<any>;
+export declare function validateResponse_VPToken(_vp_token: any): Promise<any>;
+export { VPData, SIOPTokensEcoded } from './commons';

@@ -1,6 +1,7 @@
 import * as JWT from './JWT';
 import { Identity } from './Identity';
 import * as ErrorResponse from './ErrorResponse';
+import { SIOPTokensEcoded, VPData } from './Claims';
 export interface CheckParams {
     redirect_uri: string;
     nonce?: string;
@@ -24,7 +25,31 @@ export declare class DidSiopResponse {
      * Finally it will create the response JWT (id_token) with relevant information, sign it using 'signingInfo' and return it.
      * https://identity.foundation/did-siop/#generate-siop-response
      */
-    static generateResponse(requestPayload: any, signingInfo: JWT.SigningInfo, didSiopUser: Identity, expiresIn?: number): Promise<string>;
+    static generateResponse(requestPayload: any, signingInfo: JWT.SigningInfo, didSiopUser: Identity, expiresIn?: number, vps?: VPData): Promise<string>;
+    /**
+     * @param {any} requestPayload - Payload of the request JWT. Some information from this object is needed in constructing the header of JWT & keys for signing
+     * @param {JWT.SigningInfo} signingInfo - Key information used to sign the response JWT
+     * @param {Identity} didSiopUser - Used to retrieve the information about the provider (user DID) which are included in the response
+     * response can either consider this value or ignore it
+     * @returns {Promise<string>} - A promise which resolves to a response (id_token) (JWT)
+     * @remarks This method first checks if given SigningInfo is compatible with the algorithm required by the RP in
+     * 'requestPayload.registration.id_token_signed_response_alg' field.
+     * Then it proceeds to extract provider's (user) public key from 'didSiopUser' param using 'kid' field in 'signingInfo' param.
+     * Finally it will create the response JWT (id_token) with relevant information, sign it using 'signingInfo' and return it.
+     * https://identity.foundation/did-siop/#generate-siop-response
+     */
+    static generateResponseVPToken(requestPayload: any, signingInfo: JWT.SigningInfo, vps?: VPData): Promise<string>;
+    /**
+     * @param {any} requestPayload - Payload of the request JWT. Some information from this object is needed in constructing the response
+     * @param {JWT.SigningInfo} signingInfo - Key information used to sign the response JWT
+     * @param {Identity} didSiopUser - Used to retrieve the information about the provider (user DID) which are included in the response
+     * @param {number} [expiresIn = 1000] - Amount of time under which generated id_token (response) is valid. The party which validate the
+     * @param {vps} VPData - This contains the data for vp_token and additional info to send via id_token (_vp_token)
+     * @returns {Promise<any>} - A promise which resolves to a JSON object with id_token and vp_token as signed strings
+     * @remarks This method geenrate id_token and vp_token needed in an authentication response
+     * https://openid.net/specs/openid-connect-4-verifiable-presentations-1_0.html#name-response
+     */
+    static generateResponseWithVPData(requestPayload: any, signingInfo: JWT.SigningInfo, didSiopUser: Identity, expiresIn: number | undefined, vps: VPData): Promise<SIOPTokensEcoded>;
     /**
      *
      * @param {string} response - A DID SIOP response which needs to be validated

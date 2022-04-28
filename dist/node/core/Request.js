@@ -65,6 +65,8 @@ var base64url_1 = __importDefault(require("base64url"));
 var JWKUtils_1 = require("./JWKUtils");
 var globals_1 = require("./globals");
 var JWT = __importStar(require("./JWT"));
+var Claims_1 = require("./Claims");
+// import { type } from 'os';
 var axios = require('axios').default;
 var RESPONSE_TYPES = ['id_token',];
 var SUPPORTED_SCOPES = ['openid', 'did_authn',];
@@ -212,7 +214,7 @@ function validateRequestParams(request) {
  */
 function validateRequestJWT(requestJWT) {
     return __awaiter(this, void 0, void 0, function () {
-        var decodedHeader, decodedPayload, publicKeyInfo, identity, didPubKey, err_2, keyset, keySetKey, keySetKeyFormat, validity;
+        var decodedHeader, decodedPayload, publicKeyInfo, identity, didPubKey, err_2, keyset, keySetKey, keySetKeyFormat, err_3, validity;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -227,7 +229,7 @@ function validateRequestJWT(requestJWT) {
                         (decodedHeader.alg && !decodedHeader.alg.match(/^ *$/)) &&
                         (decodedPayload.iss && !decodedPayload.iss.match(/^ *$/)) &&
                         (decodedPayload.scope && decodedPayload.scope.indexOf('did_authn') > -1) &&
-                        (decodedPayload.registration && !JSON.stringify(decodedPayload.registration).match(/^ *$/)))) return [3 /*break*/, 5];
+                        (decodedPayload.registration && !JSON.stringify(decodedPayload.registration).match(/^ *$/)))) return [3 /*break*/, 8];
                     publicKeyInfo = void 0;
                     _a.label = 1;
                 case 1:
@@ -285,6 +287,15 @@ function validateRequestJWT(requestJWT) {
                     }
                     return [3 /*break*/, 4];
                 case 4:
+                    _a.trys.push([4, 6, , 7]);
+                    return [4 /*yield*/, Claims_1.validateRequestJWTClaims(decodedPayload)];
+                case 5:
+                    _a.sent();
+                    return [3 /*break*/, 7];
+                case 6:
+                    err_3 = _a.sent();
+                    return [2 /*return*/, Promise.reject(err_3)];
+                case 7:
                     if (publicKeyInfo) {
                         validity = false;
                         try {
@@ -306,9 +317,9 @@ function validateRequestJWT(requestJWT) {
                     else {
                         return [2 /*return*/, Promise.reject(ErrorResponse_1.ERROR_RESPONSES.invalid_request_object.err)];
                     }
-                    return [3 /*break*/, 6];
-                case 5: return [2 /*return*/, Promise.reject(ErrorResponse_1.ERROR_RESPONSES.invalid_request_object.err)];
-                case 6: return [2 /*return*/];
+                    return [3 /*break*/, 9];
+                case 8: return [2 /*return*/, Promise.reject(ErrorResponse_1.ERROR_RESPONSES.invalid_request_object.err)];
+                case 9: return [2 /*return*/];
             }
         });
     });

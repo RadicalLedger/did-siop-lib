@@ -67,4 +67,30 @@ function validateRequestJWTClaims(decodedPayload) {
     });
 }
 exports.validateRequestJWTClaims = validateRequestJWTClaims;
+function validateResponseVPToken(vp_token) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            if (vp_token) {
+                if (!Utils_1.validJsonObject(vp_token))
+                    return [2 /*return*/, Promise.reject(ErrorResponse_1.ERROR_RESPONSES.invalid_vp_token.err)];
+                if (!vp_token.verifiableCredential)
+                    return [2 /*return*/, Promise.reject(ErrorResponse_1.ERROR_RESPONSES.vp_token_missing_verifiableCredential.err)];
+            }
+            return [2 /*return*/, Promise.resolve()];
+        });
+    });
+}
+exports.validateResponseVPToken = validateResponseVPToken;
+function validateResponse_VPToken(_vp_token) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            if (_vp_token) {
+                if (!Utils_1.validJsonObject(_vp_token))
+                    return [2 /*return*/, Promise.reject(ErrorResponse_1.ERROR_RESPONSES.invalid_vp_token.err)];
+            }
+            return [2 /*return*/, Promise.resolve()];
+        });
+    });
+}
+exports.validateResponse_VPToken = validateResponse_VPToken;
 //# sourceMappingURL=index.js.map

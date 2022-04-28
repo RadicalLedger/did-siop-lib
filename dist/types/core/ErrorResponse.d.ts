@@ -24,6 +24,11 @@ export declare const ERROR_RESPONSES: {
     request_not_supported: SIOPError;
     request_uri_not_supported: SIOPError;
     registration_not_supported: SIOPError;
+    invalid_claim: SIOPError;
+    invalid_vp_token: SIOPError;
+    invalid_presentation_definition: SIOPError;
+    vp_token_missing_presentation_definition: SIOPError;
+    vp_token_missing_verifiableCredential: SIOPError;
 };
 /**
  * @param {string} errorMessage - The message of the SIOPErrorResponse which needs to be base64url encoded
