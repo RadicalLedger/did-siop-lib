@@ -191,6 +191,15 @@ const vp_token_missing_presentation_definition: SIOPError = {
         error_uri: ''
     }
 }
+const vp_token_missing_verifiableCredential: SIOPError = {
+    err: new Error('vp_token_missing_verifiableCredential'),
+    response: {
+        error: 'vp_token_missing_verifiableCredential',
+        description: 'Property verifiableCredential is missing in vp_token',
+        error_uri: ''
+    }
+}
+
 export const ERROR_RESPONSES = {
     invalid_request,
     unauthorized_client,
@@ -212,6 +221,7 @@ export const ERROR_RESPONSES = {
     invalid_vp_token,
     invalid_presentation_definition,
     vp_token_missing_presentation_definition,
+    vp_token_missing_verifiableCredential,
 }
 
 

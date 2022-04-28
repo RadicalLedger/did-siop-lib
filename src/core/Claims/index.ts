@@ -26,3 +26,24 @@ export async function validateRequestJWTClaims(decodedPayload: any): Promise<any
     }
     return Promise.resolve()
 }
+
+export async function validateResponseVPToken(vp_token: any): Promise<any> {
+    if (vp_token) {
+        if (!validJsonObject(vp_token))
+            return Promise.reject(ERROR_RESPONSES.invalid_vp_token.err)
+        if (!vp_token.verifiableCredential)
+            return Promise.reject(ERROR_RESPONSES.vp_token_missing_verifiableCredential.err)
+
+    }
+    return Promise.resolve()
+}
+
+export async function validateResponse_VPToken(_vp_token: any): Promise<any> {
+    if (_vp_token) {
+        if (!validJsonObject(_vp_token))
+            return Promise.reject(ERROR_RESPONSES.invalid_vp_token.err)
+    }
+    return Promise.resolve()
+}
+
+export {VPData, SIOPTokensEcoded} from './commons'
