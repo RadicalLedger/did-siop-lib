@@ -91,26 +91,6 @@ export const claims ={
 const jwtGoodEncoded = sign(jwtGoodDecoded, keyPair.privateKey);
 const jwt_uri = 'http://localhost/requestJWT';
 
-// const getModifiedJWT = function (jwt: JWTObject, isPayload: boolean, property: string, value?: any) {    
-//     let newJWT = JSON.parse(JSON.stringify(jwt));
-//     if (isPayload) {
-//         if (value === null) {
-//             delete newJWT.payload[property];
-//         }
-//         else {
-//             newJWT.payload[property] = value;
-//         }
-//     }
-//     else {
-//         if (!value) {
-//             delete newJWT.header[property];
-//         } else {
-//             newJWT.header[property] = value;
-//         }
-//     }
-//     return sign(newJWT, keyPair.privateKey);
-// }
-
 export const jwts = {
     jwtGoodDecoded,
     jwtGoodEncoded,

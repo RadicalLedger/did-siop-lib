@@ -4,6 +4,7 @@ import { Provider, ERRORS as ProviderErrors } from './../src/core/Provider';
 import { RP, ERRORS as RPErrors } from '../src/core/RP';
 import nock from 'nock';
 import {DID_TEST_RESOLVER_DATA_NEW as DIDS } from './did_doc.spec.resources'
+import { requests } from './request.spec.resources';
 
 let userDidDoc  = DIDS[0].resolverReturn.didDocument;
 let userKeyInfo = DIDS[0].keyInfo;
@@ -23,7 +24,6 @@ let rpRegistrationMetaData = {
         "jwks_uri": "https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks",
         "id_token_signed_response_alg": ["ES256K", "ES256K-R", "EdDSA", "RS256"]
 };
-
 
 let requestObj: JWTObject = {
     header: {
@@ -78,6 +78,32 @@ describe('DID SIOP', function () {
         expect(responseJWTDecoded).toHaveProperty('header');
         expect(responseJWTDecoded).toHaveProperty('payload');
     });
+    test('DID SIOP e2e functions testing with VPs- expect truthy', async () => {
+        jest.setTimeout(30000);
+
+        let rp = await RP.getRP(rpRedirectURI, rpDID, rpRegistrationMetaData);
+        let kid = rp.addSigningParams(rpPrivateKey);
+        expect(kid).toEqual(rpKid);
+
+        let provider = new Provider();
+        await provider.setUser(userDID);
+        kid = provider.addSigningParams(userPrivateKeyHex);
+        expect(kid).toEqual(userKid);
+
+        let request =  await rp.generateRequest(requests.components.optionsWithClaims);        
+        let requestJWTDecoded = await provider.validateRequest(request);
+        expect(requestJWTDecoded).toMatchObject(requestObj);
+
+        let response = await provider.generateResponse(requestJWTDecoded.payload);
+        let responseJWTDecoded = await rp.validateResponse(response, {
+            redirect_uri: rpRedirectURI,
+            isExpirable: true,
+            nonce: requests.components.optionsWithClaims.nonce,
+
+        })
+        expect(responseJWTDecoded).toHaveProperty('header');
+        expect(responseJWTDecoded).toHaveProperty('payload');
+    });    
     test('DID SIOP end to end functions testing - expect falsy', async () => {
         jest.setTimeout(30000);
 
