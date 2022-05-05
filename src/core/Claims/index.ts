@@ -1,5 +1,6 @@
 
 import { ERROR_RESPONSES } from '../ErrorResponse';
+import { JWTObject } from '../JWT';
 import { validJsonObject} from '../Utils';
 
 /** @param {any} decodedPayload - Decoded payload of the JWT
@@ -27,11 +28,21 @@ export async function validateRequestJWTClaims(decodedPayload: any): Promise<any
     return Promise.resolve()
 }
 
-export async function validateResponseVPToken(vp_token: any): Promise<any> {
+export async function validateResponseVPToken(vp_token : any): Promise<any> {
     if (vp_token) {
         if (!validJsonObject(vp_token))
             return Promise.reject(ERROR_RESPONSES.invalid_vp_token.err)
         if (!vp_token.verifiableCredential)
+            return Promise.reject(ERROR_RESPONSES.vp_token_missing_verifiableCredential.err)
+
+    }
+    return Promise.resolve()
+}
+export async function validateResponseVPTokenJWT(vp_tokenJWT: JWTObject): Promise<any> {
+    if (vp_tokenJWT.payload) {
+        if (!validJsonObject(vp_tokenJWT.payload))
+            return Promise.reject(ERROR_RESPONSES.invalid_vp_token.err)    
+        if (!vp_tokenJWT.payload.verifiableCredential)
             return Promise.reject(ERROR_RESPONSES.vp_token_missing_verifiableCredential.err)
 
     }

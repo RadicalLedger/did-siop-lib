@@ -202,3 +202,25 @@ function decodeJWT(jwt: string): JWTSignedObject{
         throw new Error(ERRORS.INVALID_JWT);
     }
 }
+
+export function isJWTObject(obj:any) : boolean {
+    return  'header' in obj &&
+            'payload' in obj ;
+}
+
+export function toJWTObject(encodedJWT:string) : JWTObject | undefined {
+    let decodedHeader: JWTHeader;
+    let decodedPayload;
+
+    try {
+        decodedHeader = JSON.parse(base64url.decode(encodedJWT.split('.')[0]));
+        decodedPayload = JSON.parse(base64url.decode(encodedJWT.split('.')[1]));
+        return {
+            header: decodedHeader,
+            payload: decodedPayload,
+        }    
+    }
+    catch (error) {
+        return undefined;
+    }
+}

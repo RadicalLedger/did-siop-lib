@@ -201,16 +201,18 @@ export class DidSiopResponse{
      * @remarks This method geenrate id_token and vp_token needed in an authentication response
      * https://openid.net/specs/openid-connect-4-verifiable-presentations-1_0.html#name-response
      */
-    static async generateResponseWithVPData(requestPayload: any, signingInfo: JWT.SigningInfo, didSiopUser: Identity, expiresIn: number = 1000, vps:VPData): Promise<SIOPTokensEcoded >{
-
+    static async generateResponseWithVPData(requestPayload: any, signingInfo: JWT.SigningInfo, didSiopUser: Identity, expiresIn: number = 1000, vps:VPData): Promise<SIOPTokensEcoded >{        
         let id_token_s : string = "";
         let vp_token_s : string = "";
         try {
             id_token_s = await this.generateResponse(requestPayload,signingInfo,didSiopUser,expiresIn,vps._vp_token) // Generate ID Token
 
-            if (vps && vps.vp_token){
+            if (vps && vps.vp_token ){
                 await validateResponseVPToken(vps.vp_token)
-                vp_token_s = await this.generateResponseVPToken(requestPayload,signingInfo,vps.vp_token) // Generate VP Token
+                vp_token_s = await this.generateResponseVPToken(requestPayload,signingInfo,vps) // Generate VP Token                
+            }
+            else {
+                return Promise.reject(ERROR_RESPONSES.invalid_vp_token.err);                
             }
 
             let tokens: SIOPTokensEcoded = {
@@ -326,6 +328,24 @@ export class DidSiopResponse{
         }
         else {
             return Promise.reject(new Error(ERRORS.MALFORMED_JWT_ERROR));
+        }
+    }
+
+    static async validateResponseWithVPData(tokensEncoded: SIOPTokensEcoded, checkParams: CheckParams): Promise<boolean | ErrorResponse.SIOPErrorResponse>{
+        try {
+            let ret = await this.validateResponse(tokensEncoded.id_token,checkParams);
+            if ( JWT.isJWTObject(ret))
+            {
+                let decodedVPToken = JWT.toJWTObject(tokensEncoded.vp_token)                
+                await validateResponseVPToken(decodedVPToken?.payload);
+                return true;
+            }
+            else {
+                return Promise.reject(ret); // ErrorResponse
+            }
+        }
+        catch (err){
+            return Promise.reject(err);
         }
     }
 }
