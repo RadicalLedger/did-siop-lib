@@ -69,10 +69,10 @@ describe("Response validation for a request with a vp_token", function () {
 });
 
 describe("Response generation and validation with vp_token data", function () {
-    beforeEach(() => {
-        nock('https://uniresolver.io/1.0/identifiers').persist().get('/'+rpDID).reply(200, rpDidDoc).get('/'+userDID).reply(200, userDidDoc);
-    });
-    test(" Valid vp_token & _vp_token", async () => {
+    // beforeEach(() => {
+    //     nock('https://uniresolver.io/1.0/identifiers').persist().get('/'+rpDID).reply(200, rpDidDoc).get('/'+userDID).reply(200, userDidDoc);
+    //});
+    test(" Valid vp_token & _vp_token should generate a valid response", async () => {
         jest.setTimeout(30000);
         let user = new Identity();
         await user.resolve(userDID)
@@ -82,10 +82,14 @@ describe("Response generation and validation with vp_token data", function () {
             _vp_token : tokenData.good.singleVP.id_token._vp_token
         };
 
-        let response:SIOPTokensEcoded = await DidSiopResponse.generateResponseWithVPData(requestJWT.good.withVPToken.payload, signing, user, 30000, vps);
+        let response:SIOPTokensEcoded = await DidSiopResponse.generateResponseWithVPData(requestJWT.good.withVPToken.payload, signing, user, 30000, vps);        
         let validity = await DidSiopResponse.validateResponse(response.id_token, checkParams);
         expect(validity).toBeTruthy();
+
+        let validResponse = await DidSiopResponse.validateResponseWithVPData(response,checkParams)
+        expect(validResponse).toBeTruthy();
     });
+
     test(" Invalid vp_token : generation should raise an exception", async () => {
         jest.setTimeout(30000);
         let user = new Identity();
