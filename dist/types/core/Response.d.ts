@@ -67,4 +67,5 @@ export declare class DidSiopResponse {
      * https://identity.foundation/did-siop/#siop-response-validation
      */
     static validateResponse(response: string, checkParams: CheckParams): Promise<JWT.JWTObject | ErrorResponse.SIOPErrorResponse>;
+    static validateResponseWithVPData(tokensEncoded: SIOPTokensEcoded, checkParams: CheckParams): Promise<boolean | ErrorResponse.SIOPErrorResponse>;
 }

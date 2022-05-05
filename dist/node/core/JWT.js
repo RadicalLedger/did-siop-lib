@@ -177,4 +177,25 @@ function decodeJWT(jwt) {
         throw new Error(exports.ERRORS.INVALID_JWT);
     }
 }
+function isJWTObject(obj) {
+    return 'header' in obj &&
+        'payload' in obj;
+}
+exports.isJWTObject = isJWTObject;
+function toJWTObject(encodedJWT) {
+    var decodedHeader;
+    var decodedPayload;
+    try {
+        decodedHeader = JSON.parse(base64url_1.default.decode(encodedJWT.split('.')[0]));
+        decodedPayload = JSON.parse(base64url_1.default.decode(encodedJWT.split('.')[1]));
+        return {
+            header: decodedHeader,
+            payload: decodedPayload,
+        };
+    }
+    catch (error) {
+        return undefined;
+    }
+}
+exports.toJWTObject = toJWTObject;
 //# sourceMappingURL=JWT.js.map

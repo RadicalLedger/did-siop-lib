@@ -43,3 +43,5 @@ export declare function sign(jwtObject: JWTObject, signingInfo: SigningInfo): st
  * returned.
  */
 export declare function verify(jwt: string, signingInfo: SigningInfo): boolean;
+export declare function isJWTObject(obj: any): boolean;
+export declare function toJWTObject(encodedJWT: string): JWTObject | undefined;

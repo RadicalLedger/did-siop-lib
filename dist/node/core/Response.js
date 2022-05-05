@@ -272,7 +272,7 @@ var DidSiopResponse = /** @class */ (function () {
                         vp_token_s = "";
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 6, , 7]);
+                        _a.trys.push([1, 7, , 8]);
                         return [4 /*yield*/, this.generateResponse(requestPayload, signingInfo, didSiopUser, expiresIn, vps._vp_token)]; // Generate ID Token
                     case 2:
                         id_token_s = _a.sent(); // Generate ID Token
@@ -280,20 +280,21 @@ var DidSiopResponse = /** @class */ (function () {
                         return [4 /*yield*/, Claims_1.validateResponseVPToken(vps.vp_token)];
                     case 3:
                         _a.sent();
-                        return [4 /*yield*/, this.generateResponseVPToken(requestPayload, signingInfo, vps.vp_token)]; // Generate VP Token
+                        return [4 /*yield*/, this.generateResponseVPToken(requestPayload, signingInfo, vps)]; // Generate VP Token                
                     case 4:
-                        vp_token_s = _a.sent(); // Generate VP Token
-                        _a.label = 5;
-                    case 5:
+                        vp_token_s = _a.sent(); // Generate VP Token                
+                        return [3 /*break*/, 6];
+                    case 5: return [2 /*return*/, Promise.reject(ErrorResponse_1.ERROR_RESPONSES.invalid_vp_token.err)];
+                    case 6:
                         tokens = {
                             id_token: id_token_s,
                             vp_token: vp_token_s
                         };
                         return [2 /*return*/, Promise.resolve(tokens)];
-                    case 6:
+                    case 7:
                         err_5 = _a.sent();
                         return [2 /*return*/, Promise.reject(err_5)];
-                    case 7: return [2 /*return*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });
@@ -402,6 +403,32 @@ var DidSiopResponse = /** @class */ (function () {
                                 }];
                         return [2 /*return*/, Promise.reject(new Error(ERRORS.INVALID_SIGNATURE_ERROR))];
                     case 5: return [2 /*return*/, Promise.reject(new Error(ERRORS.MALFORMED_JWT_ERROR))];
+                }
+            });
+        });
+    };
+    DidSiopResponse.validateResponseWithVPData = function (tokensEncoded, checkParams) {
+        return __awaiter(this, void 0, void 0, function () {
+            var ret, decodedVPToken, err_7;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 5, , 6]);
+                        return [4 /*yield*/, this.validateResponse(tokensEncoded.id_token, checkParams)];
+                    case 1:
+                        ret = _a.sent();
+                        if (!JWT.isJWTObject(ret)) return [3 /*break*/, 3];
+                        decodedVPToken = JWT.toJWTObject(tokensEncoded.vp_token);
+                        return [4 /*yield*/, Claims_1.validateResponseVPToken(decodedVPToken === null || decodedVPToken === void 0 ? void 0 : decodedVPToken.payload)];
+                    case 2:
+                        _a.sent();
+                        return [2 /*return*/, true];
+                    case 3: return [2 /*return*/, Promise.reject(ret)]; // ErrorResponse
+                    case 4: return [3 /*break*/, 6];
+                    case 5:
+                        err_7 = _a.sent();
+                        return [2 /*return*/, Promise.reject(err_7)];
+                    case 6: return [2 /*return*/];
                 }
             });
         });

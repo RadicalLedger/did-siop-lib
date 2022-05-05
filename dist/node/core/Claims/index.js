@@ -81,6 +81,20 @@ function validateResponseVPToken(vp_token) {
     });
 }
 exports.validateResponseVPToken = validateResponseVPToken;
+function validateResponseVPTokenJWT(vp_tokenJWT) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            if (vp_tokenJWT.payload) {
+                if (!Utils_1.validJsonObject(vp_tokenJWT.payload))
+                    return [2 /*return*/, Promise.reject(ErrorResponse_1.ERROR_RESPONSES.invalid_vp_token.err)];
+                if (!vp_tokenJWT.payload.verifiableCredential)
+                    return [2 /*return*/, Promise.reject(ErrorResponse_1.ERROR_RESPONSES.vp_token_missing_verifiableCredential.err)];
+            }
+            return [2 /*return*/, Promise.resolve()];
+        });
+    });
+}
+exports.validateResponseVPTokenJWT = validateResponseVPTokenJWT;
 function validateResponse_VPToken(_vp_token) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
