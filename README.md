@@ -14,6 +14,59 @@ Following are the primary specifications followed by this implementation.
 ## Usage ##
 Minimum implementation of SIOP using this package could be found [here](https://github.com/RadicalLedger/did-siop-rp-web-min). Further details on implementation and resources could found with [browser extension project](https://github.com/RadicalLedger/did-siop-chrome-ext).
 
+## Verifiable Presentations (VP) ##
+
+### Request VPs ###
+In the request, __vp_token__ attribute could appear within the claims attribute. This should have have the __presentation_definition__ attribute as a child element.
+
+### VPs in Response ###
+__vp_token__ will be included in the same response as ID Token and will be a separate element in the same level as ID Token. In this implementation, __vp_token__ is an Base64 encoded JWT.
+Along with __vp_token__, there coudl be a _vp_token attribute inside the __id_token__. Purpose of this is to give an indication about what VPs were requested at the request. 
+
+### Helper Functions ###
+
+**validateRequestJWTClaims**
+- Defined In : Claimd/Index.ts
+- Input : Tokens (vp & id) as a SIOPTokensEcoded , each token is a Base64 encoded JWT
+- Validation :  only the vp_token within the claim
+- Return : Promise.resolve if success, reject otherwise
+
+**generateResponseWithVPData**
+- Defined In : core/Response.ts
+- Input : Claims as a JSON object
+- Validation :  only the vp_token within the claim
+- Return : Promise<SIOPTokensEcoded>
+
+**generateResponseVPToken**
+- Defined In : core/Response.ts
+- Input : requestPayload as a JSON object, vp_token & _vp_token as VPData
+- Validation :  validate vp_token interally using validateResponseVPToken
+- Return : Promise<string>, vp_token as string (Encoded JWT)
+
+**validateResponseWithVPData**
+- Defined In : Claimd/Index.ts
+- Input : Tokens (vp & id) as a SIOPTokensEcoded , each token is a Base64 encoded JWT
+- Validation :  Internally calls DidSiopResponse.validateResponse to validate the id_token
+                Internally calls Claimd/Index.ts::validateResponseVPToken to validate the vp_token
+- Return : Promise (true | SIOPErrorResponse)
+
+**validateResponseVPToken**
+- Defined In : Claimd/Index.ts
+- Input : vp_token as a JSON object
+- Validation :  look for verifiableCredential attribute within the vp_token
+- Return : Promise.resolve if success, reject otherwise
+
+**validateResponse_VPToken**
+- Defined In : Claimd/Index.ts
+- Input : _vp_token as a JSON object
+- Validation :  validate whether the input param is a valid JSON object
+- Return : Promise.resolve if success, reject otherwise
+
+**validateResponseVPTokenJWT**
+- Defined In : Claimd/Index.ts
+- Input : vp_token as a JWT object
+- Validation :  look for verifiableCredential attribute within the vp_token
+- Return : Promise.resolve if success, reject otherwise
 
 ### RP ###
 ```js
