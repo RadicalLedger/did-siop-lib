@@ -156,7 +156,7 @@ export const tokenData ={
                 _vp_token:{}
             },
             vp_token : {
-                test:{}                
+                test:{}
             }
         }
     }
