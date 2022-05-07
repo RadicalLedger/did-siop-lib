@@ -1,4 +1,5 @@
 import { DidDocument } from "./commons";
+import { DidResolver } from "./did_resolver_base";
 import { ERRORS } from "./commons";
 import { Resolver } from 'did-resolver'
 import { getResolver } from 'ethr-did-resolver';
@@ -8,39 +9,39 @@ import multicodec from 'multicodec';
 import ed2curve from 'ed2curve';
 const axios = require('axios').default;
 
-/**
- * @classdesc An abstract class which defines the interface for Resolver classes. 
- * Resolvers are used to resolve the Decentralized Identity Document for a given DID.
- * Any extending child class must implement resolveDidDocumet(did) method.
- * @property {string} methodName - Name of the specific DID Method. Used as a check to resolve only DIDs related to this DID Method. 
- */
-abstract class DidResolver{
-    /**
-     * @constructor
-     * @param {string} methodName - Name of the specific DID Method.  
-     */
-    constructor(protected methodName: string){}
+// /**
+//  * @classdesc An abstract class which defines the interface for Resolver classes. 
+//  * Resolvers are used to resolve the Decentralized Identity Document for a given DID.
+//  * Any extending child class must implement resolveDidDocumet(did) method.
+//  * @property {string} methodName - Name of the specific DID Method. Used as a check to resolve only DIDs related to this DID Method. 
+//  */
+// abstract class DidResolver{
+//     /**
+//      * @constructor
+//      * @param {string} methodName - Name of the specific DID Method.  
+//      */
+//     constructor(protected methodName: string){}
 
-    /**
-     * 
-     * @param {string} did - DID to resolve the DID Document for.
-     * @returns A promise which resolves to a {DidDocument}
-     * @remarks Any inheriting child class must implement this abstract method. Relates to the Read operation of the DID Method.
-     */
-    abstract resolveDidDocumet(did: string): Promise<DidDocument | undefined>;
+//     /**
+//      * 
+//      * @param {string} did - DID to resolve the DID Document for.
+//      * @returns A promise which resolves to a {DidDocument}
+//      * @remarks Any inheriting child class must implement this abstract method. Relates to the Read operation of the DID Method.
+//      */
+//     abstract resolveDidDocumet(did: string): Promise<DidDocument | undefined>;
 
-    /**
-     * 
-     * @param {string} did - DID to resolve the DID Document for.
-     * @returns A promise which resolves to a {DidDocument}
-     * @remarks A wrapper method which make use of methodName property and resolveDidDocumet(did) method
-     * to resolve documents for related DIDs only. Throws an error for DIDs of other DID Methods.
-     */
-    resolve(did: string): Promise<DidDocument | undefined>{
-        if(did.split(':')[1] !== this.methodName) throw new Error('Incorrect did method');
-        return this.resolveDidDocumet(did);
-    }
-}
+//     /**
+//      * 
+//      * @param {string} did - DID to resolve the DID Document for.
+//      * @returns A promise which resolves to a {DidDocument}
+//      * @remarks A wrapper method which make use of methodName property and resolveDidDocumet(did) method
+//      * to resolve documents for related DIDs only. Throws an error for DIDs of other DID Methods.
+//      */
+//     resolve(did: string): Promise<DidDocument | undefined>{
+//         if(did.split(':')[1] !== this.methodName) throw new Error('Incorrect did method');
+//         return this.resolveDidDocumet(did);
+//     }
+// }
 
 /**
  * @classdesc A Resolver class which combines several other Resolvers in chain.
