@@ -8,7 +8,6 @@ import { requests } from './request.spec.resources';
 
 let userDidDoc  = DIDS[0].resolverReturn.didDocument;
 let userKeyInfo = DIDS[0].keyInfo;
-
 let userDID     = DIDS[0].did;
 let userPrivateKeyHex = userKeyInfo.privateKey;
 let userKid = userDidDoc.verificationMethod[1].id;
@@ -17,8 +16,8 @@ let rpDidDoc = DIDS[1].resolverReturn.didDocument;
 let rpDID = DIDS[1].did;
 let rpKeyInfo = DIDS[1].keyInfo;
 let rpPrivateKey = rpKeyInfo.privateKey;
-
 let rpKid = rpDidDoc.verificationMethod[1].id;;
+
 let rpRedirectURI = 'https://my.rp.com/cb';
 let rpRegistrationMetaData = {
         "jwks_uri": "https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks",
@@ -50,7 +49,7 @@ let requestObj: JWTObject = {
 
 let badRequest = 'openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid did_authn&request=eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiIsImtpZCI6ImRpZDpldGhyOjB4QjA3RWFkOTcxN2I0NEI2Y0Y0MzljNDc0MzYyYjlCMDg3N0NCQkY4MyNvd25lciJ9.eyJyZXNwb25zZV90eXBlIjoiaWRfdG9rZW4iLCJjbGllbnRfaWQiOiJodHRwczovL215LnJwLmNvbS9jYiIsInNjb3BlIjoib3BlbmlkIGRpZF9hdXRobiIsInN0YXRlIjoiYWYwaWZqc2xka2oiLCJub25jZSI6Im4tMFM2X1d6QTJNaiIsInJlc3BvbnNlX21vZGUiOiJmb3JtX3Bvc3QiLCJyZWdpc3RyYXRpb24iOnsiandrc191cmkiOiJodHRwczovL3VuaXJlc29sdmVyLmlvLzEuMC9pZGVudGlmaWVycy9kaWQ6ZXhhbXBsZToweGFiO3RyYW5zZm9ybS1rZXlzPWp3a3MiLCJpZF90b2tlbl9zaWduZWRfcmVzcG9uc2VfYWxnIjpbIkVTMjU2SyIsIkVkRFNBIiwiUlMyNTYiXX19.mXh9VLcxzHFt3D1EFRQm0xDfPB7P4YbnZX2u8Lm46mU4TIbBDqx49tyVMeAx2BCRORAN__JXS2U4NpVheAaX2wA';
 
-describe('DID SIOP', function () {
+describe('DID SIOP using did:ethr method DIDs', function () {
     beforeEach(() => {
         nock('https://uniresolver.io/1.0/identifiers').persist().get('/'+rpDID).reply(200, rpDidDoc).get('/'+userDID).reply(200, userDidDoc);
     });
@@ -143,4 +142,33 @@ describe('DID SIOP', function () {
         let errorResponseDecoded = await rp.validateResponse(errorResponse);
         expect(errorResponseDecoded).toEqual(ERROR_RESPONSES.invalid_request_object.response);
     })
+})
+
+describe('DID SIOP using did:key method DIDs', function () {
+    test('end to end functions testing ', async () => {
+        jest.setTimeout(30000);
+
+        let rp = await RP.getRP(rpRedirectURI, DIDS[2].did, rpRegistrationMetaData);
+        let kid = rp.addSigningParams(DIDS[2].keyInfo.privateKey);
+        expect(kid).toEqual(DIDS[2].resolverReturn.didDocument.verificationMethod[0].id);
+
+        let provider = new Provider();
+        await provider.setUser(DIDS[3].did);
+        kid = provider.addSigningParams(DIDS[3].keyInfo.privateKey);
+        expect(kid).toEqual(DIDS[3].resolverReturn.didDocument.verificationMethod[0].id);
+
+        let request =  await rp.generateRequest();
+        let requestJWTDecoded = await provider.validateRequest(request);
+
+        let response = await provider.generateResponse(requestJWTDecoded.payload);
+        let responseJWTDecoded = await rp.validateResponse(response, {
+            redirect_uri: rpRedirectURI,
+            isExpirable: true,
+        })
+        expect(responseJWTDecoded).toHaveProperty('header');
+        expect(responseJWTDecoded).toHaveProperty('payload');
+
+        console.log(responseJWTDecoded);
+        
+    });
 })
