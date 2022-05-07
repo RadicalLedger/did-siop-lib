@@ -127,7 +127,7 @@ export class Identity{
                     //Implement other verification methods here
                 }
             }
-        }
+        }        
         return this.keySet;
     }
 

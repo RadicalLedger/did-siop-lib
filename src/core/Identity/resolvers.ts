@@ -1,47 +1,11 @@
 import { DidDocument } from "./commons";
 import { DidResolver } from "./did_resolver_base";
+import { KeyDidResolver2 } from "./did_resolver_key";
+
 import { ERRORS } from "./commons";
 import { Resolver } from 'did-resolver'
 import { getResolver } from 'ethr-did-resolver';
-import * as base58 from 'bs58';
-import multibase from "multibase";
-import multicodec from 'multicodec';
-import ed2curve from 'ed2curve';
 const axios = require('axios').default;
-
-// /**
-//  * @classdesc An abstract class which defines the interface for Resolver classes. 
-//  * Resolvers are used to resolve the Decentralized Identity Document for a given DID.
-//  * Any extending child class must implement resolveDidDocumet(did) method.
-//  * @property {string} methodName - Name of the specific DID Method. Used as a check to resolve only DIDs related to this DID Method. 
-//  */
-// abstract class DidResolver{
-//     /**
-//      * @constructor
-//      * @param {string} methodName - Name of the specific DID Method.  
-//      */
-//     constructor(protected methodName: string){}
-
-//     /**
-//      * 
-//      * @param {string} did - DID to resolve the DID Document for.
-//      * @returns A promise which resolves to a {DidDocument}
-//      * @remarks Any inheriting child class must implement this abstract method. Relates to the Read operation of the DID Method.
-//      */
-//     abstract resolveDidDocumet(did: string): Promise<DidDocument | undefined>;
-
-//     /**
-//      * 
-//      * @param {string} did - DID to resolve the DID Document for.
-//      * @returns A promise which resolves to a {DidDocument}
-//      * @remarks A wrapper method which make use of methodName property and resolveDidDocumet(did) method
-//      * to resolve documents for related DIDs only. Throws an error for DIDs of other DID Methods.
-//      */
-//     resolve(did: string): Promise<DidDocument | undefined>{
-//         if(did.split(':')[1] !== this.methodName) throw new Error('Incorrect did method');
-//         return this.resolveDidDocumet(did);
-//     }
-// }
 
 /**
  * @classdesc A Resolver class which combines several other Resolvers in chain.
@@ -116,59 +80,6 @@ class CombinedDidResolver extends DidResolver{
     }
 }
 
-/**
- * @classdesc Resolver class for DID-KEY DIDs. These DIDs are for test purposes only.
- * @extends {DidResolver}
- */
-class KeyDidResolver extends DidResolver{
-    resolveDidDocumet(did: string): Promise<DidDocument> {
-        if(!did) {
-            throw new TypeError('"did" must be a string.');
-        }
-        
-        const didAuthority = did.split('#')[0];
-        const fingerprint = didAuthority.substr('did:key:'.length);
-        
-        const decodedFingerprint = multibase.decode(fingerprint);
-        const unprefixed = multicodec.rmPrefix(decodedFingerprint);
-        const publicKey = base58.encode(unprefixed);
-        const keyId = did + '#' + fingerprint;
-
-        const keyAgreementKeyBuffer = ed2curve.convertPublicKey(unprefixed);
-        if(!keyAgreementKeyBuffer) throw new Error('Cannot derive keyAgreement');
-        const keyAgreementKey = base58.encode(keyAgreementKeyBuffer);
-        
-        const keyAgreementIdBuffer = Buffer.alloc(2 + keyAgreementKeyBuffer.length);
-        keyAgreementIdBuffer[0] = 0xec;
-        keyAgreementIdBuffer[1] = 0x01;
-        keyAgreementIdBuffer.set(keyAgreementKeyBuffer, 2);
-        const keyAgreementId = did + '#' + 'z' + base58.encode(keyAgreementIdBuffer);
-
-        const didDoc = {
-            '@context': ['https://w3id.org/did/v0.11'],
-            id: did,
-            publicKey: [{
-                id: keyId,
-                type: 'Ed25519VerificationKey2018',
-                controller: did,
-                publicKeyBase58: publicKey
-            }],
-            authentication: [keyId],
-            assertionMethod: [keyId],
-            capabilityDelegation: [keyId],
-            capabilityInvocation: [keyId],
-            keyAgreement: [{
-                id: keyAgreementId,
-                type: 'X25519KeyAgreementKey2019',
-                controller: did,
-                publicKeyBase58: keyAgreementKey
-            }]
-        };
-        
-        console.log('resolved by did:key\n' + JSON.stringify(didDoc));
-        return Promise.resolve(didDoc);
-    }
-}
 
 /**
  * @classdesc Resolver class which is based on the endpoint of https://dev.uniresolver.io/.
@@ -199,5 +110,6 @@ class UniversalDidResolver extends DidResolver{
  */
 export const combinedDidResolver = new CombinedDidResolver('all')
     .addResolver(new EthrDidResolver('ethr'))
-    .addResolver(new KeyDidResolver('key'))
+    // .addResolver(new KeyDidResolver('key'))
+    .addResolver(new KeyDidResolver2('key'))    
     .addResolver(new UniversalDidResolver('uniresolver'));

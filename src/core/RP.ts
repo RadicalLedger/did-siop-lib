@@ -86,9 +86,7 @@ export class RP {
             if(format){}
             if(algorithm){}
             if(kid){}
-
             let didPublicKeySet = this.identity.extractAuthenticationKeys();
-
             for(let didPublicKey of didPublicKeySet){
                 let publicKeyInfo: KeyInputs.KeyInfo = {
                     key: didPublicKey.publicKey,

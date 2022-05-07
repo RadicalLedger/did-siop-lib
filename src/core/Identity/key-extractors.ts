@@ -107,7 +107,7 @@ class Ed25519VerificationKeyExtractor extends DidVerificationKeyExtractor{
                 alg: ALGORITHMS.EdDSA,
                 format: KEY_FORMATS.HEX,
                 publicKey: ''
-            }
+            }           
             return getVerificationKeyFromDifferentFormats(method, extracted);
         }
         else{
