@@ -9,7 +9,7 @@ let registration = {
         };
 let redirect_uri : 'localhost:4200/home';
 
-describe("RP related function", function() {
+describe.skip("RP related function with did:ethr ", function() {
     jest.setTimeout(30000);
     test("getRP shoud return a valid RP instance with ", async () => {
         let siop_rp = await RP.getRP(
@@ -26,6 +26,18 @@ describe("RP related function", function() {
             registration
         )
         await expect(siop_rp).rejects.toEqual(new Error(ID_ERRORS.DOCUMENT_RESOLUTION_ERROR));
+        expect(siop_rp).not.toBe(null);            
+    });
+});
+
+describe("RP related function with did:key ", function() {
+    jest.setTimeout(30000);
+    test("getRP shoud return a valid RP instance with ", async () => {
+        let siop_rp = await RP.getRP(
+            redirect_uri, // RP's redirect_uri
+            DID_TEST_RESOLVER_DATA_NEW[2].did, // RP's did
+            registration
+        )
         expect(siop_rp).not.toBe(null);            
     });
 });

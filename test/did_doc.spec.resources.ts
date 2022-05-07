@@ -100,7 +100,105 @@ export const DID_TEST_RESOLVER_DATA_NEW = [
          publicKey: '02be73dcaa2013a714b6745f54ff8576df151f8226cc3923538bfbfb9a014584fe',
          identifier: '0x02be73dcaa2013a714b6745f54ff8576df151f8226cc3923538bfbfb9a014584fe'         
       }
-   }              
+   },
+   { //2 
+     method: 'did:key',
+     did: 'did:key:z6Mkfriq1MqLBoPWecGoDLjguo1sB9brj6wT3qZ5BxkKpuP6',
+     resolverReturn: {
+        "didDocument":{
+           "@context":[
+              "https://w3id.org/did/v0.11"
+           ],
+           "id":"did:key:z6Mkfriq1MqLBoPWecGoDLjguo1sB9brj6wT3qZ5BxkKpuP6",
+           "assertionMethod":[
+              "did:key:z6Mkfriq1MqLBoPWecGoDLjguo1sB9brj6wT3qZ5BxkKpuP6#z6Mkfriq1MqLBoPWecGoDLjguo1sB9brj6wT3qZ5BxkKpuP6"
+           ],
+           "verificationMethod": [
+            {
+              "id": "",
+              "type": "",
+              "controller": "",
+              "blockchainAccountId": ""
+            },
+            {
+               "id": "",
+               "type": "",
+               "controller": "",
+               "blockchainAccountId": ""
+             }
+          ],           
+           "authentication":[
+              "did:key:z6Mkfriq1MqLBoPWecGoDLjguo1sB9brj6wT3qZ5BxkKpuP6#z6Mkfriq1MqLBoPWecGoDLjguo1sB9brj6wT3qZ5BxkKpuP6"
+           ],
+           "capabilityDelegation":[
+              "did:key:z6Mkfriq1MqLBoPWecGoDLjguo1sB9brj6wT3qZ5BxkKpuP6#z6Mkfriq1MqLBoPWecGoDLjguo1sB9brj6wT3qZ5BxkKpuP6"
+           ],
+           "capabilityInvocation":[
+              "did:key:z6Mkfriq1MqLBoPWecGoDLjguo1sB9brj6wT3qZ5BxkKpuP6#z6Mkfriq1MqLBoPWecGoDLjguo1sB9brj6wT3qZ5BxkKpuP6"
+           ],
+           "keyAgreement":[
+              {
+                 "id":"did:key:z6Mkfriq1MqLBoPWecGoDLjguo1sB9brj6wT3qZ5BxkKpuP6#z6LSbgq3GejX88eiAYWmZ9EiddS3GaXodvm8MJJyEH7bqXgz",
+                 "type":"X25519KeyAgreementKey2019",
+                 "controller":"did:key:z6Mkfriq1MqLBoPWecGoDLjguo1sB9brj6wT3qZ5BxkKpuP6",
+                 "publicKeyBase58":"1eskLvf2fvy5A912VimK3DZRRzgwKayUKbHjpU589vE"
+              }
+           ],
+           "publicKey":[
+              {
+                 "id":"did:key:z6Mkfriq1MqLBoPWecGoDLjguo1sB9brj6wT3qZ5BxkKpuP6#z6Mkfriq1MqLBoPWecGoDLjguo1sB9brj6wT3qZ5BxkKpuP6",
+                 "type":"Ed25519VerificationKey2018",
+                 "controller":"did:key:z6Mkfriq1MqLBoPWecGoDLjguo1sB9brj6wT3qZ5BxkKpuP6",
+                 "publicKeyBase58":"2QTnR7atrFu3Y7S6Xmmr4hTsMaL1KDh6Mpe9MgnJugbi"
+              }
+           ]
+        },
+        "content":null,
+        "contentType":null,
+        "resolverMetadata":{
+           "duration":17,
+           "identifier":"did:key:z6Mkfriq1MqLBoPWecGoDLjguo1sB9brj6wT3qZ5BxkKpuP6",
+           "driverId":"driver-universalresolver/driver-did-key",
+           "didUrl":{
+              "didUrlString":"did:key:z6Mkfriq1MqLBoPWecGoDLjguo1sB9brj6wT3qZ5BxkKpuP6",
+              "did":{
+                 "didString":"did:key:z6Mkfriq1MqLBoPWecGoDLjguo1sB9brj6wT3qZ5BxkKpuP6",
+                 "method":"key",
+                 "methodSpecificId":"z6Mkfriq1MqLBoPWecGoDLjguo1sB9brj6wT3qZ5BxkKpuP6",
+                 "parseTree":null,
+                 "parseRuleCount":null
+              },
+              "parameters":null,
+              "parametersMap":{
+     
+              },
+              "path":"",
+              "query":null,
+              "fragment":null,
+              "parseTree":null,
+              "parseRuleCount":null
+           }
+        },
+        "methodMetadata":{
+     
+        }
+     },
+     keys: [
+        {
+           id: 'did:key:z6Mkfriq1MqLBoPWecGoDLjguo1sB9brj6wT3qZ5BxkKpuP6#z6Mkfriq1MqLBoPWecGoDLjguo1sB9brj6wT3qZ5BxkKpuP6',
+           kty: KTYS.OKP,
+           alg: ALGORITHMS.EdDSA,
+           format: KEY_FORMATS.BASE58,
+           publicKey: '2QTnR7atrFu3Y7S6Xmmr4hTsMaL1KDh6Mpe9MgnJugbi'
+        }
+     ],
+     keyInfo: {
+        address: '',
+        privateKey: '',
+        publicKey: '',
+        identifier: ''         
+     }
+  }              
 ]
 
 export const DID_TEST_RESOLVER_DATA = [
