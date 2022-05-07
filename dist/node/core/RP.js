@@ -126,6 +126,7 @@ var RP = /** @class */ (function () {
             if (format) { }
             if (algorithm) { }
             if (kid) { }
+            console.dir(this.identity.getDocument(), { depth: null });
             var didPublicKeySet = this.identity.extractAuthenticationKeys();
             for (var _i = 0, didPublicKeySet_1 = didPublicKeySet; _i < didPublicKeySet_1.length; _i++) {
                 var didPublicKey = didPublicKeySet_1[_i];

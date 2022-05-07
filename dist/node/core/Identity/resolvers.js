@@ -59,53 +59,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
+var did_resolver_base_1 = require("./did_resolver_base");
+var did_resolver_key_1 = require("./did_resolver_key");
 var commons_1 = require("./commons");
 var did_resolver_1 = require("did-resolver");
 var ethr_did_resolver_1 = require("ethr-did-resolver");
-var base58 = __importStar(require("bs58"));
-var multibase_1 = __importDefault(require("multibase"));
-var multicodec_1 = __importDefault(require("multicodec"));
-var ed2curve_1 = __importDefault(require("ed2curve"));
 var axios = require('axios').default;
-/**
- * @classdesc An abstract class which defines the interface for Resolver classes.
- * Resolvers are used to resolve the Decentralized Identity Document for a given DID.
- * Any extending child class must implement resolveDidDocumet(did) method.
- * @property {string} methodName - Name of the specific DID Method. Used as a check to resolve only DIDs related to this DID Method.
- */
-var DidResolver = /** @class */ (function () {
-    /**
-     * @constructor
-     * @param {string} methodName - Name of the specific DID Method.
-     */
-    function DidResolver(methodName) {
-        this.methodName = methodName;
-    }
-    /**
-     *
-     * @param {string} did - DID to resolve the DID Document for.
-     * @returns A promise which resolves to a {DidDocument}
-     * @remarks A wrapper method which make use of methodName property and resolveDidDocumet(did) method
-     * to resolve documents for related DIDs only. Throws an error for DIDs of other DID Methods.
-     */
-    DidResolver.prototype.resolve = function (did) {
-        if (did.split(':')[1] !== this.methodName)
-            throw new Error('Incorrect did method');
-        return this.resolveDidDocumet(did);
-    };
-    return DidResolver;
-}());
 /**
  * @classdesc A Resolver class which combines several other Resolvers in chain.
  * A given DID is tried with each Resolver object and if fails, passed to the next one in the chain.
@@ -176,7 +136,7 @@ var CombinedDidResolver = /** @class */ (function (_super) {
         return this.resolveDidDocumet(did);
     };
     return CombinedDidResolver;
-}(DidResolver));
+}(did_resolver_base_1.DidResolver));
 /**
  * @classdesc Resolver class for Ethereum DIDs
  * @extends {DidResolver}
@@ -212,61 +172,7 @@ var EthrDidResolver = /** @class */ (function (_super) {
         });
     };
     return EthrDidResolver;
-}(DidResolver));
-/**
- * @classdesc Resolver class for DID-KEY DIDs. These DIDs are for test purposes only.
- * @extends {DidResolver}
- */
-var KeyDidResolver = /** @class */ (function (_super) {
-    __extends(KeyDidResolver, _super);
-    function KeyDidResolver() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    KeyDidResolver.prototype.resolveDidDocumet = function (did) {
-        if (!did) {
-            throw new TypeError('"did" must be a string.');
-        }
-        var didAuthority = did.split('#')[0];
-        var fingerprint = didAuthority.substr('did:key:'.length);
-        var decodedFingerprint = multibase_1.default.decode(fingerprint);
-        var unprefixed = multicodec_1.default.rmPrefix(decodedFingerprint);
-        var publicKey = base58.encode(unprefixed);
-        var keyId = did + '#' + fingerprint;
-        var keyAgreementKeyBuffer = ed2curve_1.default.convertPublicKey(unprefixed);
-        if (!keyAgreementKeyBuffer)
-            throw new Error('Cannot derive keyAgreement');
-        var keyAgreementKey = base58.encode(keyAgreementKeyBuffer);
-        var keyAgreementIdBuffer = Buffer.alloc(2 + keyAgreementKeyBuffer.length);
-        keyAgreementIdBuffer[0] = 0xec;
-        keyAgreementIdBuffer[1] = 0x01;
-        keyAgreementIdBuffer.set(keyAgreementKeyBuffer, 2);
-        var keyAgreementId = did + '#' + 'z' + base58.encode(keyAgreementIdBuffer);
-        var didDoc = {
-            '@context': ['https://w3id.org/did/v0.11'],
-            id: did,
-            publicKey: [{
-                    id: keyId,
-                    type: 'Ed25519VerificationKey2018',
-                    controller: did,
-                    publicKeyBase58: publicKey
-                }],
-            authentication: [keyId],
-            assertionMethod: [keyId],
-            capabilityDelegation: [keyId],
-            capabilityInvocation: [keyId],
-            keyAgreement: [{
-                    id: keyAgreementId,
-                    type: 'X25519KeyAgreementKey2019',
-                    controller: did,
-                    publicKeyBase58: keyAgreementKey
-                }]
-        };
-        // console.log('resolved by did:key\n' + JSON.stringify(didDoc));
-        console.log('resolved by did:key\n' + didDoc);
-        return Promise.resolve(didDoc);
-    };
-    return KeyDidResolver;
-}(DidResolver));
+}(did_resolver_base_1.DidResolver));
 /**
  * @classdesc Resolver class which is based on the endpoint of https://dev.uniresolver.io/.
  * Can be used resolve Documents for any DID Method supported by the service.
@@ -302,12 +208,13 @@ var UniversalDidResolver = /** @class */ (function (_super) {
         return this.resolveDidDocumet(did);
     };
     return UniversalDidResolver;
-}(DidResolver));
+}(did_resolver_base_1.DidResolver));
 /**
  * @exports CombinedDidResolver An instance of CombinedResolver which includes resolvers for currenlty implemented DID Methods.
  */
 exports.combinedDidResolver = new CombinedDidResolver('all')
     .addResolver(new EthrDidResolver('ethr'))
-    .addResolver(new KeyDidResolver('key'))
+    // .addResolver(new KeyDidResolver('key'))
+    .addResolver(new did_resolver_key_1.KeyDidResolver2('key'))
     .addResolver(new UniversalDidResolver('uniresolver'));
 //# sourceMappingURL=resolvers.js.map
