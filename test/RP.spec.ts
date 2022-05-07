@@ -9,7 +9,7 @@ let registration = {
         };
 let redirect_uri : 'localhost:4200/home';
 
-describe.skip("RP related function with did:ethr ", function() {
+describe("RP related function with did:ethr ", function() {
     jest.setTimeout(30000);
     test("getRP shoud return a valid RP instance with ", async () => {
         let siop_rp = await RP.getRP(
