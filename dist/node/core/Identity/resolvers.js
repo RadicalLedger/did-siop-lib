@@ -261,7 +261,8 @@ var KeyDidResolver = /** @class */ (function (_super) {
                     publicKeyBase58: keyAgreementKey
                 }]
         };
-        console.log('resolved by did:key\n' + JSON.stringify(didDoc));
+        // console.log('resolved by did:key\n' + JSON.stringify(didDoc));
+        console.log('resolved by did:key\n' + didDoc);
         return Promise.resolve(didDoc);
     };
     return KeyDidResolver;
