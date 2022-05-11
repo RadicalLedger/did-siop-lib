@@ -32,7 +32,6 @@
   },
   "homepage": "https://github.com/RadicalLedger/did-siop-lib#readme",
   "devDependencies": {
-    "@babel/polyfill": "^7.12.1",
     "@types/bs58": "^4.0.1",
     "@types/ed2curve": "^0.2.2",
     "@types/elliptic": "^6.4.12",
@@ -53,6 +52,7 @@
     "webpack-cli": "^4.9.2"
   },
   "dependencies": {
+    "@babel/polyfill": "^7.12.1",
     "@digitalbazaar/did-method-key": "^2.0.0",
     "@digitalbazaar/ed25519-verification-key-2018": "^3.2.0",
     "axios": "^0.19.2",
