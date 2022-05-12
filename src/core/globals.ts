@@ -55,3 +55,16 @@ export enum KEY_FORMATS {
     ETHEREUM_ADDRESS,
     JWK,
 }
+
+
+export const SIOP_DISCOVERY_METADATA_STATIC = {
+    authorization_endpoint: "openid:",
+    issuer: "https://self-issued.me/v2",
+    response_types_supported: ["id_token"],
+    scopes_supported: ["openid"],
+    subject_types_supported: ["pairwise"],
+    id_token_signing_alg_values_supported: ["ES256"],
+    request_object_signing_alg_values_supported: ["ES256"],
+    subject_syntax_types_supported: ["urn:ietf:params:oauth:jwk-thumbprint"],
+    id_token_types_supported: ["subject_signed"]
+}
