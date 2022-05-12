@@ -103,7 +103,7 @@ export class DidSiopResponse{
     
             payload.did = didSiopUser.getDocument().id;
             // if(requestPayload.client_id) payload.aud = requestPayload.client_id;
-            if(requestPayload.client_id) payload.aud = requestPayload.redirect_uri; // Changed as per SIOPV2
+            if(requestPayload.redirect_uri) payload.aud = requestPayload.redirect_uri; // Changed as per SIOPV2
     
             if(publicKey){
                 payload.sub_jwk = publicKey.getMinimalJWK();
