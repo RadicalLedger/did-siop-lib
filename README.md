@@ -231,9 +231,11 @@ Removes an already added key information
 #### async validateResponse(response:string, checkParams: CheckParams = {redirect_uri: this.info.redirect_uri}): Promise\<DID_SIOP.JWTObject | DID_SIOP.SIOPErrorResponse\> ####
 * Parameters
   * response:string - Received response as a string
-  * checkParams: DID_SIOP.CheckParams - Parameters against which the response must be validated. redirect_uri is given by default. Other possible values are ***validBefore: number*** and ***isExpirable: number***. Several others will be supported in future.
+  * checkParams: DID_SIOP.CheckParams - Parameters against which the response must be validated. redirect_uri is given by default. Other possible values are ***validBefore: number***, ***isExpirable: boolean*** and ***nonce: string***. Several others will be supported in future.
 * Return
   * Promise\<DID_SIOP.JWTObject | DID_SIOP.SIOPErrorResponse\>
+* Notes
+  * If you use nonce in the request, you must include the same nonce when validate the response. 
 
 ### Hot Fix ###
 chaneg following line in node_modules/ethr-did-resolver/lib/index.js (ln1087)
