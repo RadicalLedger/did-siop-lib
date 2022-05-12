@@ -2,7 +2,8 @@ import { ERROR_RESPONSES } from '../src/core/ErrorResponse';
 import { DidSiopResponse } from '../src/core/Response';
 import { Identity } from '../src/core/Identity';
 import { SIOPTokensEcoded, VPData } from '../src/core/Claims';
-import { SigningInfo } from '../src/core/JWT';
+import { SigningInfo, toJWTObject } from '../src/core/JWT';
+// import { SigningInfo } from '../src/core/JWT';
 import { ALGORITHMS, KEY_FORMATS } from '../src/core/globals';
 import nock from 'nock';
 import { requestJWT } from './response.spec.resources';
@@ -42,6 +43,10 @@ describe("Response with the id_token", function () {
         let response = await DidSiopResponse.generateResponse(requestJWT.good.basic.payload, signing, user, 30000);
         let validity = await DidSiopResponse.validateResponse(response, checkParams);
         expect(validity).toBeTruthy();
+        
+        let resJWT = toJWTObject(response);
+        if (resJWT)
+            expect(resJWT.payload.aud).toBe(requestJWT.good.basic.payload.redirect_uri);
     });
 });
 

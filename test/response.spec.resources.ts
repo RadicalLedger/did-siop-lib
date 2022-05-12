@@ -4,7 +4,7 @@ import {DID_TEST_RESOLVER_DATA_NEW as DIDS } from './did_doc.spec.resources'
 let testDidDoc  = DIDS[0].resolverReturn.didDocument;
 let testDID     = DIDS[0].did;
 
-const jwtGoodDecoded = getBasicJWT(testDidDoc.verificationMethod[1].id,testDID);
+const jwtGoodDecoded = getBasicJWT(testDidDoc.verificationMethod[1].id,testDID,testDID);
 
 export const requestJWT = {
     good :{

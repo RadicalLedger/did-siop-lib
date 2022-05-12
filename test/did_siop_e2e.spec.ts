@@ -34,7 +34,7 @@ let requestObj: JWTObject = {
         "iss": rpDID,
         "response_type": "id_token",
         "scope": "openid did_authn",
-        "client_id": "https://my.rp.com/cb",
+        "client_id": rpDID,
         "registration": {
           "jwks_uri": "https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks",
           "id_token_signed_response_alg": [
@@ -167,8 +167,5 @@ describe('DID SIOP using did:key method DIDs', function () {
         })
         expect(responseJWTDecoded).toHaveProperty('header');
         expect(responseJWTDecoded).toHaveProperty('payload');
-
-        console.log(responseJWTDecoded);
-        
     });
 })

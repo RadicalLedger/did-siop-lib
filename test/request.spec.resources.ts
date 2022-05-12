@@ -21,6 +21,7 @@ const jwtGoodDecoded = {
         "scope": "openid did_authn",
         "state": "af0ifjsldkj",
         "nonce": "n-0S6_WzA2Mj",
+        "redirect_uri": 'https://my.rp.com/cb',
         "response_mode": "form_post",
         "registration": {
             "jwks_uri": "https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks",

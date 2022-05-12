@@ -4,6 +4,7 @@ import {  ERRORS as ID_ERRORS } from '../src/core/Identity';
 import {DID_TEST_RESOLVER_DATA_NEW } from './did_doc.spec.resources'
 import { ALGORITHMS,KEY_FORMATS } from '../src';
 import { JWTObject, toJWTObject } from '../src/core/JWT';
+import * as queryString from 'query-string';
 
 let registration = {
         "jwks_uri": "https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks",
@@ -21,7 +22,7 @@ describe("RP related function with did:ethr ", function() {
         )
         expect(siop_rp).not.toBe(null);            
     });
-    test("getRP shoud return an if the DID is invalid ", async () => {
+    test("getRP shoud return an error if the DID is invalid ", async () => {
         let siop_rp = RP.getRP(
             redirect_uri, // RP's redirect_uri
             "not_a_did", // RP's did
@@ -50,14 +51,15 @@ describe("RP related function with did:key ", function() {
         );
         let request = await siop_rp.generateRequest();
         expect(request).not.toBe(null);
-        let ecnJwt:string = request.substring("openid://?request=".length).split("?")[0];
-        
-        let req_jwt:JWTObject|undefined = toJWTObject(ecnJwt)
-        expect(req_jwt).not.toEqual(undefined)
 
-        if (req_jwt != undefined){
-            console.dir(req_jwt, {depth:null});
-            expect(req_jwt.payload.iss).toEqual(DID_TEST_RESOLVER_DATA_NEW[3].did);
-        }        
+        let parsed = queryString.parseUrl(request);   
+        if ((parsed.query.request) && parsed.query.request !== undefined){        
+            let req_jwt:JWTObject|undefined = toJWTObject(parsed.query.request.toString())
+            expect(req_jwt).not.toEqual(undefined)
+
+            if (req_jwt != undefined){
+                expect(req_jwt.payload.iss).toEqual(DID_TEST_RESOLVER_DATA_NEW[3].did);
+            }
+        }
     });
 });

@@ -10,11 +10,12 @@ const jwtGoodDecoded = {
     payload: {
         "iss": "",
         "response_type": "id_token",
-        "client_id": "https://my.rp.com/cb",
+        "client_id": "",
         "scope": "openid did_authn",
         "state": "af0ifjsldkj",
         "nonce": "n-0S6_WzA2Mj",
         "response_mode": "form_post",
+        "redirect_uri": 'https://my.rp.com/cb',        
         "registration": {
             "jwks_uri": "https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks",
             "id_token_signed_response_alg": ["ES256K", "EdDSA", "RS256"]
@@ -194,11 +195,12 @@ export const getModifiedJWTSigned = function (jwt: JWTObject,privateKey:SigningI
     let newJwt = getModifiedJWT(jwt,isPayload,property,value);
     return sign(newJwt,privateKey);
 }
-export const getBasicJWT = function(kid:string, iss:string):JWTObject{
+export const getBasicJWT = function(kid:string, iss:string, did:string):JWTObject{
 
     let clonedJWT = JSON.parse(JSON.stringify(jwtGoodDecoded)) //To make a deep copy in an ugly way
     clonedJWT.header["kid"] = kid;
-    clonedJWT.header["iss"] = iss;
+    clonedJWT.payload["iss"] = iss;
+    clonedJWT.payload["client_id"] = did;    
 
     return clonedJWT;
 }
