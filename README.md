@@ -235,4 +235,9 @@ Removes an already added key information
 * Return
   * Promise\<DID_SIOP.JWTObject | DID_SIOP.SIOPErrorResponse\>
 
-
+### Hot Fix ###
+chaneg following line in node_modules/ethr-did-resolver/lib/index.js (ln1087)
+```
+    // blockTag = qParams.get('versionId') ?? blockTag;
+    blockTag = ((qParams.get('versionId') == null) || qParams.get('versionId') == undefined) ? blockTag : qParams.get('versionId');
+```
