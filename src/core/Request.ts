@@ -55,7 +55,8 @@ export class DidSiopRequest{
         const url = 'openid://';
         const query: any = {
             response_type: 'id_token',
-            client_id: rp.redirect_uri,
+            client_id: rp.did, // Changed as per SIOPV2
+            redirect_uri:rp.redirect_uri, // Changed as per SIOPV2
             scope: 'openid did_authn',
         }
 
@@ -73,7 +74,8 @@ export class DidSiopRequest{
                 iss: rp.did,
                 response_type: 'id_token',
                 scope: 'openid did_authn',
-                client_id: rp.redirect_uri,
+                client_id: rp.did, // Changed as per SIOPV2
+                redirect_uri:rp.redirect_uri, // Changed as per SIOPV2   
                 registration: rp.registration,
                 ...options
             }
