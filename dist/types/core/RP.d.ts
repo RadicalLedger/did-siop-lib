@@ -2,7 +2,6 @@ import { CheckParams } from './Response';
 import { JWTObject } from './JWT';
 import { DidDocument } from './Identity';
 import { KEY_FORMATS, ALGORITHMS } from './globals';
-import { KeyInputs } from './JWKUtils';
 import { SIOPErrorResponse } from './ErrorResponse';
 export declare const ERRORS: Readonly<{
     NO_SIGNING_INFO: string;
@@ -53,12 +52,6 @@ export declare class RP {
      * until a compatible combination of those information which can be used for the signing process is found.
      */
     addSigningParams(key: string, kid?: string, format?: KEY_FORMATS | string, algorithm?: ALGORITHMS | string): string;
-    /**
- * @param {string} pvtKey - private key provided by user for verifications
- * @param {KeyInputs.KeyInfo} pubKey - Public Key Info extracted from DID Document
- * @remarks TO BE FILLED
- */
-    getKeyPairInfo(pvtKey: string, pubKey: KeyInputs.KeyInfo): void;
     /**
      * @param {string} kid - kid value of the SigningInfo which needs to be removed from the list
      * @remarks This method is used to remove a certain SigningInfo (key) which has the given kid value from the list.

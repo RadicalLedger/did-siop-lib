@@ -115,6 +115,8 @@ var Provider = /** @class */ (function () {
             if (algorithm) { }
             if (kid) { }
             var didPublicKeySet = this.identity.extractAuthenticationKeys();
+            if (Utils_1.isMultibasePvtKey(key))
+                key = Utils_1.getBase58fromMultibase(key);
             for (var _i = 0, didPublicKeySet_1 = didPublicKeySet; _i < didPublicKeySet_1.length; _i++) {
                 var didPublicKey = didPublicKeySet_1[_i];
                 var publicKeyInfo = {
