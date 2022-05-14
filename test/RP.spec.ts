@@ -33,7 +33,7 @@ describe("RP related function with did:ethr ", function() {
     });
 });
 
-describe("RP related function with did:key ", function() {
+describe("RP related function with did:key crypto suite Ed25519VerificationKey2018", function() {
     jest.setTimeout(30000);
     test("getRP shoud return a valid RP instance with ", async () => {
         let siop_rp = await RP.getRP(
@@ -59,6 +59,37 @@ describe("RP related function with did:key ", function() {
 
             if (req_jwt != undefined){
                 expect(req_jwt.payload.iss).toEqual(DID_TEST_RESOLVER_DATA_NEW[3].did);
+            }
+        }
+    });
+});
+
+describe("RP related function with did:key crypto suite Ed25519VerificationKey2020", function() {
+    jest.setTimeout(30000);
+    test("getRP shoud return a valid RP instance with ", async () => {
+        let siop_rp = await RP.getRP(
+            redirect_uri, // RP's redirect_uri
+            DID_TEST_RESOLVER_DATA_NEW[4].did, // RP's did
+            registration
+        )
+        expect(siop_rp).not.toBe(null);
+
+        siop_rp.addSigningParams(
+            DID_TEST_RESOLVER_DATA_NEW[4].keyInfo.privateKey,
+            DID_TEST_RESOLVER_DATA_NEW[4].keys[0].id,
+            KEY_FORMATS.BASE58,
+            ALGORITHMS['EdDSA']
+        );
+        let request = await siop_rp.generateRequest();
+        expect(request).not.toBe(null);
+
+        let parsed = queryString.parseUrl(request);   
+        if ((parsed.query.request) && parsed.query.request !== undefined){        
+            let req_jwt:JWTObject|undefined = toJWTObject(parsed.query.request.toString())
+            expect(req_jwt).not.toEqual(undefined)
+
+            if (req_jwt != undefined){
+                expect(req_jwt.payload.iss).toEqual(DID_TEST_RESOLVER_DATA_NEW[4].did);
             }
         }
     });

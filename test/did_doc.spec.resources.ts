@@ -158,7 +158,7 @@ export const DID_TEST_RESOLVER_DATA_NEW = [
         identifier: 'did:key:z6Mkr4zjFPqDsoQPo9t17N7pXo5oQXfjCFJ2bFDqpKnf9rBv#z6Mkr4zjFPqDsoQPo9t17N7pXo5oQXfjCFJ2bFDqpKnf9rBv'         
      }
   },
-  { //3 
+  { //3 Ed25519VerificationKey2018
       method: 'did:key',
       did: 'did:key:z6MkpVCWpibzht7gFFkBsnNigRvXiQWQgV2vqq8eN8zGkGGN',
       resolverReturn: {
@@ -214,7 +214,64 @@ export const DID_TEST_RESOLVER_DATA_NEW = [
          publicKey: 'B2wUEUMZNLdD8kuVCDQsqLNXtqEZGbna9pDiXs2Fq3Uz',
          identifier: 'did:key:z6MkpVCWpibzht7gFFkBsnNigRvXiQWQgV2vqq8eN8zGkGGN#z6MkpVCWpibzht7gFFkBsnNigRvXiQWQgV2vqq8eN8zGkGGN'
       }
-   }                 
+   },
+   { //4 Ed25519VerificationKey2020
+      method: 'did:key',
+      did: 'did:key:z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw',
+      resolverReturn: {
+         "didDocument":{
+            '@context': [
+              'https://www.w3.org/ns/did/v1',
+              'https://w3id.org/security/suites/ed25519-2020/v1',
+              'https://w3id.org/security/suites/x25519-2020/v1'
+            ],
+            id: 'did:key:z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw',
+            verificationMethod: [
+              {
+                id: 'did:key:z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw#z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw',
+                type: 'Ed25519VerificationKey2020',
+                controller: 'did:key:z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw',
+                publicKeyMultibase: 'z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw'
+              }
+            ],
+            authentication: [
+              'did:key:z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw#z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw'
+            ],
+            assertionMethod: [
+              'did:key:z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw#z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw'
+            ],
+            capabilityDelegation: [
+              'did:key:z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw#z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw'
+            ],
+            capabilityInvocation: [
+              'did:key:z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw#z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw'
+            ],
+            keyAgreement: [
+              {
+                id: 'did:key:z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw#z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw',
+                type: 'X25519KeyAgreementKey2020',
+                controller: 'did:key:z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw',
+                publicKeyMultibase: 'z6LSjSGy9kLkMotj3zv1eQEYoo66LaBobzb5EabEhZh72wJQ'
+              }
+            ]
+          }
+      },
+      keys: [
+         {
+            id: 'did:key:z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw#z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw',
+            kty: KTYS.OKP,
+            alg: ALGORITHMS.EdDSA,
+            format: KEY_FORMATS.BASE58,
+            publicKey: 'z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw'
+         }
+      ],
+      keyInfo: {
+         address: '',
+         privateKey: 'zrv1xdp8ZsfXSDh4fQp8sE2VYPmLiCL3RssjKeXW7fYrRkxyWpWR5ugcC36WrCx9FizbJvxdwFmYcq7YxRVC2nVPFp5',
+         publicKey: 'z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw',
+         identifier: 'did:key:z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw#z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw'
+      }
+   }
 ]
 
 export const DID_TEST_RESOLVER_DATA = [
