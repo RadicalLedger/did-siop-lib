@@ -144,7 +144,7 @@ describe('DID SIOP using did:ethr method DIDs', function () {
     })
 })
 
-describe('DID SIOP using did:key method DIDs', function () {
+describe('DID SIOP using did:key method DIDs : crypto suite Ed25519VerificationKey2018', function () {
     test('end to end functions testing ', async () => {
         jest.setTimeout(30000);
 
@@ -156,6 +156,32 @@ describe('DID SIOP using did:key method DIDs', function () {
         await provider.setUser(DIDS[3].did);
         kid = provider.addSigningParams(DIDS[3].keyInfo.privateKey);
         expect(kid).toEqual(DIDS[3].resolverReturn.didDocument.verificationMethod[0].id);
+
+        let request =  await rp.generateRequest();
+        let requestJWTDecoded = await provider.validateRequest(request);
+
+        let response = await provider.generateResponse(requestJWTDecoded.payload);
+        let responseJWTDecoded = await rp.validateResponse(response, {
+            redirect_uri: rpRedirectURI,
+            isExpirable: true,
+        })
+        expect(responseJWTDecoded).toHaveProperty('header');
+        expect(responseJWTDecoded).toHaveProperty('payload');
+    });
+})
+
+describe('DID SIOP using did:key method DIDs : crypto suite Ed25519VerificationKey2020', function () {
+    test('end to end functions testing ', async () => {
+        jest.setTimeout(30000);
+
+        let rp = await RP.getRP(rpRedirectURI, DIDS[2].did, rpRegistrationMetaData);
+        let kid = rp.addSigningParams(DIDS[2].keyInfo.privateKey);
+        expect(kid).toEqual(DIDS[2].resolverReturn.didDocument.verificationMethod[0].id);
+
+        let provider = new Provider();
+        await provider.setUser(DIDS[4].did);
+        kid = provider.addSigningParams(DIDS[4].keyInfo.privateKey);
+        expect(kid).toEqual(DIDS[4].resolverReturn.didDocument.verificationMethod[0].id);
 
         let request =  await rp.generateRequest();
         let requestJWTDecoded = await provider.validateRequest(request);
