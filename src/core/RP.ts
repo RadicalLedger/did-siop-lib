@@ -175,17 +175,6 @@ export class RP {
         }
     }
 
-        /**
-     * @param {string} pvtKey - private key provided by user for verifications
-     * @param {KeyInputs.KeyInfo} pubKey - Public Key Info extracted from DID Document
-     * @remarks TO BE FILLED
-     */
-         getKeyPairInfo(pvtKey: string, pubKey:KeyInputs.KeyInfo){
-             if (pvtKey) {}
-             if (pubKey) {}
-        }
-    
-
     /**
      * @param {string} kid - kid value of the SigningInfo which needs to be removed from the list
      * @remarks This method is used to remove a certain SigningInfo (key) which has the given kid value from the list. 
