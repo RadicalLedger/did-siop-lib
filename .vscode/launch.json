@@ -4,7 +4,7 @@
     "name": "Jest Tests",
     "program": "${workspaceRoot}\\node_modules\\jest\\bin\\jest.js",
     "args": [
-        "-i"
+        "-i", "--no-cache", "--testPathPattern", "${fileBasename}"
     ],
     "preLaunchTask": "build",
     "internalConsoleOptions": "openOnSessionStart",
