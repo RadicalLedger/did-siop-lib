@@ -51,8 +51,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var did_resolver_base_1 = require("./did_resolver_base");
 var globals_1 = require("../globals");
-// const {Ed25519VerificationKey2018} = require( '@digitalbazaar/ed25519-verification-key-2018');
-// const didKeyDriver = require('@digitalbazaar/did-method-key').driver({verificationSuite: Ed25519VerificationKey2018});
+var Ed25519VerificationKey2018 = require('@digitalbazaar/ed25519-verification-key-2018').Ed25519VerificationKey2018;
+var Ed25519VerificationKey2020 = require('@digitalbazaar/ed25519-verification-key-2020').Ed25519VerificationKey2020;
 /**
  * @classdesc Resolver class for did:key
  * @extends {DidResolver}
@@ -70,16 +70,18 @@ var KeyDidResolver2 = /** @class */ (function (_super) {
                     case 0:
                         if (crypto_suite === undefined)
                             crypto_suite = globals_1.CRYPTO_SUITES.Ed25519VerificationKey2020;
-                        didKeyDriver = this.getDidDriverForCryptoSuite(crypto_suite);
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
+                        didKeyDriver = this.getDidDriverForCryptoSuite(crypto_suite);
                         return [4 /*yield*/, didKeyDriver.get({ did: did })];
                     case 2:
                         didDocument = _a.sent();
+                        console.log("didDocument", didDocument);
                         return [2 /*return*/, didDocument];
                     case 3:
                         err_1 = _a.sent();
+                        console.log("KeyDidResolver2 Err", err_1);
                         return [2 /*return*/, undefined];
                     case 4: return [2 /*return*/];
                 }
@@ -90,11 +92,9 @@ var KeyDidResolver2 = /** @class */ (function (_super) {
         var didKeyDriver;
         switch (crypto_suite_package) {
             case globals_1.CRYPTO_SUITES.Ed25519VerificationKey2018:
-                var Ed25519VerificationKey2018 = require(globals_1.CRYPTO_SUITES.Ed25519VerificationKey2018).Ed25519VerificationKey2018;
                 didKeyDriver = require('@digitalbazaar/did-method-key').driver({ verificationSuite: Ed25519VerificationKey2018 });
                 break;
             default:
-                var Ed25519VerificationKey2020 = require(globals_1.CRYPTO_SUITES.Ed25519VerificationKey2020).Ed25519VerificationKey2020;
                 didKeyDriver = require('@digitalbazaar/did-method-key').driver({ verificationSuite: Ed25519VerificationKey2020 });
                 break;
         }
