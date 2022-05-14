@@ -6,7 +6,7 @@ import { KEY_FORMATS, ALGORITHMS, KTYS } from './globals';
 import { KeyInputs, Key, RSAKey, ECKey, OKP } from './JWKUtils';
 import { RSASigner, ES256KRecoverableSigner, ECSigner, OKPSigner } from './Signers';
 import { RSAVerifier, ES256KRecoverableVerifier, ECVerifier, OKPVerifier } from './Verifiers';
-import { checkKeyPair } from './Utils';
+import { checkKeyPair, isMultibasePvtKey ,getBase58fromMultibase} from './Utils';
 import { SIOPErrorResponse } from './ErrorResponse';
 
 export const ERRORS= Object.freeze({
@@ -87,6 +87,10 @@ export class RP {
             if(algorithm){}
             if(kid){}
             let didPublicKeySet = this.identity.extractAuthenticationKeys();
+            
+            if (isMultibasePvtKey(key))
+                key = getBase58fromMultibase(key);
+                
             for(let didPublicKey of didPublicKeySet){
                 let publicKeyInfo: KeyInputs.KeyInfo = {
                     key: didPublicKey.publicKey,
@@ -97,9 +101,8 @@ export class RP {
                     format: didPublicKey.format,
                     isPrivate: false
                 }
-    
-                for(let key_format in KEY_FORMATS){
-
+   
+                for(let key_format in KEY_FORMATS){                    
                     let privateKeyInfo: KeyInputs.KeyInfo = {
                         key: key,
                         kid: didPublicKey.id,
@@ -171,6 +174,17 @@ export class RP {
             throw err;
         }
     }
+
+        /**
+     * @param {string} pvtKey - private key provided by user for verifications
+     * @param {KeyInputs.KeyInfo} pubKey - Public Key Info extracted from DID Document
+     * @remarks TO BE FILLED
+     */
+         getKeyPairInfo(pvtKey: string, pubKey:KeyInputs.KeyInfo){
+             if (pvtKey) {}
+             if (pubKey) {}
+        }
+    
 
     /**
      * @param {string} kid - kid value of the SigningInfo which needs to be removed from the list

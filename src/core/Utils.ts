@@ -2,6 +2,8 @@ import { Key } from "./JWKUtils";
 import { ALGORITHMS, KEY_FORMATS, KTYS } from "./globals";
 import { Signer } from "./Signers";
 import { Verifier } from "./Verifiers";
+import * as base58 from 'bs58';
+
 
 /**
  * @param {string} data - The string value needed to be padded
@@ -72,3 +74,25 @@ export function validJsonObject(obj: any): boolean {
     }
     return valid;
 }
+
+export function getBase58fromMultibase(key:string) {
+    let x:Uint8Array = base58.decode(key.slice(1)) // Drop z and convert to Uint8Array
+    return base58.encode(x.subarray(2));; // return Uint8Array after dropping Multibase Header bytes, encode in base58 and rerurn  
+  } 
+
+  export function isMultibasePvtKey(key:string):boolean {
+
+    try {
+        let decoded = base58.decode(key.slice(1));    
+        if( key.charAt(0) == 'z' && // MULTIBASE_BASE58BTC_HEADER
+            decoded[0] == 0x80 &&   // MULTICODEC_ED25519_PRIV_HEADER 1st byte
+            decoded[1] == 0x26)     // MULTICODEC_ED25519_PRIV_HEADER 2nd byte
+            return true;
+        else
+            return false;
+    }
+    catch (err){
+        return false;
+    }
+}  
+  

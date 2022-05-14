@@ -68,3 +68,8 @@ export const SIOP_DISCOVERY_METADATA_STATIC = {
     subject_syntax_types_supported: ["urn:ietf:params:oauth:jwk-thumbprint"],
     id_token_types_supported: ["subject_signed"]
 }
+
+export const CRYPTO_SUITES = {
+    Ed25519VerificationKey2018 : "@digitalbazaar/ed25519-verification-key-2018",
+    Ed25519VerificationKey2020 : "@digitalbazaar/ed25519-verification-key-2020"    
+}
