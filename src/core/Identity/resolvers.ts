@@ -5,6 +5,7 @@ import { KeyDidResolver2 } from "./did_resolver_key";
 import { ERRORS } from "./commons";
 import { Resolver } from 'did-resolver'
 import { getResolver } from 'ethr-did-resolver';
+import { CRYPTO_SUITES } from "../globals";
 const axios = require('axios').default;
 
 /**
@@ -111,5 +112,6 @@ class UniversalDidResolver extends DidResolver{
 export const combinedDidResolver = new CombinedDidResolver('all')
     .addResolver(new EthrDidResolver('ethr'))
     // .addResolver(new KeyDidResolver('key'))
-    .addResolver(new KeyDidResolver2('key'))    
+    .addResolver(new KeyDidResolver2('key', CRYPTO_SUITES.Ed25519VerificationKey2018))
+    .addResolver(new KeyDidResolver2('key', CRYPTO_SUITES.Ed25519VerificationKey2020))    
     .addResolver(new UniversalDidResolver('uniresolver'));

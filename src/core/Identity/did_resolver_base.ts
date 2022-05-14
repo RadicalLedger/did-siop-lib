@@ -10,7 +10,7 @@ import { DidDocument } from "./commons";
      * @constructor
      * @param {string} methodName - Name of the specific DID Method.  
      */
-    constructor(protected methodName: string){}
+    constructor(protected methodName: string,protected cryto_suite?: string){}
 
     /**
      * 
@@ -18,7 +18,7 @@ import { DidDocument } from "./commons";
      * @returns A promise which resolves to a {DidDocument}
      * @remarks Any inheriting child class must implement this abstract method. Relates to the Read operation of the DID Method.
      */
-    abstract resolveDidDocumet(did: string): Promise<DidDocument | undefined>;
+    abstract resolveDidDocumet(did: string, cryto_suite?:string): Promise<DidDocument | undefined>;
 
     /**
      * 
@@ -29,6 +29,6 @@ import { DidDocument } from "./commons";
      */
     resolve(did: string): Promise<DidDocument | undefined>{
         if(did.split(':')[1] !== this.methodName) throw new Error('Incorrect did method');
-        return this.resolveDidDocumet(did);
+        return this.resolveDidDocumet(did,this.cryto_suite);
     }
 }

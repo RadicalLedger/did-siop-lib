@@ -1,6 +1,6 @@
 import { DidVerificationKeyMethod, DidVerificationKey, ERRORS } from "./commons";
 import { KEY_FORMATS, KTYS, ALGORITHMS } from "../globals";
-import { getKeyType, getAlgorithm } from "../Utils";
+import { getKeyType, getAlgorithm, getBase58fromMultibase } from "../Utils";
 const { toChecksumAddress } = require('ethereum-checksum-address');
 
 /**
@@ -294,6 +294,10 @@ function getVerificationKeyFromDifferentFormats(method: DidVerificationKeyMethod
         holder.format = KEY_FORMATS.ADDRESS;
         holder.publicKey = method.address;
     }
+    else if(method.publicKeyMultibase){
+        holder.format = KEY_FORMATS.BASE58;
+        holder.publicKey = getBase58fromMultibase(method.publicKeyMultibase);
+    }
     else{
         throw new Error(ERRORS.UNSUPPORTED_KEY_FORMAT);
     }
@@ -307,7 +311,7 @@ function getVerificationKeyFromDifferentFormats(method: DidVerificationKeyMethod
 }
 
 const jwsVerificationKey2020Extractor = new JwsVerificationKey2020Extractor('JwsVerificationKey2020');
-const ed25519VerificationKeyExtractor = new Ed25519VerificationKeyExtractor(['Ed25519VerificationKey2018', 'ED25519SignatureVerification'], jwsVerificationKey2020Extractor);
+const ed25519VerificationKeyExtractor = new Ed25519VerificationKeyExtractor(['Ed25519VerificationKey2018','Ed25519VerificationKey2020', 'ED25519SignatureVerification'], jwsVerificationKey2020Extractor);
 const gpgVerificationKey2020Extractor = new GpgVerificationKey2020Extractor('GpgVerificationKey2020', ed25519VerificationKeyExtractor);
 const rsaVerificationKeyExtractor = new RsaVerificationKeyExtractor('RsaVerificationKey2018', gpgVerificationKey2020Extractor);
 const ecdsaSecp256k1VerificationKeyExtractor = new EcdsaSecp256k1VerificationKeyExtractor(['EcdsaSecp256k1VerificationKey2019', 'Secp256k1VerificationKey2018', 'Secp256k1'], rsaVerificationKeyExtractor);
