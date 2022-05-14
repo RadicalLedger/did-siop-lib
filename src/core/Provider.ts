@@ -6,7 +6,7 @@ import { DidSiopResponse } from './Response';
 import { SigningInfo, JWTObject } from './JWT';
 import { Identity, DidDocument } from './Identity';
 import { DidSiopRequest } from './Request';
-import { checkKeyPair } from './Utils';
+import { checkKeyPair, isMultibasePvtKey ,getBase58fromMultibase} from './Utils';
 import * as ErrorResponse from './ErrorResponse';
 
 export const ERRORS= Object.freeze({
@@ -63,6 +63,9 @@ export class Provider{
             if(kid){}
 
             let didPublicKeySet = this.identity.extractAuthenticationKeys();
+
+            if (isMultibasePvtKey(key))
+                key = getBase58fromMultibase(key);
 
             for(let didPublicKey of didPublicKeySet){
                 let publicKeyInfo: KeyInputs.KeyInfo = {
