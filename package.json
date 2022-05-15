@@ -55,6 +55,7 @@
     "@babel/polyfill": "^7.12.1",
     "@digitalbazaar/did-method-key": "^2.0.0",
     "@digitalbazaar/ed25519-verification-key-2018": "^3.2.0",
+    "@digitalbazaar/ed25519-verification-key-2020": "^3.3.0",
     "axios": "^0.19.2",
     "base64url": "^3.0.1",
     "bs58": "^4.0.1",
