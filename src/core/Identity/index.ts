@@ -1,7 +1,7 @@
 import { DidDocument, DidVerificationKey, ERRORS } from './commons';
 import { DidResolver } from './Resolvers/did_resolver_base';
 import { DidVerificationKeyExtractor, uniExtractor } from './key-extractors';
-import { combinedDidResolver } from './Resolvers';
+import  * as Resolvers from  './Resolvers';
 
 /**
  * @classdesc A class to represent a Decentralized Identity.
@@ -31,7 +31,7 @@ export class Identity{
      */
     addResolvers(resolvers: DidResolver[]){
         for (let resolver in resolvers) {            
-            combinedDidResolver.addResolver(resolvers[resolver])
+            Resolvers.combinedDidResolver.addResolver(resolvers[resolver])
         }
     }
 
@@ -44,7 +44,7 @@ export class Identity{
     async resolve(did: string): Promise<string>{
         let result: DidDocument;
         try{
-            result = await combinedDidResolver.resolve(did);
+            result = await Resolvers.combinedDidResolver.resolve(did);
         }
         catch(err){
             throw new Error(ERRORS.DOCUMENT_RESOLUTION_ERROR);
@@ -173,3 +173,4 @@ export class Identity{
 
 export { DidDocument, DidVerificationKey, DidVerificationKeyMethod, ERRORS } from './commons';
 export { DidVerificationKeyExtractor, uniExtractor} from './key-extractors';
+export {Resolvers}
