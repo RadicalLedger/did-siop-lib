@@ -1,6 +1,8 @@
 import { DidResolver } from "./did_resolver_base";
 import { DidDocument } from "./commons";
 import { CRYPTO_SUITES } from "../globals";
+
+const {driver} = require('@digitalbazaar/did-method-key'); 
 const {Ed25519VerificationKey2018} = require( '@digitalbazaar/ed25519-verification-key-2018');
 const {Ed25519VerificationKey2020} = require( '@digitalbazaar/ed25519-verification-key-2020');
 
@@ -15,7 +17,6 @@ export class KeyDidResolver2 extends DidResolver{
         try{
             let didKeyDriver = this.getDidDriverForCryptoSuite(crypto_suite)     
             let didDocument:any = await didKeyDriver.get({did})
-            console.log("didDocument",didDocument);
             
             return didDocument;
         }
@@ -27,13 +28,13 @@ export class KeyDidResolver2 extends DidResolver{
 
     getDidDriverForCryptoSuite(crypto_suite_package:string):any{
         let didKeyDriver:any;
-    
+
         switch (crypto_suite_package){
             case CRYPTO_SUITES.Ed25519VerificationKey2018 : 
-                didKeyDriver = require('@digitalbazaar/did-method-key').driver({verificationSuite: Ed25519VerificationKey2018});        
+                didKeyDriver = driver({verificationSuite: Ed25519VerificationKey2018});        
                 break;
             default:
-                didKeyDriver = require('@digitalbazaar/did-method-key').driver({verificationSuite: Ed25519VerificationKey2020});        
+                didKeyDriver = driver({verificationSuite: Ed25519VerificationKey2020});        
                 break;
         }
         return didKeyDriver;
