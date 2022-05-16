@@ -2,7 +2,7 @@
 const axios = require('axios').default;
 
 import { DidResolver } from "./did_resolver_base";
-import { DidDocument } from "./commons";
+import { DidDocument } from "../commons";
 
 /**
  * @classdesc Resolver class which is based on the endpoint of https://dev.uniresolver.io/.
