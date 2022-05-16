@@ -1,4 +1,6 @@
 import { ERROR_RESPONSES } from './../src/core/ErrorResponse';
+import {CRYPTO_SUITES} from '../src/core/globals'
+import {  KeyDidResolver2 } from '../src/core/Identity/Resolvers/did_resolver_key';
 import { JWTObject } from './../src/core/JWT';
 import { Provider, ERRORS as ProviderErrors } from './../src/core/Provider';
 import { RP, ERRORS as RPErrors } from '../src/core/RP';
@@ -147,8 +149,8 @@ describe('DID SIOP using did:ethr method DIDs', function () {
 describe('DID SIOP using did:key method DIDs : crypto suite Ed25519VerificationKey2018', function () {
     test('end to end functions testing ', async () => {
         jest.setTimeout(30000);
-
-        let rp = await RP.getRP(rpRedirectURI, DIDS[2].did, rpRegistrationMetaData);
+        let keyResolv2018 = new KeyDidResolver2('key', CRYPTO_SUITES.Ed25519VerificationKey2018);
+        let rp = await RP.getRP(rpRedirectURI, DIDS[2].did, rpRegistrationMetaData,undefined,[keyResolv2018]);
         let kid = rp.addSigningParams(DIDS[2].keyInfo.privateKey);
         expect(kid).toEqual(DIDS[2].resolverReturn.didDocument.verificationMethod[0].id);
 
@@ -173,8 +175,8 @@ describe('DID SIOP using did:key method DIDs : crypto suite Ed25519VerificationK
 describe('DID SIOP using did:key method DIDs : crypto suite Ed25519VerificationKey2020', function () {
     test('end to end functions testing ', async () => {
         jest.setTimeout(30000);
-
-        let rp = await RP.getRP(rpRedirectURI, DIDS[2].did, rpRegistrationMetaData);
+        let keyResolv2020 = new KeyDidResolver2('key', CRYPTO_SUITES.Ed25519VerificationKey2020)
+        let rp = await RP.getRP(rpRedirectURI, DIDS[2].did, rpRegistrationMetaData,undefined,[keyResolv2020]);
         let kid = rp.addSigningParams(DIDS[2].keyInfo.privateKey);
         expect(kid).toEqual(DIDS[2].resolverReturn.didDocument.verificationMethod[0].id);
 
