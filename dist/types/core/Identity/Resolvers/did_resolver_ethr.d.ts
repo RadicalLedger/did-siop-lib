@@ -1,5 +1,5 @@
 import { DidResolver } from "./did_resolver_base";
-import { DidDocument } from "./commons";
+import { DidDocument } from "../commons";
 /**
  * @classdesc Resolver class for Ethereum DIDs
  * @extends {DidResolver}

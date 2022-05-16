@@ -49,10 +49,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var commons_1 = require("./commons");
-var globals_1 = require("../globals");
+var commons_1 = require("../commons");
 var did_resolver_base_1 = require("./did_resolver_base");
-var did_resolver_key_1 = require("./did_resolver_key");
 var did_resolver_ethr_1 = require("./did_resolver_ethr");
 var did_resolver_uniresolver_1 = require("./did_resolver_uniresolver");
 /**
@@ -131,7 +129,7 @@ var CombinedDidResolver = /** @class */ (function (_super) {
  */
 exports.combinedDidResolver = new CombinedDidResolver('all')
     .addResolver(new did_resolver_ethr_1.EthrDidResolver('ethr'))
-    .addResolver(new did_resolver_key_1.KeyDidResolver2('key', globals_1.CRYPTO_SUITES.Ed25519VerificationKey2018))
-    .addResolver(new did_resolver_key_1.KeyDidResolver2('key', globals_1.CRYPTO_SUITES.Ed25519VerificationKey2020))
+    // .addResolver(new KeyDidResolver2('key', CRYPTO_SUITES.Ed25519VerificationKey2018))
+    // .addResolver(new KeyDidResolver2('key', CRYPTO_SUITES.Ed25519VerificationKey2020))    
     .addResolver(new did_resolver_uniresolver_1.UniversalDidResolver('uniresolver'));
-//# sourceMappingURL=resolvers.js.map
+//# sourceMappingURL=index.js.map

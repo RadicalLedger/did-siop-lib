@@ -1,5 +1,5 @@
 import { DidResolver } from "./did_resolver_base";
-import { DidDocument } from "./commons";
+import { DidDocument } from "../commons";
 /**
  * @classdesc Resolver class which is based on the endpoint of https://dev.uniresolver.io/.
  * Can be used resolve Documents for any DID Method supported by the service.

@@ -1,4 +1,4 @@
-import { DidDocument } from "./commons";
+import { DidDocument } from "../commons";
 /**
  * @classdesc An abstract class which defines the interface for Resolver classes.
  * Resolvers are used to resolve the Decentralized Identity Document for a given DID.

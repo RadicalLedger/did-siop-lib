@@ -1,4 +1,4 @@
-import { DidDocument } from "./commons";
+import { DidDocument } from "../commons";
 import { DidResolver } from "./did_resolver_base";
 /**
  * @classdesc A Resolver class which combines several other Resolvers in chain.

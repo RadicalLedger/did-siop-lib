@@ -50,7 +50,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var did_resolver_base_1 = require("./did_resolver_base");
-var globals_1 = require("../globals");
+var globals_1 = require("../../globals");
 var driver = require('@digitalbazaar/did-method-key').driver;
 var Ed25519VerificationKey2018 = require('@digitalbazaar/ed25519-verification-key-2018').Ed25519VerificationKey2018;
 var Ed25519VerificationKey2020 = require('@digitalbazaar/ed25519-verification-key-2020').Ed25519VerificationKey2020;

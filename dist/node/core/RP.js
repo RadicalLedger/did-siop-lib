@@ -81,11 +81,12 @@ var RP = /** @class */ (function () {
      * @param {any} registration - Registration information of the Relying Party
      * https://openid.net/specs/openid-connect-core-1_0.html#RegistrationParameter
      * @param {DidDocument} [did_doc] - DID Document of the RP. Optional
+     * @param {DidResolver[]} [resolvers] - Array of Resolvers (Derived from DidResolver) to be used for DID resolution
      * @returns {Promise<RP>} - A Promise which resolves to an instance of RP class
      * @remarks Creating RP instances involves some async code and cannot be implemented as a constructor.
      * Hence this static method is used in place of the constructor.
      */
-    RP.getRP = function (redirect_uri, did, registration, did_doc) {
+    RP.getRP = function (redirect_uri, did, registration, did_doc, resolvers) {
         return __awaiter(this, void 0, void 0, function () {
             var rp, err_1;
             return __generator(this, function (_a) {
@@ -93,10 +94,13 @@ var RP = /** @class */ (function () {
                     case 0:
                         _a.trys.push([0, 4, , 5]);
                         rp = new RP(redirect_uri, did, registration, did_doc);
-                        if (!did_doc) return [3 /*break*/, 1];
+                        if (!(did_doc && did_doc !== undefined)) return [3 /*break*/, 1];
                         rp.identity.setDocument(did_doc, did);
                         return [3 /*break*/, 3];
-                    case 1: return [4 /*yield*/, rp.identity.resolve(did)];
+                    case 1:
+                        if (resolvers && resolvers.length > 0)
+                            rp.identity.addResolvers(resolvers);
+                        return [4 /*yield*/, rp.identity.resolve(did)];
                     case 2:
                         _a.sent();
                         _a.label = 3;

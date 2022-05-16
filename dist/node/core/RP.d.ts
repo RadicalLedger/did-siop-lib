@@ -3,6 +3,7 @@ import { JWTObject } from './JWT';
 import { DidDocument } from './Identity';
 import { KEY_FORMATS, ALGORITHMS } from './globals';
 import { SIOPErrorResponse } from './ErrorResponse';
+import { DidResolver } from './Identity/Resolvers/did_resolver_base';
 export declare const ERRORS: Readonly<{
     NO_SIGNING_INFO: string;
     NO_PUBLIC_KEY: string;
@@ -34,11 +35,12 @@ export declare class RP {
      * @param {any} registration - Registration information of the Relying Party
      * https://openid.net/specs/openid-connect-core-1_0.html#RegistrationParameter
      * @param {DidDocument} [did_doc] - DID Document of the RP. Optional
+     * @param {DidResolver[]} [resolvers] - Array of Resolvers (Derived from DidResolver) to be used for DID resolution
      * @returns {Promise<RP>} - A Promise which resolves to an instance of RP class
      * @remarks Creating RP instances involves some async code and cannot be implemented as a constructor.
      * Hence this static method is used in place of the constructor.
      */
-    static getRP(redirect_uri: string, did: string, registration: any, did_doc?: DidDocument): Promise<RP>;
+    static getRP(redirect_uri: string, did: string, registration: any, did_doc?: DidDocument, resolvers?: DidResolver[]): Promise<RP>;
     /**
      * @param {string} key - Private part of any cryptographic key listed in the 'authentication' field of RP's DID Document
      * @param {string} [kid] - kid value of the key. Optional and not used

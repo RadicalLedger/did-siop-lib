@@ -38,7 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var commons_1 = require("./commons");
 var key_extractors_1 = require("./key-extractors");
-var resolvers_1 = require("./resolvers");
+var Resolvers_1 = require("./Resolvers");
 /**
  * @classdesc A class to represent a Decentralized Identity.
  * @property {DidDocument} doc - Decentralized Identity Document. Initialized with empty values in the constructor. Assigned later using resolve(did) method.
@@ -57,6 +57,16 @@ var Identity = /** @class */ (function () {
         this.keySet = [];
     }
     /**
+ *
+ * @param {DidResolver[]} resolvers - Array of resolvers derived from DidResolver to be use in resolving a given DID
+ * @remarks The combinedResolver is used to resolve did-doc.
+ */
+    Identity.prototype.addResolvers = function (resolvers) {
+        for (var resolver in resolvers) {
+            Resolvers_1.combinedDidResolver.addResolver(resolvers[resolver]);
+        }
+    };
+    /**
      *
      * @param {string} did - A Decentralized Identity to resolve
      * @returns A promise which resolves to the id field of the related Decentralized Idenity Document (did-doc)
@@ -69,7 +79,7 @@ var Identity = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, resolvers_1.combinedDidResolver.resolve(did)];
+                        return [4 /*yield*/, Resolvers_1.combinedDidResolver.resolve(did)];
                     case 1:
                         result = _a.sent();
                         return [3 /*break*/, 3];

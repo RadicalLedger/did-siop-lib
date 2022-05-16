@@ -1,4 +1,5 @@
 import { DidDocument, DidVerificationKey } from './commons';
+import { DidResolver } from './Resolvers/did_resolver_base';
 import { DidVerificationKeyExtractor } from './key-extractors';
 /**
  * @classdesc A class to represent a Decentralized Identity.
@@ -12,6 +13,12 @@ export declare class Identity {
      * @constructor
      */
     constructor();
+    /**
+ *
+ * @param {DidResolver[]} resolvers - Array of resolvers derived from DidResolver to be use in resolving a given DID
+ * @remarks The combinedResolver is used to resolve did-doc.
+ */
+    addResolvers(resolvers: DidResolver[]): void;
     /**
      *
      * @param {string} did - A Decentralized Identity to resolve
