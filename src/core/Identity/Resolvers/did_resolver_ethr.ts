@@ -2,7 +2,7 @@ import { DidResolver } from "./did_resolver_base";
 import { Resolver } from 'did-resolver'
 import { getResolver } from 'ethr-did-resolver';
 
-import { DidDocument } from "./commons";
+import { DidDocument } from "../commons";
 
 /**
  * @classdesc Resolver class for Ethereum DIDs

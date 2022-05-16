@@ -1,6 +1,6 @@
 import { DidResolver } from "./did_resolver_base";
-import { DidDocument } from "./commons";
-import { CRYPTO_SUITES } from "../globals";
+import { DidDocument } from "../commons";
+import { CRYPTO_SUITES } from "../../globals";
 
 const {driver} = require('@digitalbazaar/did-method-key'); 
 const {Ed25519VerificationKey2018} = require( '@digitalbazaar/ed25519-verification-key-2018');

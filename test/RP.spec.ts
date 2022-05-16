@@ -1,5 +1,7 @@
+import {CRYPTO_SUITES} from '../src/core/globals'
 import { RP} from '../src/core/RP';
 import {  ERRORS as ID_ERRORS } from '../src/core/Identity';
+import {  KeyDidResolver2 } from '../src/core/Identity/Resolvers/did_resolver_key';
 // import nock from 'nock';
 import {DID_TEST_RESOLVER_DATA_NEW } from './did_doc.spec.resources'
 import { ALGORITHMS,KEY_FORMATS } from '../src';
@@ -36,10 +38,13 @@ describe("RP related function with did:ethr ", function() {
 describe("RP related function with did:key crypto suite Ed25519VerificationKey2018", function() {
     jest.setTimeout(30000);
     test("getRP shoud return a valid RP instance with ", async () => {
+        let keyResolv2018 = new KeyDidResolver2('key', CRYPTO_SUITES.Ed25519VerificationKey2018);
         let siop_rp = await RP.getRP(
             redirect_uri, // RP's redirect_uri
             DID_TEST_RESOLVER_DATA_NEW[3].did, // RP's did
-            registration
+            registration,
+            undefined,
+            [keyResolv2018]
         )
         expect(siop_rp).not.toBe(null);
 
@@ -67,10 +72,13 @@ describe("RP related function with did:key crypto suite Ed25519VerificationKey20
 describe("RP related function with did:key crypto suite Ed25519VerificationKey2020", function() {
     jest.setTimeout(30000);
     test("getRP shoud return a valid RP instance with ", async () => {
+        let keyResolv2020 = new KeyDidResolver2('key', CRYPTO_SUITES.Ed25519VerificationKey2020)
         let siop_rp = await RP.getRP(
             redirect_uri, // RP's redirect_uri
             DID_TEST_RESOLVER_DATA_NEW[4].did, // RP's did
-            registration
+            registration,
+            undefined,
+            [keyResolv2020]
         )
         expect(siop_rp).not.toBe(null);
 

@@ -8,6 +8,7 @@ import { RSASigner, ES256KRecoverableSigner, ECSigner, OKPSigner } from './Signe
 import { RSAVerifier, ES256KRecoverableVerifier, ECVerifier, OKPVerifier } from './Verifiers';
 import { checkKeyPair, isMultibasePvtKey ,getBase58fromMultibase} from './Utils';
 import { SIOPErrorResponse } from './ErrorResponse';
+import { DidResolver } from './Identity/Resolvers/did_resolver_base';
 
 export const ERRORS= Object.freeze({
     NO_SIGNING_INFO: 'At least one public key must be confirmed with related private key',
@@ -50,17 +51,20 @@ export class RP {
      * @param {any} registration - Registration information of the Relying Party
      * https://openid.net/specs/openid-connect-core-1_0.html#RegistrationParameter
      * @param {DidDocument} [did_doc] - DID Document of the RP. Optional
+     * @param {DidResolver[]} [resolvers] - Array of Resolvers (Derived from DidResolver) to be used for DID resolution
      * @returns {Promise<RP>} - A Promise which resolves to an instance of RP class
      * @remarks Creating RP instances involves some async code and cannot be implemented as a constructor.
      * Hence this static method is used in place of the constructor.
      */
-    static async getRP(redirect_uri: string, did: string, registration: any, did_doc?: DidDocument): Promise<RP> {
+    static async getRP(redirect_uri: string, did: string, registration: any, did_doc?: DidDocument, resolvers?:DidResolver[]): Promise<RP> {
         try {
             let rp = new RP(redirect_uri, did, registration, did_doc)
-            if(did_doc){
+            if(did_doc && did_doc !== undefined){
                 rp.identity.setDocument(did_doc, did);
             }
             else{
+                if (resolvers && resolvers.length>0)
+                    rp.identity.addResolvers(resolvers);
                 await rp.identity.resolve(did);
             }
             return rp;
