@@ -35,10 +35,18 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var commons_1 = require("./commons");
 var key_extractors_1 = require("./key-extractors");
-var Resolvers_1 = require("./Resolvers");
+var Resolvers = __importStar(require("./Resolvers"));
+exports.Resolvers = Resolvers;
 /**
  * @classdesc A class to represent a Decentralized Identity.
  * @property {DidDocument} doc - Decentralized Identity Document. Initialized with empty values in the constructor. Assigned later using resolve(did) method.
@@ -63,7 +71,7 @@ var Identity = /** @class */ (function () {
  */
     Identity.prototype.addResolvers = function (resolvers) {
         for (var resolver in resolvers) {
-            Resolvers_1.combinedDidResolver.addResolver(resolvers[resolver]);
+            Resolvers.combinedDidResolver.addResolver(resolvers[resolver]);
         }
     };
     /**
@@ -79,7 +87,7 @@ var Identity = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, Resolvers_1.combinedDidResolver.resolve(did)];
+                        return [4 /*yield*/, Resolvers.combinedDidResolver.resolve(did)];
                     case 1:
                         result = _a.sent();
                         return [3 /*break*/, 3];

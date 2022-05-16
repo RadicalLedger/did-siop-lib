@@ -52,7 +52,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var commons_1 = require("../commons");
 var did_resolver_base_1 = require("./did_resolver_base");
 var did_resolver_ethr_1 = require("./did_resolver_ethr");
+exports.EthrDidResolver = did_resolver_ethr_1.EthrDidResolver;
+var did_resolver_key_1 = require("./did_resolver_key");
+exports.KeyDidResolver2 = did_resolver_key_1.KeyDidResolver2;
 var did_resolver_uniresolver_1 = require("./did_resolver_uniresolver");
+exports.UniversalDidResolver = did_resolver_uniresolver_1.UniversalDidResolver;
 /**
  * @classdesc A Resolver class which combines several other Resolvers in chain.
  * A given DID is tried with each Resolver object and if fails, passed to the next one in the chain.

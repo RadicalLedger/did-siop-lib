@@ -1,6 +1,7 @@
 import { DidDocument, DidVerificationKey } from './commons';
 import { DidResolver } from './Resolvers/did_resolver_base';
 import { DidVerificationKeyExtractor } from './key-extractors';
+import * as Resolvers from './Resolvers';
 /**
  * @classdesc A class to represent a Decentralized Identity.
  * @property {DidDocument} doc - Decentralized Identity Document. Initialized with empty values in the constructor. Assigned later using resolve(did) method.
@@ -57,3 +58,4 @@ export declare class Identity {
 }
 export { DidDocument, DidVerificationKey, DidVerificationKeyMethod, ERRORS } from './commons';
 export { DidVerificationKeyExtractor, uniExtractor } from './key-extractors';
+export { Resolvers };
