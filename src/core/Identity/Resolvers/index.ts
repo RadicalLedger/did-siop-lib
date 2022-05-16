@@ -1,6 +1,7 @@
 import { DidDocument,ERRORS } from "../commons";
 import { DidResolver } from "./did_resolver_base";
 import { EthrDidResolver } from "./did_resolver_ethr";
+import { KeyDidResolver2 } from "./did_resolver_key";
 import { UniversalDidResolver } from "./did_resolver_uniresolver";
 
 
@@ -65,3 +66,5 @@ export const combinedDidResolver = new CombinedDidResolver('all')
     // .addResolver(new KeyDidResolver2('key', CRYPTO_SUITES.Ed25519VerificationKey2018))
     // .addResolver(new KeyDidResolver2('key', CRYPTO_SUITES.Ed25519VerificationKey2020))    
     .addResolver(new UniversalDidResolver('uniresolver'));
+
+export {KeyDidResolver2, EthrDidResolver,UniversalDidResolver}
