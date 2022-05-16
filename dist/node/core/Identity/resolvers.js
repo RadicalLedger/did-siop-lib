@@ -12,17 +12,6 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -60,13 +49,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var commons_1 = require("./commons");
+var globals_1 = require("../globals");
 var did_resolver_base_1 = require("./did_resolver_base");
 var did_resolver_key_1 = require("./did_resolver_key");
-var commons_1 = require("./commons");
-var did_resolver_1 = require("did-resolver");
-var ethr_did_resolver_1 = require("ethr-did-resolver");
-var globals_1 = require("../globals");
-var axios = require('axios').default;
+var did_resolver_ethr_1 = require("./did_resolver_ethr");
+var did_resolver_uniresolver_1 = require("./did_resolver_uniresolver");
 /**
  * @classdesc A Resolver class which combines several other Resolvers in chain.
  * A given DID is tried with each Resolver object and if fails, passed to the next one in the chain.
@@ -139,84 +127,11 @@ var CombinedDidResolver = /** @class */ (function (_super) {
     return CombinedDidResolver;
 }(did_resolver_base_1.DidResolver));
 /**
- * @classdesc Resolver class for Ethereum DIDs
- * @extends {DidResolver}
- */
-var EthrDidResolver = /** @class */ (function (_super) {
-    __extends(EthrDidResolver, _super);
-    function EthrDidResolver() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    EthrDidResolver.prototype.resolveDidDocumet = function (did) {
-        return __awaiter(this, void 0, void 0, function () {
-            var providerConfig, ethrDidResolver, didResolver, result, didDoc, e_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        providerConfig = { name: "rinkeby", rpcUrl: 'https://rinkeby.infura.io/v3/e0a6ac9a2c4a4722970325c36b728415' };
-                        ethrDidResolver = ethr_did_resolver_1.getResolver(providerConfig);
-                        didResolver = new did_resolver_1.Resolver(ethrDidResolver);
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, didResolver.resolve(did)];
-                    case 2:
-                        result = _a.sent();
-                        didDoc = __assign({}, result.didDocument);
-                        return [2 /*return*/, didDoc];
-                    case 3:
-                        e_1 = _a.sent();
-                        return [2 /*return*/, undefined];
-                    case 4: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    return EthrDidResolver;
-}(did_resolver_base_1.DidResolver));
-/**
- * @classdesc Resolver class which is based on the endpoint of https://dev.uniresolver.io/.
- * Can be used resolve Documents for any DID Method supported by the service.
- * @extends {DidResolver}
- */
-var UniversalDidResolver = /** @class */ (function (_super) {
-    __extends(UniversalDidResolver, _super);
-    function UniversalDidResolver() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    UniversalDidResolver.prototype.resolveDidDocumet = function (did) {
-        return __awaiter(this, void 0, void 0, function () {
-            var returned;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, axios.get('https://dev.uniresolver.io/1.0/identifiers/' + did)];
-                    case 1:
-                        returned = _a.sent();
-                        return [2 /*return*/, returned.data.didDocument];
-                }
-            });
-        });
-    };
-    /**
-     *
-     * @param {string} did - DID to resolve the DID Document for.
-     * @returns A promise which resolves to a {DidDocument}
-     * @override resolve(did) method of the {DidResolver}
-     * @remarks Unlike other resolvers this class can resolve Documents for many DID Methods.
-     * Therefore the check in the parent class needs to be overridden.
-     */
-    UniversalDidResolver.prototype.resolve = function (did) {
-        return this.resolveDidDocumet(did);
-    };
-    return UniversalDidResolver;
-}(did_resolver_base_1.DidResolver));
-/**
  * @exports CombinedDidResolver An instance of CombinedResolver which includes resolvers for currenlty implemented DID Methods.
  */
 exports.combinedDidResolver = new CombinedDidResolver('all')
-    .addResolver(new EthrDidResolver('ethr'))
-    // .addResolver(new KeyDidResolver('key'))
+    .addResolver(new did_resolver_ethr_1.EthrDidResolver('ethr'))
     .addResolver(new did_resolver_key_1.KeyDidResolver2('key', globals_1.CRYPTO_SUITES.Ed25519VerificationKey2018))
     .addResolver(new did_resolver_key_1.KeyDidResolver2('key', globals_1.CRYPTO_SUITES.Ed25519VerificationKey2020))
-    .addResolver(new UniversalDidResolver('uniresolver'));
+    .addResolver(new did_resolver_uniresolver_1.UniversalDidResolver('uniresolver'));
 //# sourceMappingURL=resolvers.js.map

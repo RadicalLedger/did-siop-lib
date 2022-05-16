@@ -51,6 +51,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var did_resolver_base_1 = require("./did_resolver_base");
 var globals_1 = require("../globals");
+var driver = require('@digitalbazaar/did-method-key').driver;
 var Ed25519VerificationKey2018 = require('@digitalbazaar/ed25519-verification-key-2018').Ed25519VerificationKey2018;
 var Ed25519VerificationKey2020 = require('@digitalbazaar/ed25519-verification-key-2020').Ed25519VerificationKey2020;
 /**
@@ -77,7 +78,6 @@ var KeyDidResolver2 = /** @class */ (function (_super) {
                         return [4 /*yield*/, didKeyDriver.get({ did: did })];
                     case 2:
                         didDocument = _a.sent();
-                        console.log("didDocument", didDocument);
                         return [2 /*return*/, didDocument];
                     case 3:
                         err_1 = _a.sent();
@@ -92,10 +92,10 @@ var KeyDidResolver2 = /** @class */ (function (_super) {
         var didKeyDriver;
         switch (crypto_suite_package) {
             case globals_1.CRYPTO_SUITES.Ed25519VerificationKey2018:
-                didKeyDriver = require('@digitalbazaar/did-method-key').driver({ verificationSuite: Ed25519VerificationKey2018 });
+                didKeyDriver = driver({ verificationSuite: Ed25519VerificationKey2018 });
                 break;
             default:
-                didKeyDriver = require('@digitalbazaar/did-method-key').driver({ verificationSuite: Ed25519VerificationKey2020 });
+                didKeyDriver = driver({ verificationSuite: Ed25519VerificationKey2020 });
                 break;
         }
         return didKeyDriver;
