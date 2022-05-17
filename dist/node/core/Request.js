@@ -66,11 +66,11 @@ var JWKUtils_1 = require("./JWKUtils");
 var globals_1 = require("./globals");
 var JWT = __importStar(require("./JWT"));
 var Claims_1 = require("./Claims");
-// import { type } from 'os';
 var axios = require('axios').default;
-var RESPONSE_TYPES = ['id_token',];
-var SUPPORTED_SCOPES = ['openid', 'did_authn',];
-var REQUIRED_SCOPES = ['openid', 'did_authn',];
+// const RESPONSE_TYPES = ['id_token',];
+// const SUPPORTED_SCOPES = ['openid', 'did_authn',];
+// const REQUIRED_SCOPES = ['openid', 'did_authn',];
+var REQUIRED_SCOPES = ['openid'];
 /**
  * @classdesc This class contains static methods related to DID SIOP request generation and validation
  */
@@ -83,12 +83,15 @@ var DidSiopRequest = /** @class */ (function () {
      * @remarks This method make use of two functions which first validates the url parameters of the request
      * and then the request JWT contained in 'request' or 'requestURI' parameter
      */
-    DidSiopRequest.validateRequest = function (request) {
+    DidSiopRequest.validateRequest = function (request, op_metadata) {
         return __awaiter(this, void 0, void 0, function () {
             var requestJWT, jwtDecoded;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, validateRequestParams(request)];
+                    case 0:
+                        if (op_metadata === undefined)
+                            op_metadata = globals_1.SIOP_METADATA_SUPPORTED;
+                        return [4 /*yield*/, validateRequestParams(request, op_metadata)];
                     case 1:
                         requestJWT = _a.sent();
                         return [4 /*yield*/, validateRequestJWT(requestJWT)];
@@ -156,7 +159,7 @@ exports.DidSiopRequest = DidSiopRequest;
  * If the parameters in the request url is valid then this method returns the encoded request JWT
  * https://identity.foundation/did-siop/#siop-request-validation
  */
-function validateRequestParams(request) {
+function validateRequestParams(request, op_metadata) {
     return __awaiter(this, void 0, void 0, function () {
         var parsed, requestedScopes_1, returnedValue, err_1;
         return __generator(this, function (_a) {
@@ -169,12 +172,12 @@ function validateRequestParams(request) {
                         return [2 /*return*/, Promise.reject(ErrorResponse_1.ERROR_RESPONSES.invalid_request.err)];
                     if (parsed.query.scope) {
                         requestedScopes_1 = parsed.query.scope.toString().split(' ');
-                        if (!(requestedScopes_1.every(function (s) { return SUPPORTED_SCOPES.includes(s); })) || !(REQUIRED_SCOPES.every(function (s) { return requestedScopes_1.includes(s); })))
+                        if (!(requestedScopes_1.every(function (s) { return op_metadata.scopes.includes(s); })) || !(REQUIRED_SCOPES.every(function (s) { return requestedScopes_1.includes(s); })))
                             return [2 /*return*/, Promise.reject(ErrorResponse_1.ERROR_RESPONSES.invalid_scope.err)];
                     }
                     else
                         return [2 /*return*/, Promise.reject(ErrorResponse_1.ERROR_RESPONSES.invalid_request.err)];
-                    if (!RESPONSE_TYPES.includes(parsed.query.response_type.toString()))
+                    if (!op_metadata.response_types.includes(parsed.query.response_type.toString()))
                         return [2 /*return*/, Promise.reject(ErrorResponse_1.ERROR_RESPONSES.unsupported_response_type.err)];
                     if (!(parsed.query.request === undefined || parsed.query.request === null)) return [3 /*break*/, 6];
                     if (!(parsed.query.request_uri === undefined || parsed.query.request_uri === null)) return [3 /*break*/, 1];
@@ -202,6 +205,45 @@ function validateRequestParams(request) {
         });
     });
 }
+/**
+ * async function validateRequestParams(request: string): Promise<string> {
+    let parsed = queryString.parseUrl(request);
+
+    if (
+        parsed.url !== 'openid://' ||
+        (!parsed.query.client_id || parsed.query.client_id.toString().match(/^ *$/)) ||
+        (!parsed.query.response_type || parsed.query.response_type.toString().match(/^ *$/))
+    ) return Promise.reject(ERROR_RESPONSES.invalid_request.err);
+
+    if (parsed.query.scope) {
+        let requestedScopes = parsed.query.scope.toString().split(' ');
+        if (!(requestedScopes.every(s => SUPPORTED_SCOPES.includes(s))) || !(REQUIRED_SCOPES.every(s => requestedScopes.includes(s))))
+            return Promise.reject(ERROR_RESPONSES.invalid_scope.err);
+    }
+    else return Promise.reject(ERROR_RESPONSES.invalid_request.err);
+
+    if (!RESPONSE_TYPES.includes(parsed.query.response_type.toString())) return Promise.reject(ERROR_RESPONSES.unsupported_response_type.err);
+
+    if (parsed.query.request === undefined || parsed.query.request === null) {
+        if (parsed.query.request_uri === undefined || parsed.query.request_uri === null) {
+            return Promise.reject(ERROR_RESPONSES.invalid_request.err);
+        }
+        else {
+            if (parsed.query.request_uri.toString().match(/^ *$/)) return Promise.reject(ERROR_RESPONSES.invalid_request_uri.err)
+            try {
+                let returnedValue = await axios.get(parsed.query.request_uri);
+                return returnedValue.data ? returnedValue.data : Promise.reject(ERROR_RESPONSES.invalid_request_uri.err);
+            } catch (err) {
+                return Promise.reject(ERROR_RESPONSES.invalid_request_uri.err);
+            }
+        }
+    }
+    else {
+        if (parsed.query.request.toString().match(/^ *$/)) return Promise.reject(ERROR_RESPONSES.invalid_request_object.err);
+        return parsed.query.request.toString();
+    }
+}
+ */
 /**
  * @param {string} requestJWT - An encoded JWT
  * @returns {Promise<JWT.JWTObject>} - A Promise which resolves to a decoded request JWT

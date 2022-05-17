@@ -33,17 +33,24 @@ export declare enum KEY_FORMATS {
     ETHEREUM_ADDRESS = 7,
     JWK = 8
 }
-export declare const SIOP_DISCOVERY_METADATA_STATIC: {
+export interface SiopMetadataSupported {
     authorization_endpoint: string;
     issuer: string;
-    response_types_supported: string[];
-    scopes_supported: string[];
-    subject_types_supported: string[];
-    id_token_signing_alg_values_supported: string[];
-    request_object_signing_alg_values_supported: string[];
-    subject_syntax_types_supported: string[];
-    id_token_types_supported: string[];
-};
+    response_types: string[];
+    scopes: string[];
+    subject_types: string[];
+    id_token_signing_alg_values: string[];
+    request_object_signing_alg_values: string[];
+    subject_syntax_types: string[];
+    id_token_types: string[];
+}
+/**
+ * This structure is used to specify what metadata would be used to communcate with the OP
+ * If RP has metadata of OP acquired in and out-of-band method those will be used,
+ * otherwise OP's static metadata would be used. Structure us initialised with SIOP_STATIC_METADATA_SUPPORTED
+ * for the developer convenience
+ */
+export declare const SIOP_METADATA_SUPPORTED: SiopMetadataSupported;
 export declare const CRYPTO_SUITES: {
     Ed25519VerificationKey2018: string;
     Ed25519VerificationKey2020: string;

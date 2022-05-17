@@ -54,16 +54,37 @@ var KEY_FORMATS;
     KEY_FORMATS[KEY_FORMATS["ETHEREUM_ADDRESS"] = 7] = "ETHEREUM_ADDRESS";
     KEY_FORMATS[KEY_FORMATS["JWK"] = 8] = "JWK";
 })(KEY_FORMATS = exports.KEY_FORMATS || (exports.KEY_FORMATS = {}));
-exports.SIOP_DISCOVERY_METADATA_STATIC = {
+/**
+ * Values to be used when dynamic metadata discovery is not possible
+ * https://openid.net/specs/openid-connect-self-issued-v2-1_0.html#name-static-self-issued-openid-p
+ */
+var SIOP_STATIC_METADATA_SUPPORTED = Object.freeze({
     authorization_endpoint: "openid:",
     issuer: "https://self-issued.me/v2",
     response_types_supported: ["id_token"],
-    scopes_supported: ["openid"],
+    scopes_supported: ["openid", 'did_authn'],
     subject_types_supported: ["pairwise"],
     id_token_signing_alg_values_supported: ["ES256"],
     request_object_signing_alg_values_supported: ["ES256"],
     subject_syntax_types_supported: ["urn:ietf:params:oauth:jwk-thumbprint"],
     id_token_types_supported: ["subject_signed"]
+});
+/**
+ * This structure is used to specify what metadata would be used to communcate with the OP
+ * If RP has metadata of OP acquired in and out-of-band method those will be used,
+ * otherwise OP's static metadata would be used. Structure us initialised with SIOP_STATIC_METADATA_SUPPORTED
+ * for the developer convenience
+ */
+exports.SIOP_METADATA_SUPPORTED = {
+    authorization_endpoint: SIOP_STATIC_METADATA_SUPPORTED.authorization_endpoint,
+    issuer: SIOP_STATIC_METADATA_SUPPORTED.issuer,
+    response_types: SIOP_STATIC_METADATA_SUPPORTED.response_types_supported,
+    scopes: SIOP_STATIC_METADATA_SUPPORTED.scopes_supported,
+    subject_types: SIOP_STATIC_METADATA_SUPPORTED.subject_types_supported,
+    id_token_signing_alg_values: SIOP_STATIC_METADATA_SUPPORTED.id_token_signing_alg_values_supported,
+    request_object_signing_alg_values: SIOP_STATIC_METADATA_SUPPORTED.request_object_signing_alg_values_supported,
+    subject_syntax_types: SIOP_STATIC_METADATA_SUPPORTED.subject_syntax_types_supported,
+    id_token_types: SIOP_STATIC_METADATA_SUPPORTED.id_token_types_supported
 };
 exports.CRYPTO_SUITES = {
     Ed25519VerificationKey2018: "@digitalbazaar/ed25519-verification-key-2018",

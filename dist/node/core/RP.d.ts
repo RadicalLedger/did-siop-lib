@@ -25,7 +25,9 @@ export declare class RP {
      * @param {string} did - Decentralized Identity of the Relying Party
      * @param {any} registration - Registration information of the Relying Party
      * https://openid.net/specs/openid-connect-core-1_0.html#RegistrationParameter
-     * @param {DidDocument} [did_doc] - DID Document of the RP. Optional
+     * @param {DidDocument} did_doc - DID Document of the RP. Optional
+     * @param {any} op_metadata  - SIOP(OpenIdConnect Provider) metadata: refer core/globals/SIOP_METADATA_SUPPORTED
+     * https://openid.net/specs/openid-connect-self-issued-v2-1_0.html#name-static-self-issued-openid-p
      * @remarks - This is a private constructor used inside static async method getRP
      */
     private constructor();
@@ -40,7 +42,7 @@ export declare class RP {
      * @remarks Creating RP instances involves some async code and cannot be implemented as a constructor.
      * Hence this static method is used in place of the constructor.
      */
-    static getRP(redirect_uri: string, did: string, registration: any, did_doc?: DidDocument, resolvers?: DidResolver[]): Promise<RP>;
+    static getRP(redirect_uri: string, did: string, registration: any, did_doc?: DidDocument, resolvers?: DidResolver[], op_metadata?: any): Promise<RP>;
     /**
      * @param {string} key - Private part of any cryptographic key listed in the 'authentication' field of RP's DID Document
      * @param {string} [kid] - kid value of the key. Optional and not used

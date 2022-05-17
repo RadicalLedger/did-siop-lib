@@ -1,4 +1,5 @@
 import { DidDocument } from './Identity';
+import { SiopMetadataSupported } from './globals';
 import * as JWT from './JWT';
 export interface RPInfo {
     redirect_uri: string;
@@ -6,6 +7,7 @@ export interface RPInfo {
     registration: any;
     did_doc?: DidDocument;
     request_uri?: string;
+    op_metadata?: SiopMetadataSupported;
 }
 /**
  * @classdesc This class contains static methods related to DID SIOP request generation and validation
@@ -17,7 +19,7 @@ export declare class DidSiopRequest {
      * @remarks This method make use of two functions which first validates the url parameters of the request
      * and then the request JWT contained in 'request' or 'requestURI' parameter
      */
-    static validateRequest(request: string): Promise<JWT.JWTObject>;
+    static validateRequest(request: string, op_metadata?: any): Promise<JWT.JWTObject>;
     /**
      * @param {RPInfo} rp - Information about the Relying Party (the issuer of the request)
      * @param {JWT.SigningInfo} signingInfo - Information used in the request signing process

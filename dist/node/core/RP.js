@@ -62,17 +62,20 @@ var RP = /** @class */ (function () {
      * @param {string} did - Decentralized Identity of the Relying Party
      * @param {any} registration - Registration information of the Relying Party
      * https://openid.net/specs/openid-connect-core-1_0.html#RegistrationParameter
-     * @param {DidDocument} [did_doc] - DID Document of the RP. Optional
+     * @param {DidDocument} did_doc - DID Document of the RP. Optional
+     * @param {any} op_metadata  - SIOP(OpenIdConnect Provider) metadata: refer core/globals/SIOP_METADATA_SUPPORTED
+     * https://openid.net/specs/openid-connect-self-issued-v2-1_0.html#name-static-self-issued-openid-p
      * @remarks - This is a private constructor used inside static async method getRP
      */
-    function RP(redirect_uri, did, registration, did_doc) {
+    function RP(redirect_uri, did, registration, did_doc, op_metadata) {
         this.identity = new Identity_1.Identity();
         this.signing_info_set = [];
         this.info = {
             redirect_uri: redirect_uri,
             did: did,
             registration: registration,
-            did_doc: did_doc
+            did_doc: did_doc,
+            op_metadata: op_metadata
         };
     }
     /**
@@ -86,14 +89,14 @@ var RP = /** @class */ (function () {
      * @remarks Creating RP instances involves some async code and cannot be implemented as a constructor.
      * Hence this static method is used in place of the constructor.
      */
-    RP.getRP = function (redirect_uri, did, registration, did_doc, resolvers) {
+    RP.getRP = function (redirect_uri, did, registration, did_doc, resolvers, op_metadata) {
         return __awaiter(this, void 0, void 0, function () {
             var rp, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 4, , 5]);
-                        rp = new RP(redirect_uri, did, registration, did_doc);
+                        rp = new RP(redirect_uri, did, registration, did_doc, op_metadata);
                         if (!(did_doc && did_doc !== undefined)) return [3 /*break*/, 1];
                         rp.identity.setDocument(did_doc, did);
                         return [3 /*break*/, 3];
