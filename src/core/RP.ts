@@ -2,7 +2,7 @@ import { DidSiopResponse, CheckParams } from './Response';
 import { RPInfo, DidSiopRequest } from './Request';
 import { SigningInfo, JWTObject } from './JWT';
 import { DidDocument, Identity } from './Identity';
-import { KEY_FORMATS, ALGORITHMS, KTYS } from './globals';
+import { KEY_FORMATS, ALGORITHMS, KTYS,SiopMetadataSupported } from './globals';
 import { KeyInputs, Key, RSAKey, ECKey, OKP } from './JWKUtils';
 import { RSASigner, ES256KRecoverableSigner, ECSigner, OKPSigner } from './Signers';
 import { RSAVerifier, ES256KRecoverableVerifier, ECVerifier, OKPVerifier } from './Verifiers';
@@ -33,15 +33,18 @@ export class RP {
      * @param {string} did - Decentralized Identity of the Relying Party
      * @param {any} registration - Registration information of the Relying Party
      * https://openid.net/specs/openid-connect-core-1_0.html#RegistrationParameter
-     * @param {DidDocument} [did_doc] - DID Document of the RP. Optional
+     * @param {DidDocument} did_doc - DID Document of the RP. Optional
+     * @param {any} op_metadata  - SIOP(OpenIdConnect Provider) metadata: refer core/globals/SIOP_METADATA_SUPPORTED
+     * https://openid.net/specs/openid-connect-self-issued-v2-1_0.html#name-static-self-issued-openid-p
      * @remarks - This is a private constructor used inside static async method getRP
      */
-    private constructor(redirect_uri: string, did: string, registration: any, did_doc?: DidDocument) {
+    private constructor(redirect_uri: string, did: string, registration: any, did_doc?: DidDocument,op_metadata?:SiopMetadataSupported) {
         this.info = {
             redirect_uri,
             did,
             registration,
-            did_doc
+            did_doc,
+            op_metadata
         }
     }
 
@@ -56,9 +59,9 @@ export class RP {
      * @remarks Creating RP instances involves some async code and cannot be implemented as a constructor.
      * Hence this static method is used in place of the constructor.
      */
-    static async getRP(redirect_uri: string, did: string, registration: any, did_doc?: DidDocument, resolvers?:DidResolver[]): Promise<RP> {
+    static async getRP(redirect_uri: string, did: string, registration: any, did_doc?: DidDocument, resolvers?:DidResolver[],op_metadata?:any): Promise<RP> {
         try {
-            let rp = new RP(redirect_uri, did, registration, did_doc)
+            let rp = new RP(redirect_uri, did, registration, did_doc,op_metadata)
             if(did_doc && did_doc !== undefined){
                 rp.identity.setDocument(did_doc, did);
             }

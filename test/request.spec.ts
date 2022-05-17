@@ -1,6 +1,7 @@
 import { ERROR_RESPONSES } from '../src/core/ErrorResponse';
 import { DidSiopRequest } from '../src/core/Request';
 import { jwts, requests, claims } from './request.spec.resources';
+import { SIOP_METADATA_SUPPORTED,SiopMetadataSupported } from '../src/core/globals';
 import nock from 'nock';
 import {DID_TEST_RESOLVER_DATA_NEW as DIDS } from './did_doc.spec.resources'
 
@@ -10,11 +11,10 @@ let userDID     = DIDS[0].did;
 let rpDidDoc    = DIDS[1].resolverReturn.didDocument;
 let rpDID       = DIDS[1].did;
 
-
 describe("Modify request object", function () {
     test('Include claims - expect truthy', async () => {
         jest.setTimeout(17000);
-        let returnedJWT = await DidSiopRequest.validateRequest(requests.good.requestGoodWithClaims);        
+        let returnedJWT = await DidSiopRequest.validateRequest(requests.good.requestGoodWithClaims,SIOP_METADATA_SUPPORTED);        
         expect(returnedJWT.payload.claims).toEqual(claims.good);
     });
 });
@@ -27,12 +27,27 @@ describe("Request validation/generation", function () {
 
     test('Request validation - expect truthy', async () => {
         jest.setTimeout(17000);
-        let returnedJWT = await DidSiopRequest.validateRequest(requests.good.requestGoodEmbeddedJWT);
+        let returnedJWT = await DidSiopRequest.validateRequest(requests.good.requestGoodEmbeddedJWT,SIOP_METADATA_SUPPORTED);
         expect(returnedJWT).toEqual(jwts.jwtGoodDecoded);
 
-        returnedJWT = await DidSiopRequest.validateRequest(requests.good.requestGoodUriJWT);
+        returnedJWT = await DidSiopRequest.validateRequest(requests.good.requestGoodUriJWT,SIOP_METADATA_SUPPORTED);
         expect(returnedJWT).toEqual(jwts.jwtGoodDecoded);
     });
+
+    test('Request validation with invalid OP Metadata - expect falsy', async () => {
+        jest.setTimeout(17000);
+        let temp_md:SiopMetadataSupported = {...SIOP_METADATA_SUPPORTED}
+        temp_md.scopes = [];
+        let validityPromise =  DidSiopRequest.validateRequest(requests.good.requestGoodEmbeddedJWT,temp_md);
+        await expect(validityPromise).rejects.toEqual(ERROR_RESPONSES.invalid_scope.err);
+
+        temp_md = {...SIOP_METADATA_SUPPORTED}
+        temp_md.response_types = [];
+        validityPromise =  DidSiopRequest.validateRequest(requests.good.requestGoodEmbeddedJWT,temp_md);
+        await expect(validityPromise).rejects.toEqual(ERROR_RESPONSES.unsupported_response_type.err);        
+
+    });
+
 
     test('Request validation - expect falsy', async () => {
         jest.setTimeout(17000);
@@ -55,9 +70,6 @@ describe("Request validation/generation", function () {
         await expect(validityPromise).rejects.toEqual(ERROR_RESPONSES.invalid_scope.err);
 
         validityPromise = DidSiopRequest.validateRequest(requests.bad.requestBadNoScopeOpenId);
-        await expect(validityPromise).rejects.toEqual(ERROR_RESPONSES.invalid_scope.err);
-
-        validityPromise = DidSiopRequest.validateRequest(requests.bad.requestBadNoScopeDidAuthN);
         await expect(validityPromise).rejects.toEqual(ERROR_RESPONSES.invalid_scope.err);
 
         validityPromise = DidSiopRequest.validateRequest(requests.bad.requestBadNoJWT);

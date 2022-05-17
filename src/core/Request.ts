@@ -4,16 +4,16 @@ import * as queryString from 'query-string';
 import { ERROR_RESPONSES } from './ErrorResponse';
 import base64url from 'base64url';
 import { KeySet, ERRORS } from './JWKUtils';
-import { ALGORITHMS, KTYS, KEY_FORMATS } from './globals';
+import { ALGORITHMS, KTYS, KEY_FORMATS,SiopMetadataSupported, SIOP_METADATA_SUPPORTED } from './globals';
 import * as JWT from './JWT';
 import { validateRequestJWTClaims } from './Claims';
 
-// import { type } from 'os';
 const axios = require('axios').default;
 
-const RESPONSE_TYPES = ['id_token',];
-const SUPPORTED_SCOPES = ['openid', 'did_authn',];
-const REQUIRED_SCOPES = ['openid', 'did_authn',];
+// const RESPONSE_TYPES = ['id_token',];
+// const SUPPORTED_SCOPES = ['openid', 'did_authn',];
+// const REQUIRED_SCOPES = ['openid', 'did_authn',];
+const REQUIRED_SCOPES = ['openid'];
 
 export interface RPInfo{
     redirect_uri: string;
@@ -21,6 +21,7 @@ export interface RPInfo{
     registration: any;
     did_doc?: DidDocument;
     request_uri?: string;
+    op_metadata?:SiopMetadataSupported;
 }
 
 /**
@@ -33,8 +34,9 @@ export class DidSiopRequest{
      * @remarks This method make use of two functions which first validates the url parameters of the request 
      * and then the request JWT contained in 'request' or 'requestURI' parameter
      */
-    static async validateRequest(request: string): Promise<JWT.JWTObject>{
-        let requestJWT = await validateRequestParams(request);
+    static async validateRequest(request: string,op_metadata?:any): Promise<JWT.JWTObject>{
+        if (op_metadata === undefined) op_metadata = SIOP_METADATA_SUPPORTED;
+        let requestJWT = await validateRequestParams(request,op_metadata);
         let jwtDecoded = await validateRequestJWT(requestJWT);
         return jwtDecoded;
     }
@@ -104,7 +106,45 @@ export class DidSiopRequest{
  * If the parameters in the request url is valid then this method returns the encoded request JWT
  * https://identity.foundation/did-siop/#siop-request-validation
  */
-async function validateRequestParams(request: string): Promise<string> {
+async function validateRequestParams(request: string,op_metadata?:any): Promise<string> {
+    let parsed = queryString.parseUrl(request);
+
+    if (
+        parsed.url !== 'openid://' ||
+        (!parsed.query.client_id || parsed.query.client_id.toString().match(/^ *$/)) ||
+        (!parsed.query.response_type || parsed.query.response_type.toString().match(/^ *$/))
+    ) return Promise.reject(ERROR_RESPONSES.invalid_request.err);
+
+    if (parsed.query.scope) {
+        let requestedScopes = parsed.query.scope.toString().split(' ');
+        if (!(requestedScopes.every(s => op_metadata.scopes.includes(s))) || !(REQUIRED_SCOPES.every(s => requestedScopes.includes(s))))
+            return Promise.reject(ERROR_RESPONSES.invalid_scope.err);
+    }
+    else return Promise.reject(ERROR_RESPONSES.invalid_request.err);
+
+    if (!op_metadata.response_types.includes(parsed.query.response_type.toString())) return Promise.reject(ERROR_RESPONSES.unsupported_response_type.err);
+
+    if (parsed.query.request === undefined || parsed.query.request === null) {
+        if (parsed.query.request_uri === undefined || parsed.query.request_uri === null) {
+            return Promise.reject(ERROR_RESPONSES.invalid_request.err);
+        }
+        else {
+            if (parsed.query.request_uri.toString().match(/^ *$/)) return Promise.reject(ERROR_RESPONSES.invalid_request_uri.err)
+            try {
+                let returnedValue = await axios.get(parsed.query.request_uri);
+                return returnedValue.data ? returnedValue.data : Promise.reject(ERROR_RESPONSES.invalid_request_uri.err);
+            } catch (err) {
+                return Promise.reject(ERROR_RESPONSES.invalid_request_uri.err);
+            }
+        }
+    }
+    else {
+        if (parsed.query.request.toString().match(/^ *$/)) return Promise.reject(ERROR_RESPONSES.invalid_request_object.err);
+        return parsed.query.request.toString();
+    }
+}
+/**
+ * async function validateRequestParams(request: string): Promise<string> {
     let parsed = queryString.parseUrl(request);
 
     if (
@@ -141,6 +181,10 @@ async function validateRequestParams(request: string): Promise<string> {
         return parsed.query.request.toString();
     }
 }
+ */
+
+
+
 
 /**
  * @param {string} requestJWT - An encoded JWT
