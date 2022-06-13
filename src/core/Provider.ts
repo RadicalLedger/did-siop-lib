@@ -6,6 +6,7 @@ import { DidSiopResponse } from './Response';
 import { SigningInfo, JWTObject } from './JWT';
 import { Identity, DidDocument } from './Identity';
 import { DidSiopRequest } from './Request';
+import { VPData, SIOPTokensEcoded } from './Claims';
 import { checkKeyPair, isMultibasePvtKey ,getBase58fromMultibase} from './Utils';
 import * as ErrorResponse from './ErrorResponse';
 
@@ -204,6 +205,32 @@ export class Provider{
         }
     }
 
+    /**
+     * @param {any} requestPayload - Payload of the request JWT for which a response needs to be generated
+     * @param {number} expiresIn - Number of miliseconds under which the generated response is valid. Relying Parties can
+     * either consider this value or ignore it
+     * @param {vps} VPData - This contains the data for vp_token and additional info to send via id_token (_vp_token)
+     * @returns {Promise<SIOPTokensEcoded>} - A Promise which resolves to a SIOPTokensEcoded
+     * @remarks This method is used to generate a response to a given DID SIOP request which includes VP Data.
+     */
+     async generateResponseWithVPData(requestPayload: any, expiresIn: number = 1000, vps:VPData): Promise<SIOPTokensEcoded>{
+        try{
+            if(this.signing_info_set.length > 0){
+                let signing_info = this.signing_info_set[Math.floor(Math.random() * this.signing_info_set.length)];
+
+                if(this.identity.isResolved()){
+                    return await DidSiopResponse.generateResponseWithVPData(requestPayload, signing_info, this.identity, expiresIn,vps);
+                }
+                else{
+                    return Promise.reject(new Error(ERRORS.UNRESOLVED_IDENTITY));
+                }
+            }
+            return Promise.reject(new Error(ERRORS.NO_SIGNING_INFO));
+        }
+        catch(err){
+            return Promise.reject(err);
+        }
+    }    
     /**
      * @param {string} errorMessage - Message of a specific SIOPErrorResponse
      * @returns {string} - Encoded SIOPErrorResponse object

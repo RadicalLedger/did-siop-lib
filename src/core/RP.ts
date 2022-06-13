@@ -9,6 +9,7 @@ import { RSAVerifier, ES256KRecoverableVerifier, ECVerifier, OKPVerifier } from 
 import { checkKeyPair, isMultibasePvtKey ,getBase58fromMultibase} from './Utils';
 import { SIOPErrorResponse } from './ErrorResponse';
 import { DidResolver } from './Identity/Resolvers/did_resolver_base';
+import { SIOPTokensEcoded } from './Claims';
 
 export const ERRORS= Object.freeze({
     NO_SIGNING_INFO: 'At least one public key must be confirmed with related private key',
@@ -241,6 +242,20 @@ export class RP {
     async validateResponse(response: string, checkParams: CheckParams = {redirect_uri: this.info.redirect_uri}): Promise<JWTObject | SIOPErrorResponse> {
         try {
             return await DidSiopResponse.validateResponse(response, checkParams);
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    }
+
+    /**
+     * @param {SIOPTokensEcoded} tokensEncoded - Object with encoded id_token and encoded vp_token
+     * @param {CheckParams} [checkParams = {redirect_uri: this.info.redirect_uri}] - Parameters against which the response needs to be validated
+     * @returns {Promise<boolean | SIOPErrorResponse>} - A Promise which resolves either to boolean or a SIOPErrorResponse
+     * @remarks This method is used to validate responses coming from DID SIOP Providers.
+     */
+     async validateResponseWithVPData(tokensEncoded: SIOPTokensEcoded, checkParams: CheckParams = {redirect_uri: this.info.redirect_uri}): Promise<boolean | SIOPErrorResponse> {
+        try {
+            return await DidSiopResponse.validateResponseWithVPData(tokensEncoded, checkParams);
         } catch (err) {
             return Promise.reject(err);
         }
