@@ -20,7 +20,7 @@ module.exports = {
     output: {
       filename: 'did-siop.min.js',
       path: path.resolve(__dirname, 'dist/browser'),
-      library: 'DID_SIOP'
+      library: {type: 'umd', name :'DID_SIOP'}
     },
     plugins: [ new NodePolyfillPlugin()],
     optimization: {
