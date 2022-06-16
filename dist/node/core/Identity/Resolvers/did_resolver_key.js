@@ -58,12 +58,12 @@ var Ed25519VerificationKey2020 = require('@digitalbazaar/ed25519-verification-ke
  * @classdesc Resolver class for did:key
  * @extends {DidResolver}
  */
-var KeyDidResolver2 = /** @class */ (function (_super) {
-    __extends(KeyDidResolver2, _super);
-    function KeyDidResolver2() {
+var KeyDidResolver = /** @class */ (function (_super) {
+    __extends(KeyDidResolver, _super);
+    function KeyDidResolver() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    KeyDidResolver2.prototype.resolveDidDocumet = function (did, crypto_suite) {
+    KeyDidResolver.prototype.resolveDidDocumet = function (did, crypto_suite) {
         return __awaiter(this, void 0, void 0, function () {
             var didKeyDriver, didDocument, err_1;
             return __generator(this, function (_a) {
@@ -81,14 +81,14 @@ var KeyDidResolver2 = /** @class */ (function (_super) {
                         return [2 /*return*/, didDocument];
                     case 3:
                         err_1 = _a.sent();
-                        console.log("KeyDidResolver2 Err", err_1);
+                        console.log("KeyDidResolver Err", err_1);
                         return [2 /*return*/, undefined];
                     case 4: return [2 /*return*/];
                 }
             });
         });
     };
-    KeyDidResolver2.prototype.getDidDriverForCryptoSuite = function (crypto_suite_package) {
+    KeyDidResolver.prototype.getDidDriverForCryptoSuite = function (crypto_suite_package) {
         var didKeyDriver;
         switch (crypto_suite_package) {
             case globals_1.CRYPTO_SUITES.Ed25519VerificationKey2018:
@@ -100,7 +100,7 @@ var KeyDidResolver2 = /** @class */ (function (_super) {
         }
         return didKeyDriver;
     };
-    return KeyDidResolver2;
+    return KeyDidResolver;
 }(did_resolver_base_1.DidResolver));
-exports.KeyDidResolver2 = KeyDidResolver2;
+exports.KeyDidResolver = KeyDidResolver;
 //# sourceMappingURL=did_resolver_key.js.map

@@ -43,7 +43,7 @@ Minimum implementation of SIOP using this package could be found [here](https://
     //Response validation
     const validateResponse = async () => {
       console.log("onRP");
-      let keyResolv2020 = new SIOP.Resolvers.KeyDidResolver2('key', "@digitalbazaar/x25519-key-agreement-key-2018")          
+      let keyResolv2020 = new SIOP.Resolvers.KeyDidResolver('key', "@digitalbazaar/x25519-key-agreement-key-2018")          
       let siop_rp = await SIOP.RP.getRP(
         'localhost:4200/home', // RP's redirect_uri
         'did:key:z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw', // RP's did

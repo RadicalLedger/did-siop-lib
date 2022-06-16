@@ -9,6 +9,7 @@ import { DidDocument } from "../commons";
     /**
      * @constructor
      * @param {string} methodName - Name of the specific DID Method.  
+     * @param {string} cryto_suite - Cryptographic suite to construct the DID.
      */
     constructor(protected methodName: string,protected cryto_suite?: string){}
 

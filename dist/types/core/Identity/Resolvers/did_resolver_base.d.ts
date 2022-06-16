@@ -11,6 +11,7 @@ export declare abstract class DidResolver {
     /**
      * @constructor
      * @param {string} methodName - Name of the specific DID Method.
+     * @param {string} cryto_suite - Cryptographic suite to construct the DID.
      */
     constructor(methodName: string, cryto_suite?: string | undefined);
     /**

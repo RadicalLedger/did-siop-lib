@@ -10,7 +10,7 @@ const {Ed25519VerificationKey2020} = require( '@digitalbazaar/ed25519-verificati
  * @classdesc Resolver class for did:key
  * @extends {DidResolver}
  */
-export class KeyDidResolver2 extends DidResolver{
+export class KeyDidResolver extends DidResolver{
     async resolveDidDocumet(did: string,crypto_suite?:string): Promise<DidDocument | undefined> {   
         if (crypto_suite === undefined) crypto_suite = CRYPTO_SUITES.Ed25519VerificationKey2020
 
@@ -21,7 +21,7 @@ export class KeyDidResolver2 extends DidResolver{
             return didDocument;
         }
         catch(err){
-            console.log("KeyDidResolver2 Err",err);
+            console.log("KeyDidResolver Err",err);
             return undefined
         }
     }

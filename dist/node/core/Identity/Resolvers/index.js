@@ -54,7 +54,7 @@ var did_resolver_base_1 = require("./did_resolver_base");
 var did_resolver_ethr_1 = require("./did_resolver_ethr");
 exports.EthrDidResolver = did_resolver_ethr_1.EthrDidResolver;
 var did_resolver_key_1 = require("./did_resolver_key");
-exports.KeyDidResolver2 = did_resolver_key_1.KeyDidResolver2;
+exports.KeyDidResolver = did_resolver_key_1.KeyDidResolver;
 var did_resolver_uniresolver_1 = require("./did_resolver_uniresolver");
 exports.UniversalDidResolver = did_resolver_uniresolver_1.UniversalDidResolver;
 /**
@@ -133,7 +133,5 @@ var CombinedDidResolver = /** @class */ (function (_super) {
  */
 exports.combinedDidResolver = new CombinedDidResolver('all')
     .addResolver(new did_resolver_ethr_1.EthrDidResolver('ethr'))
-    // .addResolver(new KeyDidResolver2('key', CRYPTO_SUITES.Ed25519VerificationKey2018))
-    // .addResolver(new KeyDidResolver2('key', CRYPTO_SUITES.Ed25519VerificationKey2020))    
     .addResolver(new did_resolver_uniresolver_1.UniversalDidResolver('uniresolver'));
 //# sourceMappingURL=index.js.map

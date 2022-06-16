@@ -10,6 +10,7 @@ var DidResolver = /** @class */ (function () {
     /**
      * @constructor
      * @param {string} methodName - Name of the specific DID Method.
+     * @param {string} cryto_suite - Cryptographic suite to construct the DID.
      */
     function DidResolver(methodName, cryto_suite) {
         this.methodName = methodName;
