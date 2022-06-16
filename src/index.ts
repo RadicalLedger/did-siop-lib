@@ -9,3 +9,4 @@ export { KTYS } from './core/globals';
 export { JWTObject } from './core/JWT';
 export { CheckParams }  from './core/Response';
 export { SIOPError, SIOPErrorResponse, ERROR_RESPONSES } from './core/ErrorResponse';
+export { VPData, SIOPTokensEcoded, SIOPTokenObjects } from './core/Claims';

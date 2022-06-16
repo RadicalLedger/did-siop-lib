@@ -57,4 +57,4 @@ export async function validateResponse_VPToken(_vp_token: any): Promise<any> {
     return Promise.resolve()
 }
 
-export {VPData, SIOPTokensEcoded} from './commons'
+export {VPData, SIOPTokensEcoded, SIOPTokenObjects} from './commons'

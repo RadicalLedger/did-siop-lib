@@ -237,12 +237,12 @@ Removes an already added key information
   * If you use nonce in the request, you must include the same nonce when validate the response. 
 
 ---
-#### async validateResponseWithVPData(tokensEncoded: SIOPTokensEcoded, checkParams: CheckParams = {redirect_uri: this.info.redirect_uri}): Promise\<boolean | DID_SIOP.SIOPErrorResponse\> ####
+#### async validateResponseWithVPData(tokensEncoded: SIOPTokensEcoded, checkParams: CheckParams = {redirect_uri: this.info.redirect_uri}): Promise\<SIOPTokenObjects | DID_SIOP.SIOPErrorResponse\> ####
 * Parameters
   * response:string - Received response as a string
   * checkParams: DID_SIOP.CheckParams - Parameters against which the response must be validated. redirect_uri is given by default. Other possible values are ***validBefore: number***, ***isExpirable: boolean*** and ***nonce: string***. Several others will be supported in future.
 * Return
-  * Promise\<boolean | DID_SIOP.SIOPErrorResponse\>
+  * Promise\<DID_SIOP.SIOPTokenObjects | DID_SIOP.SIOPErrorResponse\>
 * Notes
   * If you use nonce in the request, you must include the same nonce when validate the response. 
 
