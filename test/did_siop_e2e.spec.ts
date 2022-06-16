@@ -7,6 +7,8 @@ import { RP, ERRORS as RPErrors } from '../src/core/RP';
 import nock from 'nock';
 import {DID_TEST_RESOLVER_DATA_NEW as DIDS } from './did_doc.spec.resources'
 import { requests } from './request.spec.resources';
+import { tokenData } from './common.spec.resources';
+import { VPData } from '../src/core/Claims';
 
 let userDidDoc  = DIDS[0].resolverReturn.didDocument;
 let userKeyInfo = DIDS[0].keyInfo;
@@ -104,7 +106,40 @@ describe('DID SIOP using did:ethr method DIDs', function () {
         })
         expect(responseJWTDecoded).toHaveProperty('header');
         expect(responseJWTDecoded).toHaveProperty('payload');
-    });    
+    });  
+    
+    test('DID SIOP e2e functions testing with VPs and Validate VPs- expect truthy', async () => {
+        jest.setTimeout(30000);
+
+        let rp = await RP.getRP(rpRedirectURI, rpDID, rpRegistrationMetaData);
+        let kid = rp.addSigningParams(rpPrivateKey);
+        expect(kid).toEqual(rpKid);
+
+        let provider = new Provider();
+        await provider.setUser(userDID);
+        kid = provider.addSigningParams(userPrivateKeyHex);
+        expect(kid).toEqual(userKid);
+
+        let request =  await rp.generateRequest(requests.components.optionsWithClaims);        
+        let requestJWTDecoded = await provider.validateRequest(request);
+        expect(requestJWTDecoded).toMatchObject(requestObj);
+
+        let vps: VPData = {
+            vp_token : tokenData.good.singleVP.vp_token,
+            _vp_token : tokenData.good.singleVP.id_token._vp_token
+        };
+
+        let siopTokenEncoded = await provider.generateResponseWithVPData(requestJWTDecoded.payload, 5000,vps);
+        let siopTokenObjects = await rp.validateResponseWithVPData(siopTokenEncoded, {
+            redirect_uri: rpRedirectURI,
+            isExpirable: true,
+            nonce: requests.components.optionsWithClaims.nonce,
+
+        })
+        expect(siopTokenObjects).toHaveProperty('id_token');
+        expect(siopTokenObjects).toHaveProperty('vp_token');
+    });  
+
     test('DID SIOP end to end functions testing - expect falsy', async () => {
         jest.setTimeout(30000);
 
