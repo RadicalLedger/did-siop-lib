@@ -143,47 +143,6 @@ async function validateRequestParams(request: string,op_metadata?:any): Promise<
         return parsed.query.request.toString();
     }
 }
-/**
- * async function validateRequestParams(request: string): Promise<string> {
-    let parsed = queryString.parseUrl(request);
-
-    if (
-        parsed.url !== 'openid://' ||
-        (!parsed.query.client_id || parsed.query.client_id.toString().match(/^ *$/)) ||
-        (!parsed.query.response_type || parsed.query.response_type.toString().match(/^ *$/))
-    ) return Promise.reject(ERROR_RESPONSES.invalid_request.err);
-
-    if (parsed.query.scope) {
-        let requestedScopes = parsed.query.scope.toString().split(' ');
-        if (!(requestedScopes.every(s => SUPPORTED_SCOPES.includes(s))) || !(REQUIRED_SCOPES.every(s => requestedScopes.includes(s))))
-            return Promise.reject(ERROR_RESPONSES.invalid_scope.err);
-    }
-    else return Promise.reject(ERROR_RESPONSES.invalid_request.err);
-
-    if (!RESPONSE_TYPES.includes(parsed.query.response_type.toString())) return Promise.reject(ERROR_RESPONSES.unsupported_response_type.err);
-
-    if (parsed.query.request === undefined || parsed.query.request === null) {
-        if (parsed.query.request_uri === undefined || parsed.query.request_uri === null) {
-            return Promise.reject(ERROR_RESPONSES.invalid_request.err);
-        }
-        else {
-            if (parsed.query.request_uri.toString().match(/^ *$/)) return Promise.reject(ERROR_RESPONSES.invalid_request_uri.err)
-            try {
-                let returnedValue = await axios.get(parsed.query.request_uri);
-                return returnedValue.data ? returnedValue.data : Promise.reject(ERROR_RESPONSES.invalid_request_uri.err);
-            } catch (err) {
-                return Promise.reject(ERROR_RESPONSES.invalid_request_uri.err);
-            }
-        }
-    }
-    else {
-        if (parsed.query.request.toString().match(/^ *$/)) return Promise.reject(ERROR_RESPONSES.invalid_request_object.err);
-        return parsed.query.request.toString();
-    }
-}
- */
-
-
 
 
 /**
