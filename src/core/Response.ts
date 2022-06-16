@@ -142,6 +142,41 @@ export class DidSiopResponse{
     }
 
     /**
+     * @param {any} requestPayload - Payload of the request JWT. Some information from this object is needed in constructing the response
+     * @param {JWT.SigningInfo} signingInfo - Key information used to sign the response JWT
+     * @param {Identity} didSiopUser - Used to retrieve the information about the provider (user DID) which are included in the response 
+     * @param {number} [expiresIn = 1000] - Amount of time under which generated id_token (response) is valid. The party which validate the
+     * @param {vps} VPData - This contains the data for vp_token and additional info to send via id_token (_vp_token)
+     * @returns {Promise<any>} - A promise which resolves to a JSON object with id_token and vp_token as signed strings
+     * @remarks This method geenrate id_token and vp_token needed in an authentication response
+     * https://openid.net/specs/openid-connect-4-verifiable-presentations-1_0.html#name-response
+     */
+     static async generateResponseWithVPData(requestPayload: any, signingInfo: JWT.SigningInfo, didSiopUser: Identity, expiresIn: number = 1000, vps:VPData): Promise<SIOPTokensEcoded >{        
+        let id_token_s : string = "";
+        let vp_token_s : string = "";
+        try {
+            id_token_s = await this.generateResponse(requestPayload,signingInfo,didSiopUser,expiresIn,vps._vp_token) // Generate ID Token
+
+            if (vps && vps.vp_token ){
+                await validateResponseVPToken(vps.vp_token)
+                vp_token_s = await this.generateResponseVPToken(requestPayload,signingInfo,vps) // Generate VP Token                
+            }
+            else {
+                return Promise.reject(ERROR_RESPONSES.invalid_vp_token.err);                
+            }
+
+            let tokens: SIOPTokensEcoded = {
+                id_token : id_token_s,
+                vp_token : vp_token_s
+            };
+            return Promise.resolve(tokens)
+        }
+        catch(err) {
+            return Promise.reject(err);
+        }
+    }
+        
+    /**
      * @param {any} requestPayload - Payload of the request JWT. Some information from this object is needed in constructing the header of JWT & keys for signing
      * @param {JWT.SigningInfo} signingInfo - Key information used to sign the response JWT
      * @param {Identity} didSiopUser - Used to retrieve the information about the provider (user DID) which are included in the response 
@@ -192,40 +227,7 @@ export class DidSiopResponse{
         }
     }
     
-    /**
-     * @param {any} requestPayload - Payload of the request JWT. Some information from this object is needed in constructing the response
-     * @param {JWT.SigningInfo} signingInfo - Key information used to sign the response JWT
-     * @param {Identity} didSiopUser - Used to retrieve the information about the provider (user DID) which are included in the response 
-     * @param {number} [expiresIn = 1000] - Amount of time under which generated id_token (response) is valid. The party which validate the
-     * @param {vps} VPData - This contains the data for vp_token and additional info to send via id_token (_vp_token)
-     * @returns {Promise<any>} - A promise which resolves to a JSON object with id_token and vp_token as signed strings
-     * @remarks This method geenrate id_token and vp_token needed in an authentication response
-     * https://openid.net/specs/openid-connect-4-verifiable-presentations-1_0.html#name-response
-     */
-    static async generateResponseWithVPData(requestPayload: any, signingInfo: JWT.SigningInfo, didSiopUser: Identity, expiresIn: number = 1000, vps:VPData): Promise<SIOPTokensEcoded >{        
-        let id_token_s : string = "";
-        let vp_token_s : string = "";
-        try {
-            id_token_s = await this.generateResponse(requestPayload,signingInfo,didSiopUser,expiresIn,vps._vp_token) // Generate ID Token
 
-            if (vps && vps.vp_token ){
-                await validateResponseVPToken(vps.vp_token)
-                vp_token_s = await this.generateResponseVPToken(requestPayload,signingInfo,vps) // Generate VP Token                
-            }
-            else {
-                return Promise.reject(ERROR_RESPONSES.invalid_vp_token.err);                
-            }
-
-            let tokens: SIOPTokensEcoded = {
-                id_token : id_token_s,
-                vp_token : vp_token_s
-            };
-            return Promise.resolve(tokens)
-        }
-        catch(err) {
-            return Promise.reject(err);
-        }
-    }
     /**
      * 
      * @param {string} response - A DID SIOP response which needs to be validated
