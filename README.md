@@ -48,9 +48,9 @@ By defalut, library uses [specified](https://openid.net/specs/openid-connect-sel
 ### DID Resolvers ###
 Version 2 of did-siop provides mechanism to use custom DID Resolvers. Currently resolvers for following DID Methods are built in, but developers have the option to write thier own resolvers.
 
-- Ethereum [ethr](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/Identity/Resolvers/did_resolver_ethr.ts) 
-- Key [key](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/Identity/Resolvers/did_resolver_key.ts)
-- UniResolver [DID Methods supported by https://dev.uniresolver.io/](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/Identity/Resolvers/did_resolver_uniresolver.ts)
+- EthrDidResolver [did:ethr](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/Identity/Resolvers/did_resolver_ethr.ts) 
+- KeyDidResolver [did:key](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/Identity/Resolvers/did_resolver_key.ts)
+- UniversalDidResolver [did:*](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/Identity/Resolvers/did_resolver_uniresolver.ts) - DID Methods supported by https://dev.uniresolver.io/
 
 To build a custom resolver to use with DID-SIOP, derive your custom resolver from [DidResolver](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/Identity/Resolvers/did_resolver_base.ts) and override the __resolveDidDocumet__ appropriately.
 
@@ -79,7 +79,7 @@ export interface VPData{
     _vp_token: any; // JSON object wit VP request related info
 }
 ```
-
+### SIOPTokensEcoded ###
 When generating a response with __Provider.generateResponseWithVPData__ , data is returned using this data structure. Both ID_Token and VP_Token are presended as Base64 encoded JWTs
 
 ```js
@@ -88,7 +88,7 @@ export interface SIOPTokensEcoded {
     vp_token: string; // Base64 encoded JWT
 }
 ```
-
+### SIOPTokenObjects ###
 When validating a response with __Provider.validateResponseWithVPData__ , method returns using this data structure. Both ID_Token and VP_Token are presended as JWTs
 
 ```js
