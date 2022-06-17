@@ -1,6 +1,6 @@
 {
   "name": "did-siop",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "A library containing core functionality for DID based Self Issued OpenID Connect authentication. Contains both Relying Party and Provider components.",
   "main": "dist/node/index.js",
   "browser": "dist/browser/did-siop.min.js",
