@@ -11,6 +11,93 @@ Following are the primary specifications followed by this implementation.
 * [Self-Issued OpenID Provider v2](https://openid.net/specs/openid-connect-self-issued-v2-1_0.html)
 * [OpenID Connect for Verifiable Presentations](https://openid.net/specs/openid-connect-4-verifiable-presentations-1_0.html)
 
+## Capabiltities ##
+### Static SIOP Discovery Metadata ###
+By defalut, library uses [specified](https://openid.net/specs/openid-connect-self-issued-v2-1_0.html#name-static-self-issued-openid-p) Discovery metadata, but also provides a mechanism to use custom values.
+
+#### Initialise RP with Metadata ####
+```js
+        // get default set of metadata
+        let temp_md:SiopMetadataSupported = {...SIOP_METADATA_SUPPORTED}
+        // set scopes to "openid" only
+        temp_md.scopes = ["openid" "did_authn"];
+
+        let keyResolv2018 = new KeyDidResolver('key', CRYPTO_SUITES.Ed25519VerificationKey2018);
+        let siop_rp = await RP.getRP(
+            redirect_uri, // RP's redirect_uri
+            DID_TEST_RESOLVER_DATA_NEW[3].did, // RP's did
+            registration,
+            temp_md, // use custom Metadata to initialise the RP
+            [keyResolv2018]
+        )
+
+```
+#### Validate Metadata ####
+```js
+        // get default set of metadata
+        let temp_md:SiopMetadataSupported = {...SIOP_METADATA_SUPPORTED}
+
+        // set scopes to "openid" only
+        temp_md.scopes = ["openid];
+
+        // use the new metadata set to validate the request
+        let validityPromise =  DidSiopRequest.validateRequest(requests.good.requestGoodEmbeddedJWT,temp_md);
+
+```
+
+### DID Resolvers ###
+Version 2 of did-siop provides mechanism to use custom DID Resolvers. Currently resolvers for following DID Methods are built in, but developers have the option to write thier own resolvers.
+
+- Ethereum [ethr](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/Identity/Resolvers/did_resolver_ethr.ts) 
+- Key [key](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/Identity/Resolvers/did_resolver_key.ts)
+- UniResolver [DID Methods supported by https://dev.uniresolver.io/](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/Identity/Resolvers/did_resolver_uniresolver.ts)
+
+To build a custom resolver to use with DID-SIOP, derive your custom resolver from [DidResolver](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/Identity/Resolvers/did_resolver_base.ts) and override the __resolveDidDocumet__ appropriately.
+
+#### Crypto Suites ####
+When using/building a resolver, the library provide the option of specifying a __Crypto Suite__ to be used in resolving DIDs. Relevant Crypto Suite can be passed as an argument when constructing the DIDResolver.
+```js
+        let keyResolv2018 = new KeyDidResolver('key', CRYPTO_SUITES.Ed25519VerificationKey2018);
+        let siop_rp = await RP.getRP(
+            redirect_uri, // RP's redirect_uri
+            DID_TEST_RESOLVER_DATA_NEW[3].did, // RP's did
+            registration,
+            undefined,
+            [keyResolv2018]
+        )
+```
+DID-SIOP has been tested the KeyDidResolver using following Crypto-Suites.
+- @digitalbazaar/ed25519-verification-key-2018
+- @digitalbazaar/ed25519-verification-key-2020
+
+## Special Data Structures ##
+### VPData ###
+When generating a response with __Provider.generateResponseWithVPData__, matching Presentation Data for the vp_data parameter of Claims will be submitted using this data structure.
+```js
+export interface VPData{
+    vp_token: any;  // JSON object with VP related data
+    _vp_token: any; // JSON object wit VP request related info
+}
+```
+
+When generating a response with __Provider.generateResponseWithVPData__ , data is returned using this data structure. Both ID_Token and VP_Token are presended as Base64 encoded JWTs
+
+```js
+export interface SIOPTokensEcoded {
+    id_token: string; // Base64 encoded JWT
+    vp_token: string; // Base64 encoded JWT
+}
+```
+
+When validating a response with __Provider.validateResponseWithVPData__ , method returns using this data structure. Both ID_Token and VP_Token are presended as JWTs
+
+```js
+export interface SIOPTokenObjects {
+    id_token: any; // Decoded Object
+    vp_token: any; // Decoded Object
+}
+```
+
 ## Usage ##
 Minimum implementation of SIOP using this package could be found [here](https://github.com/RadicalLedger/did-siop-rp-web-min). Further details on implementation and resources could found with [browser extension project](https://github.com/RadicalLedger/did-siop-chrome-ext).
 
@@ -43,7 +130,7 @@ Minimum implementation of SIOP using this package could be found [here](https://
     //Response validation
     const validateResponse = async () => {
       console.log("onRP");
-      let keyResolv2020 = new SIOP.Resolvers.KeyDidResolver2('key', "@digitalbazaar/x25519-key-agreement-key-2018")          
+      let keyResolv2020 = new SIOP.Resolvers.KeyDidResolver('key', "@digitalbazaar/x25519-key-agreement-key-2018")          
       let siop_rp = await SIOP.RP.getRP(
         'localhost:4200/home', // RP's redirect_uri
         'did:key:z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw', // RP's did

@@ -1,6 +1,7 @@
 import { KEY_FORMATS, ALGORITHMS } from './globals';
 import { JWTObject } from './JWT';
 import { DidDocument } from './Identity';
+import { VPData, SIOPTokensEcoded } from './Claims';
 export declare const ERRORS: Readonly<{
     NO_SIGNING_INFO: string;
     UNRESOLVED_IDENTITY: string;
@@ -54,6 +55,15 @@ export declare class Provider {
      * @remarks This method is used to generate a response to a given DID SIOP request.
      */
     generateResponse(requestPayload: any, expiresIn?: number): Promise<string>;
+    /**
+     * @param {any} requestPayload - Payload of the request JWT for which a response needs to be generated
+     * @param {number} expiresIn - Number of miliseconds under which the generated response is valid. Relying Parties can
+     * either consider this value or ignore it
+     * @param {vps} VPData - This contains the data for vp_token and additional info to send via id_token (_vp_token)
+     * @returns {Promise<SIOPTokensEcoded>} - A Promise which resolves to a SIOPTokensEcoded
+     * @remarks This method is used to generate a response to a given DID SIOP request which includes VP Data.
+     */
+    generateResponseWithVPData(requestPayload: any, expiresIn: number | undefined, vps: VPData): Promise<SIOPTokensEcoded>;
     /**
      * @param {string} errorMessage - Message of a specific SIOPErrorResponse
      * @returns {string} - Encoded SIOPErrorResponse object

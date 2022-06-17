@@ -310,6 +310,30 @@ var RP = /** @class */ (function () {
             });
         });
     };
+    /**
+     * @param {SIOPTokensEcoded} tokensEncoded - Object with encoded id_token and encoded vp_token
+     * @param {CheckParams} [checkParams = {redirect_uri: this.info.redirect_uri}] - Parameters against which the response needs to be validated
+     * @returns {Promise<SIOPTokenObjects | SIOPErrorResponse>} - A Promise which resolves either to SIOPTokenObjects or a SIOPErrorResponse
+     * @remarks This method is used to validate responses coming from DID SIOP Providers.
+     */
+    RP.prototype.validateResponseWithVPData = function (tokensEncoded, checkParams) {
+        if (checkParams === void 0) { checkParams = { redirect_uri: this.info.redirect_uri }; }
+        return __awaiter(this, void 0, void 0, function () {
+            var err_5;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, Response_1.DidSiopResponse.validateResponseWithVPData(tokensEncoded, checkParams)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                    case 2:
+                        err_5 = _a.sent();
+                        return [2 /*return*/, Promise.reject(err_5)];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
     return RP;
 }());
 exports.RP = RP;

@@ -9,4 +9,4 @@ export declare function validateRequestJWTClaims(decodedPayload: any): Promise<a
 export declare function validateResponseVPToken(vp_token: any): Promise<any>;
 export declare function validateResponseVPTokenJWT(vp_tokenJWT: JWTObject): Promise<any>;
 export declare function validateResponse_VPToken(_vp_token: any): Promise<any>;
-export { VPData, SIOPTokensEcoded } from './commons';
+export { VPData, SIOPTokensEcoded, SIOPTokenObjects } from './commons';

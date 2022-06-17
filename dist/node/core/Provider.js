@@ -262,6 +262,37 @@ var Provider = /** @class */ (function () {
         });
     };
     /**
+     * @param {any} requestPayload - Payload of the request JWT for which a response needs to be generated
+     * @param {number} expiresIn - Number of miliseconds under which the generated response is valid. Relying Parties can
+     * either consider this value or ignore it
+     * @param {vps} VPData - This contains the data for vp_token and additional info to send via id_token (_vp_token)
+     * @returns {Promise<SIOPTokensEcoded>} - A Promise which resolves to a SIOPTokensEcoded
+     * @remarks This method is used to generate a response to a given DID SIOP request which includes VP Data.
+     */
+    Provider.prototype.generateResponseWithVPData = function (requestPayload, expiresIn, vps) {
+        if (expiresIn === void 0) { expiresIn = 1000; }
+        return __awaiter(this, void 0, void 0, function () {
+            var signing_info, err_3;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 4, , 5]);
+                        if (!(this.signing_info_set.length > 0)) return [3 /*break*/, 3];
+                        signing_info = this.signing_info_set[Math.floor(Math.random() * this.signing_info_set.length)];
+                        if (!this.identity.isResolved()) return [3 /*break*/, 2];
+                        return [4 /*yield*/, Response_1.DidSiopResponse.generateResponseWithVPData(requestPayload, signing_info, this.identity, expiresIn, vps)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                    case 2: return [2 /*return*/, Promise.reject(new Error(exports.ERRORS.UNRESOLVED_IDENTITY))];
+                    case 3: return [2 /*return*/, Promise.reject(new Error(exports.ERRORS.NO_SIGNING_INFO))];
+                    case 4:
+                        err_3 = _a.sent();
+                        return [2 /*return*/, Promise.reject(err_3)];
+                    case 5: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
      * @param {string} errorMessage - Message of a specific SIOPErrorResponse
      * @returns {string} - Encoded SIOPErrorResponse object
      * @remarks This method is used to generate error responses.

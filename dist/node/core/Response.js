@@ -193,6 +193,54 @@ var DidSiopResponse = /** @class */ (function () {
         });
     };
     /**
+     * @param {any} requestPayload - Payload of the request JWT. Some information from this object is needed in constructing the response
+     * @param {JWT.SigningInfo} signingInfo - Key information used to sign the response JWT
+     * @param {Identity} didSiopUser - Used to retrieve the information about the provider (user DID) which are included in the response
+     * @param {number} [expiresIn = 1000] - Amount of time under which generated id_token (response) is valid. The party which validate the
+     * @param {vps} VPData - This contains the data for vp_token and additional info to send via id_token (_vp_token)
+     * @returns {Promise<any>} - A promise which resolves to a JSON object with id_token and vp_token as signed strings
+     * @remarks This method geenrate id_token and vp_token needed in an authentication response
+     * https://openid.net/specs/openid-connect-4-verifiable-presentations-1_0.html#name-response
+     */
+    DidSiopResponse.generateResponseWithVPData = function (requestPayload, signingInfo, didSiopUser, expiresIn, vps) {
+        if (expiresIn === void 0) { expiresIn = 1000; }
+        return __awaiter(this, void 0, void 0, function () {
+            var id_token_s, vp_token_s, tokens, err_3;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        id_token_s = "";
+                        vp_token_s = "";
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 7, , 8]);
+                        return [4 /*yield*/, this.generateResponse(requestPayload, signingInfo, didSiopUser, expiresIn, vps._vp_token)]; // Generate ID Token
+                    case 2:
+                        id_token_s = _a.sent(); // Generate ID Token
+                        if (!(vps && vps.vp_token)) return [3 /*break*/, 5];
+                        return [4 /*yield*/, Claims_1.validateResponseVPToken(vps.vp_token)];
+                    case 3:
+                        _a.sent();
+                        return [4 /*yield*/, this.generateResponseVPToken(requestPayload, signingInfo, vps)]; // Generate VP Token                
+                    case 4:
+                        vp_token_s = _a.sent(); // Generate VP Token                
+                        return [3 /*break*/, 6];
+                    case 5: return [2 /*return*/, Promise.reject(ErrorResponse_1.ERROR_RESPONSES.invalid_vp_token.err)];
+                    case 6:
+                        tokens = {
+                            id_token: id_token_s,
+                            vp_token: vp_token_s
+                        };
+                        return [2 /*return*/, Promise.resolve(tokens)];
+                    case 7:
+                        err_3 = _a.sent();
+                        return [2 /*return*/, Promise.reject(err_3)];
+                    case 8: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
      * @param {any} requestPayload - Payload of the request JWT. Some information from this object is needed in constructing the header of JWT & keys for signing
      * @param {JWT.SigningInfo} signingInfo - Key information used to sign the response JWT
      * @param {Identity} didSiopUser - Used to retrieve the information about the provider (user DID) which are included in the response
@@ -206,7 +254,7 @@ var DidSiopResponse = /** @class */ (function () {
      */
     DidSiopResponse.generateResponseVPToken = function (requestPayload, signingInfo, vps) {
         return __awaiter(this, void 0, void 0, function () {
-            var header, alg, payload, err_3, unsigned, err_4;
+            var header, alg, payload, err_4, unsigned, err_5;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -236,7 +284,7 @@ var DidSiopResponse = /** @class */ (function () {
                         _a.label = 3;
                     case 3: return [3 /*break*/, 5];
                     case 4:
-                        err_3 = _a.sent();
+                        err_4 = _a.sent();
                         return [2 /*return*/, Promise.reject(ErrorResponse_1.ERROR_RESPONSES.vp_token_missing_presentation_definition.err)];
                     case 5:
                         unsigned = {
@@ -245,57 +293,9 @@ var DidSiopResponse = /** @class */ (function () {
                         };
                         return [2 /*return*/, JWT.sign(unsigned, signingInfo)];
                     case 6:
-                        err_4 = _a.sent();
-                        return [2 /*return*/, Promise.reject(err_4)];
-                    case 7: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    /**
-     * @param {any} requestPayload - Payload of the request JWT. Some information from this object is needed in constructing the response
-     * @param {JWT.SigningInfo} signingInfo - Key information used to sign the response JWT
-     * @param {Identity} didSiopUser - Used to retrieve the information about the provider (user DID) which are included in the response
-     * @param {number} [expiresIn = 1000] - Amount of time under which generated id_token (response) is valid. The party which validate the
-     * @param {vps} VPData - This contains the data for vp_token and additional info to send via id_token (_vp_token)
-     * @returns {Promise<any>} - A promise which resolves to a JSON object with id_token and vp_token as signed strings
-     * @remarks This method geenrate id_token and vp_token needed in an authentication response
-     * https://openid.net/specs/openid-connect-4-verifiable-presentations-1_0.html#name-response
-     */
-    DidSiopResponse.generateResponseWithVPData = function (requestPayload, signingInfo, didSiopUser, expiresIn, vps) {
-        if (expiresIn === void 0) { expiresIn = 1000; }
-        return __awaiter(this, void 0, void 0, function () {
-            var id_token_s, vp_token_s, tokens, err_5;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        id_token_s = "";
-                        vp_token_s = "";
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 7, , 8]);
-                        return [4 /*yield*/, this.generateResponse(requestPayload, signingInfo, didSiopUser, expiresIn, vps._vp_token)]; // Generate ID Token
-                    case 2:
-                        id_token_s = _a.sent(); // Generate ID Token
-                        if (!(vps && vps.vp_token)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, Claims_1.validateResponseVPToken(vps.vp_token)];
-                    case 3:
-                        _a.sent();
-                        return [4 /*yield*/, this.generateResponseVPToken(requestPayload, signingInfo, vps)]; // Generate VP Token                
-                    case 4:
-                        vp_token_s = _a.sent(); // Generate VP Token                
-                        return [3 /*break*/, 6];
-                    case 5: return [2 /*return*/, Promise.reject(ErrorResponse_1.ERROR_RESPONSES.invalid_vp_token.err)];
-                    case 6:
-                        tokens = {
-                            id_token: id_token_s,
-                            vp_token: vp_token_s
-                        };
-                        return [2 /*return*/, Promise.resolve(tokens)];
-                    case 7:
                         err_5 = _a.sent();
                         return [2 /*return*/, Promise.reject(err_5)];
-                    case 8: return [2 /*return*/];
+                    case 7: return [2 /*return*/];
                 }
             });
         });
@@ -410,21 +410,25 @@ var DidSiopResponse = /** @class */ (function () {
     };
     DidSiopResponse.validateResponseWithVPData = function (tokensEncoded, checkParams) {
         return __awaiter(this, void 0, void 0, function () {
-            var ret, decodedVPToken, err_7;
+            var decodedIDToken, decodedVPToken, tokens, err_7;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 5, , 6]);
                         return [4 /*yield*/, this.validateResponse(tokensEncoded.id_token, checkParams)];
                     case 1:
-                        ret = _a.sent();
-                        if (!JWT.isJWTObject(ret)) return [3 /*break*/, 3];
+                        decodedIDToken = _a.sent();
+                        if (!JWT.isJWTObject(decodedIDToken)) return [3 /*break*/, 3];
                         decodedVPToken = JWT.toJWTObject(tokensEncoded.vp_token);
                         return [4 /*yield*/, Claims_1.validateResponseVPToken(decodedVPToken === null || decodedVPToken === void 0 ? void 0 : decodedVPToken.payload)];
                     case 2:
                         _a.sent();
-                        return [2 /*return*/, true];
-                    case 3: return [2 /*return*/, Promise.reject(ret)]; // ErrorResponse
+                        tokens = {
+                            id_token: decodedIDToken,
+                            vp_token: decodedVPToken
+                        };
+                        return [2 /*return*/, tokens];
+                    case 3: return [2 /*return*/, Promise.reject(new Error(ERRORS.MALFORMED_JWT_ERROR))]; // ErrorResponse
                     case 4: return [3 /*break*/, 6];
                     case 5:
                         err_7 = _a.sent();

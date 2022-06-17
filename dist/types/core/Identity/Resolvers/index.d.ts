@@ -1,7 +1,7 @@
 import { DidDocument } from "../commons";
 import { DidResolver } from "./did_resolver_base";
 import { EthrDidResolver } from "./did_resolver_ethr";
-import { KeyDidResolver2 } from "./did_resolver_key";
+import { KeyDidResolver } from "./did_resolver_key";
 import { UniversalDidResolver } from "./did_resolver_uniresolver";
 /**
  * @classdesc A Resolver class which combines several other Resolvers in chain.
@@ -33,4 +33,4 @@ declare class CombinedDidResolver extends DidResolver {
  * @exports CombinedDidResolver An instance of CombinedResolver which includes resolvers for currenlty implemented DID Methods.
  */
 export declare const combinedDidResolver: CombinedDidResolver;
-export { KeyDidResolver2, EthrDidResolver, UniversalDidResolver };
+export { KeyDidResolver, EthrDidResolver, UniversalDidResolver };

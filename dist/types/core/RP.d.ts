@@ -4,6 +4,7 @@ import { DidDocument } from './Identity';
 import { KEY_FORMATS, ALGORITHMS } from './globals';
 import { SIOPErrorResponse } from './ErrorResponse';
 import { DidResolver } from './Identity/Resolvers/did_resolver_base';
+import { SIOPTokensEcoded, SIOPTokenObjects } from './Claims';
 export declare const ERRORS: Readonly<{
     NO_SIGNING_INFO: string;
     NO_PUBLIC_KEY: string;
@@ -84,4 +85,11 @@ export declare class RP {
      * @remarks This method is used to validate responses coming from DID SIOP Providers.
      */
     validateResponse(response: string, checkParams?: CheckParams): Promise<JWTObject | SIOPErrorResponse>;
+    /**
+     * @param {SIOPTokensEcoded} tokensEncoded - Object with encoded id_token and encoded vp_token
+     * @param {CheckParams} [checkParams = {redirect_uri: this.info.redirect_uri}] - Parameters against which the response needs to be validated
+     * @returns {Promise<SIOPTokenObjects | SIOPErrorResponse>} - A Promise which resolves either to SIOPTokenObjects or a SIOPErrorResponse
+     * @remarks This method is used to validate responses coming from DID SIOP Providers.
+     */
+    validateResponseWithVPData(tokensEncoded: SIOPTokensEcoded, checkParams?: CheckParams): Promise<SIOPTokenObjects | SIOPErrorResponse>;
 }
