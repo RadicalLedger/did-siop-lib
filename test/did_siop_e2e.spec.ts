@@ -134,7 +134,6 @@ describe('DID SIOP using did:ethr method DIDs', function () {
             redirect_uri: rpRedirectURI,
             isExpirable: true,
             nonce: requests.components.optionsWithClaims.nonce,
-
         })
         expect(siopTokenObjects).toHaveProperty('id_token');
         expect(siopTokenObjects).toHaveProperty('vp_token');
