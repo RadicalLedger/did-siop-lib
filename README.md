@@ -71,7 +71,7 @@ DID-SIOP has been tested the KeyDidResolver using following Crypto-Suites.
 - @digitalbazaar/ed25519-verification-key-2020
 
 ## Special Data Structures ##
-### VPData ###
+#### VPData ####
 When generating a response with __Provider.generateResponseWithVPData__, matching Presentation Data for the vp_data parameter of Claims will be submitted using this data structure.
 ```js
 export interface VPData{
@@ -79,7 +79,7 @@ export interface VPData{
     _vp_token: any; // JSON object wit VP request related info
 }
 ```
-
+#### SIOPTokensEcoded ####
 When generating a response with __Provider.generateResponseWithVPData__ , data is returned using this data structure. Both ID_Token and VP_Token are presended as Base64 encoded JWTs
 
 ```js
@@ -88,7 +88,7 @@ export interface SIOPTokensEcoded {
     vp_token: string; // Base64 encoded JWT
 }
 ```
-
+#### SIOPTokenObjects ####
 When validating a response with __Provider.validateResponseWithVPData__ , method returns using this data structure. Both ID_Token and VP_Token are presended as JWTs
 
 ```js
