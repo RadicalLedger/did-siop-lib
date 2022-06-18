@@ -2,7 +2,7 @@
 
 ## Availability ##
 * [For Node](https://www.npmjs.com/package/did-siop)
-* [For Browser](https://cdn.jsdelivr.net/npm/did-siop@1.3.0/dist/browser/did-siop.min.js)
+* [For Browser](https://cdn.jsdelivr.net/npm/did-siop@2.0.3/dist/browser/did-siop.min.js)
 
 ## Overview ##
 This implements _Self Issued OpenId Connect Provider (SIOP) V2_. The library contains two components, **RP (Relying Party)** and **Provider**. Provider is intended to be use inside any piece of software which will provide DID SIOP authentication (Identity Wallet) and RP can be used by relying parties (client applications) to employ DID SIOP authentication. This library can be used in both client-side (browser) and server-side (Node.js) applications.
@@ -99,7 +99,8 @@ export interface SIOPTokenObjects {
 ```
 
 ## Usage ##
-Minimum implementation of SIOP using this package could be found [here](https://github.com/RadicalLedger/did-siop-rp-web-min). Further details on implementation and resources could found with [browser extension project](https://github.com/RadicalLedger/did-siop-chrome-ext).
+
+Sample illustrating the usage of basic funcitons of [did-siop](https://github.com/RadicalLedger/did-siop-lib/tree/master) library can be found [here](https://github.com/RadicalLedger/siop-auth-sample)
 
 
 ### RP ###
