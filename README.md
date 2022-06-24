@@ -2,7 +2,7 @@
 
 ## Availability ##
 * [For Node](https://www.npmjs.com/package/did-siop)
-* [For Browser](https://cdn.jsdelivr.net/npm/did-siop@1.3.0/dist/browser/did-siop.min.js)
+* [For Browser](https://cdn.jsdelivr.net/npm/did-siop@2.0.3/dist/browser/did-siop.min.js)
 
 ## Overview ##
 This implements _Self Issued OpenId Connect Provider (SIOP) V2_. The library contains two components, **RP (Relying Party)** and **Provider**. Provider is intended to be use inside any piece of software which will provide DID SIOP authentication (Identity Wallet) and RP can be used by relying parties (client applications) to employ DID SIOP authentication. This library can be used in both client-side (browser) and server-side (Node.js) applications.
@@ -71,7 +71,7 @@ DID-SIOP has been tested the KeyDidResolver using following Crypto-Suites.
 - @digitalbazaar/ed25519-verification-key-2020
 
 ## Special Data Structures ##
-### VPData ###
+#### VPData ####
 When generating a response with __Provider.generateResponseWithVPData__, matching Presentation Data for the vp_data parameter of Claims will be submitted using this data structure.
 ```js
 export interface VPData{
@@ -79,7 +79,7 @@ export interface VPData{
     _vp_token: any; // JSON object wit VP request related info
 }
 ```
-### SIOPTokensEcoded ###
+#### SIOPTokensEcoded ####
 When generating a response with __Provider.generateResponseWithVPData__ , data is returned using this data structure. Both ID_Token and VP_Token are presended as Base64 encoded JWTs
 
 ```js
@@ -88,7 +88,7 @@ export interface SIOPTokensEcoded {
     vp_token: string; // Base64 encoded JWT
 }
 ```
-### SIOPTokenObjects ###
+#### SIOPTokenObjects ####
 When validating a response with __Provider.validateResponseWithVPData__ , method returns using this data structure. Both ID_Token and VP_Token are presended as JWTs
 
 ```js
@@ -99,7 +99,8 @@ export interface SIOPTokenObjects {
 ```
 
 ## Usage ##
-Minimum implementation of SIOP using this package could be found [here](https://github.com/RadicalLedger/did-siop-rp-web-min). Further details on implementation and resources could found with [browser extension project](https://github.com/RadicalLedger/did-siop-chrome-ext).
+
+Sample illustrating the usage of basic funcitons of [did-siop](https://github.com/RadicalLedger/did-siop-lib/tree/master) library can be found [here](https://github.com/RadicalLedger/siop-auth-sample)
 
 
 ### RP ###
