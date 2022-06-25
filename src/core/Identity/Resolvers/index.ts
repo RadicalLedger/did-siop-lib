@@ -25,9 +25,22 @@ class CombinedDidResolver extends DidResolver{
         return this;
     }
 
+        /**
+     * 
+     * @returns {CombinedDidResolver} To use in fluent interface pattern.
+     * @remarks Return currently available resolvers array.
+     */
+         getResolvers():any[]{
+            return this.resolvers;
+        }
+    
     async resolveDidDocumet(did: string): Promise<DidDocument>{
         let doc: DidDocument | undefined;
-
+        if (this.resolvers.length == 0){
+            console.log("No resolvers found, adding uniresolver");
+            let uniResolver = new UniversalDidResolver('uniresolver')
+            this.addResolver(uniResolver);
+        }
         for(let resolver of this.resolvers){
             try{
                 doc = await resolver.resolve(did);
