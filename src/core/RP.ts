@@ -239,9 +239,9 @@ export class RP {
      * @returns {Promise<JWT.JWTObject> | SIOPErrorResponse} - A Promise which resolves either to a decoded response or a SIOPErrorResponse
      * @remarks This method is used to validate responses coming from DID SIOP Providers.
      */
-    async validateResponse(response: string, checkParams: CheckParams = {redirect_uri: this.info.redirect_uri}): Promise<JWTObject | SIOPErrorResponse> {
+    async validateResponse(response: string, checkParams: CheckParams = {redirect_uri: this.info.redirect_uri},resolvers?:DidResolver[]): Promise<JWTObject | SIOPErrorResponse> {
         try {
-            return await DidSiopResponse.validateResponse(response, checkParams);
+            return await DidSiopResponse.validateResponse(response, checkParams,resolvers);
         } catch (err) {
             return Promise.reject(err);
         }
