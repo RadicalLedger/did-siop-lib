@@ -117,7 +117,7 @@ describe("004.04 Response Generation/Validation with the id_token using specific
         let user = new Identity();
 
         
-        let ethrResolver = new EthrDidResolver('key');
+        let ethrResolver = new EthrDidResolver('ethr');
         await user.resolve(userDID)
 
         let response = await DidSiopResponse.generateResponse(requestJWT.good.basic.payload, signing, user, 30000);
