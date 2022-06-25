@@ -7,6 +7,7 @@ import { KeySet, ERRORS } from './JWKUtils';
 import { ALGORITHMS, KTYS, KEY_FORMATS,SiopMetadataSupported, SIOP_METADATA_SUPPORTED } from './globals';
 import * as JWT from './JWT';
 import { validateRequestJWTClaims } from './Claims';
+import { DidResolver } from './Identity/Resolvers/did_resolver_base';
 
 const axios = require('axios').default;
 
@@ -34,10 +35,10 @@ export class DidSiopRequest{
      * @remarks This method make use of two functions which first validates the url parameters of the request 
      * and then the request JWT contained in 'request' or 'requestURI' parameter
      */
-    static async validateRequest(request: string,op_metadata?:any): Promise<JWT.JWTObject>{
+    static async validateRequest(request: string,op_metadata?:any, resolvers?:DidResolver[]): Promise<JWT.JWTObject>{
         if (op_metadata === undefined) op_metadata = SIOP_METADATA_SUPPORTED;
         let requestJWT = await validateRequestParams(request,op_metadata);
-        let jwtDecoded = await validateRequestJWT(requestJWT);
+        let jwtDecoded = await validateRequestJWT(requestJWT,resolvers);
         return jwtDecoded;
     }
 
@@ -156,7 +157,7 @@ async function validateRequestParams(request: string,op_metadata?:any): Promise<
  * If the JWT is successfully verified then this method will return the decoded JWT
  * https://identity.foundation/did-siop/#siop-request-validation
  */
-async function validateRequestJWT(requestJWT: string): Promise<JWT.JWTObject> {
+async function validateRequestJWT(requestJWT: string, resolvers?:DidResolver[]): Promise<JWT.JWTObject> {
     let decodedHeader: JWT.JWTHeader;
     let decodedPayload;
     try {
@@ -178,6 +179,8 @@ async function validateRequestJWT(requestJWT: string): Promise<JWT.JWTObject> {
 
         try {
             let identity = new Identity();
+            if (resolvers)
+                identity.addResolvers(resolvers)
             await identity.resolve(decodedPayload.iss);
             
             let didPubKey = identity.extractAuthenticationKeys().find(authKey => { return authKey.id === decodedHeader.kid});

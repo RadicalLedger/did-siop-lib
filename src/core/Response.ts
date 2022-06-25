@@ -6,6 +6,7 @@ import base64url from 'base64url';
 import * as ErrorResponse from './ErrorResponse';
 import {  VPData,SIOPTokensEcoded, SIOPTokenObjects, validateRequestJWTClaims, validateResponseVPToken, validateResponse_VPToken } from './Claims';
 import { ERROR_RESPONSES } from './ErrorResponse';
+import { DidResolver } from './Identity/Resolvers/did_resolver_base';
 
 const ERRORS = Object.freeze({
     UNSUPPORTED_ALGO: 'Algorithm not supported',
@@ -244,7 +245,7 @@ export class DidSiopResponse{
      * If the verification is successful, this method returns the decoded id_token (JWT).
      * https://identity.foundation/did-siop/#siop-response-validation
      */
-    static async validateResponse(response: string, checkParams: CheckParams): Promise<JWT.JWTObject | ErrorResponse.SIOPErrorResponse>{
+    static async validateResponse(response: string, checkParams: CheckParams,resolvers?:DidResolver[]): Promise<JWT.JWTObject | ErrorResponse.SIOPErrorResponse>{
         let decodedHeader: JWT.JWTHeader;
         let decodedPayload;
         try {
@@ -294,6 +295,9 @@ export class DidSiopResponse{
             let publicKeyInfo: JWT.SigningInfo | undefined;
             try{
                 let identity = new Identity();
+                if (resolvers)
+                    identity.addResolvers(resolvers)
+
                 await identity.resolve(decodedPayload.did);
                 
                 let didPubKey = identity.extractAuthenticationKeys().find(authKey => { return authKey.id === decodedHeader.kid});
@@ -334,9 +338,9 @@ export class DidSiopResponse{
         }
     }
 
-    static async validateResponseWithVPData(tokensEncoded: SIOPTokensEcoded, checkParams: CheckParams): Promise<SIOPTokenObjects | ErrorResponse.SIOPErrorResponse>{
+    static async validateResponseWithVPData(tokensEncoded: SIOPTokensEcoded, checkParams: CheckParams,resolvers?:DidResolver[]): Promise<SIOPTokenObjects | ErrorResponse.SIOPErrorResponse>{
         try {
-            let decodedIDToken = await this.validateResponse(tokensEncoded.id_token,checkParams);
+            let decodedIDToken = await this.validateResponse(tokensEncoded.id_token,checkParams,resolvers);
             if ( JWT.isJWTObject(decodedIDToken))
             {
                 let decodedVPToken = JWT.toJWTObject(tokensEncoded.vp_token)

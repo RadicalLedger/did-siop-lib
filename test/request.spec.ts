@@ -4,6 +4,7 @@ import { jwts, requests, claims } from './request.spec.resources';
 import { SIOP_METADATA_SUPPORTED,SiopMetadataSupported } from '../src/core/globals';
 import nock from 'nock';
 import {DID_TEST_RESOLVER_DATA_NEW as DIDS } from './did_doc.spec.resources'
+import { KeyDidResolver } from '../src/core/Identity/Resolvers';
 
 let userDidDoc  = DIDS[0].resolverReturn.didDocument;
 let userDID     = DIDS[0].did;
@@ -11,21 +12,21 @@ let userDID     = DIDS[0].did;
 let rpDidDoc    = DIDS[1].resolverReturn.didDocument;
 let rpDID       = DIDS[1].did;
 
-describe("Modify request object", function () {
-    test('Include claims - expect truthy', async () => {
+describe("003.01 Modify request object", function () {
+    test('a. Include claims - expect truthy', async () => {
         jest.setTimeout(17000);
         let returnedJWT = await DidSiopRequest.validateRequest(requests.good.requestGoodWithClaims,SIOP_METADATA_SUPPORTED);        
         expect(returnedJWT.payload.claims).toEqual(claims.good);
     });
 });
 
-describe("Request validation/generation", function () {
+describe("003.02 Request validation/generation", function () {
     beforeEach(() => {
         nock('http://localhost').get('/requestJWT').reply(200, jwts.jwtGoodEncoded).get('/incorrectRequestJWT').reply(404, 'Not found');
         nock('https://uniresolver.io/1.0/identifiers').persist().get('/'+rpDID).reply(200, rpDidDoc).get('/'+userDID).reply(200, userDidDoc);
     });
 
-    test('Request validation - expect truthy', async () => {
+    test('a. Request validation - expect truthy', async () => {
         jest.setTimeout(17000);
         let returnedJWT = await DidSiopRequest.validateRequest(requests.good.requestGoodEmbeddedJWT,SIOP_METADATA_SUPPORTED);
         expect(returnedJWT).toEqual(jwts.jwtGoodDecoded);
@@ -34,7 +35,7 @@ describe("Request validation/generation", function () {
         expect(returnedJWT).toEqual(jwts.jwtGoodDecoded);
     });
 
-    test('Request validation with invalid OP Metadata - expect falsy', async () => {
+    test('b. Request validation with invalid OP Metadata - expect falsy', async () => {
         jest.setTimeout(17000);
         let temp_md:SiopMetadataSupported = {...SIOP_METADATA_SUPPORTED}
         temp_md.scopes = [];
@@ -49,7 +50,7 @@ describe("Request validation/generation", function () {
     });
 
 
-    test('Request validation - expect falsy', async () => {
+    test('c. Request validation - expect falsy', async () => {
         jest.setTimeout(17000);
         let validityPromise = DidSiopRequest.validateRequest(requests.bad.requestBadProtocol);
         await expect(validityPromise).rejects.toEqual(ERROR_RESPONSES.invalid_request.err);
@@ -97,23 +98,35 @@ describe("Request validation/generation", function () {
         await expect(validityPromise).rejects.toEqual(ERROR_RESPONSES.invalid_request_object.err);
     });
 });
-describe("Request validation/generation", function () {
-    test("Generate request - expect truthy", async () => {
+
+describe("003.03 Request validation/generation", function () {
+    test("a. Generate request - expect truthy", async () => {
         jest.setTimeout(17000);
         let rqst = await DidSiopRequest.generateRequest(requests.components.rp, requests.components.signingInfo, requests.components.options);
         let decoded = await DidSiopRequest.validateRequest(rqst);
         expect(decoded).toHaveProperty('header');
         expect(decoded).toHaveProperty('payload');
     });
-    test("Generate request with vp_token and validate - expect truthy", async () => {
+    test("b. Generate request with vp_token and validate - expect truthy", async () => {
         jest.setTimeout(17000);
         let rqst = await DidSiopRequest.generateRequest(requests.components.rp, requests.components.signingInfo, requests.components.optionsWithClaims);
         let decoded = await DidSiopRequest.validateRequest(rqst);
         expect(decoded.payload.claims).toHaveProperty('vp_token');
     });
-    test("Generate request with claim but no vp_token - expect reject", async () => {
+    test("c. Generate request with claim but no vp_token - expect reject", async () => {
         jest.setTimeout(17000);
         let validityPromise = DidSiopRequest.validateRequest(requests.bad.requestBadJWTClaimsNoVPToken);
         await expect(validityPromise).rejects.toEqual(ERROR_RESPONSES.vp_token_missing_presentation_definition.err);
+    });
+});
+
+describe("003.04 Request validation/generation with specific Resolver", function () {
+    test("a. Generate request - expect truthy", async () => {
+        jest.setTimeout(17000);
+        let keyResolver = new KeyDidResolver('key');
+        let rqst = await DidSiopRequest.generateRequest(requests.components.rp, requests.components.signingInfo, requests.components.options);
+        let decoded = await DidSiopRequest.validateRequest(rqst,undefined,[keyResolver]);
+        expect(decoded).toHaveProperty('header');
+        expect(decoded).toHaveProperty('payload');
     });
 });

@@ -9,6 +9,7 @@ import nock from 'nock';
 import { requestJWT } from './response.spec.resources';
 import {DID_TEST_RESOLVER_DATA_NEW as DIDS } from './did_doc.spec.resources'
 import { tokenData } from './common.spec.resources';
+import { EthrDidResolver } from '../src/core/Identity/Resolvers';
 
 let userDidDoc  = DIDS[0].resolverReturn.didDocument;
 let userDID     = DIDS[0].did;
@@ -31,11 +32,11 @@ let checkParams = {
     isExpirable: true,
 }
 
-describe("Response with the id_token", function () {
+describe("004.01 Response with the id_token", function () {
     beforeEach(() => {
         nock('https://uniresolver.io/1.0/identifiers').persist().get('/'+rpDID).reply(200, rpDidDoc).get('/'+userDID).reply(200, userDidDoc);
     });
-    test("with basic info : generation and validation", async () => {
+    test("a. with basic info : generation and validation", async () => {
         jest.setTimeout(30000);
         let user = new Identity();
         await user.resolve(userDID)
@@ -50,11 +51,11 @@ describe("Response with the id_token", function () {
     });
 });
 
-describe("Response validation for a request with a vp_token", function () {
+describe("004.02 Response validation for a request with a vp_token", function () {
     beforeEach(() => {
         nock('https://uniresolver.io/1.0/identifiers').persist().get('/'+rpDID).reply(200, rpDidDoc).get('/'+userDID).reply(200, userDidDoc);
     });
-    test(" Valid token : generation and validation", async () => {
+    test("a. Valid token : generation and validation", async () => {
         jest.setTimeout(30000);
         let user = new Identity();
         await user.resolve(userDID)
@@ -63,7 +64,7 @@ describe("Response validation for a request with a vp_token", function () {
         let validity = await DidSiopResponse.validateResponse(response, checkParams);
         expect(validity).toBeTruthy();
     });
-    test(" Invalid token : generation", async () => {
+    test("b. Invalid token : generation", async () => {
         jest.setTimeout(30000);
         let user = new Identity();
         await user.resolve(userDID)
@@ -73,11 +74,8 @@ describe("Response validation for a request with a vp_token", function () {
     });
 });
 
-describe("Response generation and validation with vp_token data", function () {
-    // beforeEach(() => {
-    //     nock('https://uniresolver.io/1.0/identifiers').persist().get('/'+rpDID).reply(200, rpDidDoc).get('/'+userDID).reply(200, userDidDoc);
-    //});
-    test(" Valid vp_token & _vp_token should generate a valid response", async () => {
+describe("004.03 Response generation and validation with vp_token data", function () {
+    test("a. Valid vp_token & _vp_token should generate a valid response", async () => {
         jest.setTimeout(30000);
         let user = new Identity();
         await user.resolve(userDID)
@@ -95,7 +93,7 @@ describe("Response generation and validation with vp_token data", function () {
         expect(validResponse).toBeTruthy();
     });
 
-    test(" Invalid vp_token : generation should raise an exception", async () => {
+    test("b. Invalid vp_token : generation should raise an exception", async () => {
         jest.setTimeout(30000);
         let user = new Identity();
         await user.resolve(userDID)
@@ -107,5 +105,27 @@ describe("Response generation and validation with vp_token data", function () {
 
         let response =  DidSiopResponse.generateResponseWithVPData(requestJWT.good.withVPToken.payload, signing, user, 30000, bad_vp);
         await expect(response).rejects.toEqual(ERROR_RESPONSES.vp_token_missing_verifiableCredential.err);
+    });
+});
+
+describe("004.04 Response Generation/Validation with the id_token using specific Resolver (did:ethr)", function () {
+    beforeEach(() => {
+        nock('https://uniresolver.io/1.0/identifiers').persist().get('/'+rpDID).reply(200, rpDidDoc).get('/'+userDID).reply(200, userDidDoc);
+    });
+    test("a. with basic info : generation and validation", async () => {
+        jest.setTimeout(30000);
+        let user = new Identity();
+
+        
+        let ethrResolver = new EthrDidResolver('key');
+        await user.resolve(userDID)
+
+        let response = await DidSiopResponse.generateResponse(requestJWT.good.basic.payload, signing, user, 30000);
+        let validity = await DidSiopResponse.validateResponse(response, checkParams,[ethrResolver]);
+        expect(validity).toBeTruthy();
+        
+        let resJWT = toJWTObject(response);
+        if (resJWT)
+            expect(resJWT.payload.aud).toBe(requestJWT.good.basic.payload.redirect_uri);
     });
 });
