@@ -2,7 +2,6 @@ import {CRYPTO_SUITES} from '../src/core/globals'
 import { RP} from '../src/core/RP';
 import {  ERRORS as ID_ERRORS } from '../src/core/Identity';
 import {  KeyDidResolver } from '../src/core/Identity/Resolvers/did_resolver_key';
-// import nock from 'nock';
 import {DID_TEST_RESOLVER_DATA_NEW } from './did_doc.spec.resources'
 import { ALGORITHMS,KEY_FORMATS } from '../src';
 import { JWTObject, toJWTObject } from '../src/core/JWT';
