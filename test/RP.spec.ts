@@ -14,9 +14,9 @@ let registration = {
         };
 let redirect_uri : 'localhost:4200/home';
 
-describe("RP related function with did:ethr ", function() {
+describe("005.01 RP related function with did:ethr ", function() {
     jest.setTimeout(30000);
-    test("getRP shoud return a valid RP instance with ", async () => {
+    test("a. getRP shoud return a valid RP instance with ", async () => {
         let siop_rp = await RP.getRP(
             redirect_uri, // RP's redirect_uri
             DID_TEST_RESOLVER_DATA_NEW[0].did, // RP's did
@@ -24,7 +24,7 @@ describe("RP related function with did:ethr ", function() {
         )
         expect(siop_rp).not.toBe(null);            
     });
-    test("getRP shoud return an error if the DID is invalid ", async () => {
+    test("b. getRP shoud return an error if the DID is invalid ", async () => {
         let siop_rp = RP.getRP(
             redirect_uri, // RP's redirect_uri
             "not_a_did", // RP's did
@@ -35,9 +35,9 @@ describe("RP related function with did:ethr ", function() {
     });
 });
 
-describe("RP related function with did:key crypto suite Ed25519VerificationKey2018", function() {
+describe("005.02 RP related function with did:key crypto suite Ed25519VerificationKey2018", function() {
     jest.setTimeout(30000);
-    test("getRP shoud return a valid RP instance with ", async () => {
+    test("a. getRP shoud return a valid RP instance with ", async () => {
         let keyResolv2018 = new KeyDidResolver('key', CRYPTO_SUITES.Ed25519VerificationKey2018);
         let siop_rp = await RP.getRP(
             redirect_uri, // RP's redirect_uri
@@ -69,9 +69,9 @@ describe("RP related function with did:key crypto suite Ed25519VerificationKey20
     });
 });
 
-describe("RP related function with did:key crypto suite Ed25519VerificationKey2020", function() {
+describe("005.03 RP related function with did:key crypto suite Ed25519VerificationKey2020", function() {
     jest.setTimeout(30000);
-    test("getRP shoud return a valid RP instance with ", async () => {
+    test("a. getRP shoud return a valid RP instance with ", async () => {
         let keyResolv2020 = new KeyDidResolver('key', CRYPTO_SUITES.Ed25519VerificationKey2020)
         let siop_rp = await RP.getRP(
             redirect_uri, // RP's redirect_uri
