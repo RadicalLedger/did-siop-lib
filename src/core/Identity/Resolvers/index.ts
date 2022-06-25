@@ -72,10 +72,8 @@ class CombinedDidResolver extends DidResolver{
 }
 
 /**
- * @exports CombinedDidResolver An instance of CombinedResolver which includes resolvers for currenlty implemented DID Methods.
+ *  @exports CombinedDidResolver An instance of CombinedResolver with no resolver added.
  */
-export const combinedDidResolver = new CombinedDidResolver('all')
-    .addResolver(new EthrDidResolver('ethr'))
-    .addResolver(new UniversalDidResolver('uniresolver'));
+export const combinedDidResolver = new CombinedDidResolver('all');
 
-export {KeyDidResolver, EthrDidResolver,UniversalDidResolver}
+export {CombinedDidResolver,KeyDidResolver, EthrDidResolver,UniversalDidResolver}
