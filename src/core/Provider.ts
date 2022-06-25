@@ -9,6 +9,7 @@ import { DidSiopRequest } from './Request';
 import { VPData, SIOPTokensEcoded } from './Claims';
 import { checkKeyPair, isMultibasePvtKey ,getBase58fromMultibase} from './Utils';
 import * as ErrorResponse from './ErrorResponse';
+import { DidResolver } from './Identity/Resolvers/did_resolver_base';
 
 export const ERRORS= Object.freeze({
     NO_SIGNING_INFO: 'At least one public key must be confirmed with related private key',
@@ -171,9 +172,9 @@ export class Provider{
      * @returns {Promise<JWT.JWTObject>} - A Promise which resolves to a decoded request JWT
      * @remarks This method is used to validate requests coming from Relying Parties.
      */
-    async validateRequest(request: string): Promise<JWTObject>{
+    async validateRequest(request: string,op_metadata?:any, resolvers?:DidResolver[]): Promise<JWTObject>{
         try {
-            return DidSiopRequest.validateRequest(request);
+            return DidSiopRequest.validateRequest(request,op_metadata,resolvers);
         } catch (err) {
             return Promise.reject(err);
         }
