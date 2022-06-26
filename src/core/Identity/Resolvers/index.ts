@@ -15,29 +15,35 @@ class CombinedDidResolver extends DidResolver{
     private resolvers: any[] = [];
 
     /**
-     * 
      * @param {any} resolver - A resolver instance to add to the chain.
      * @returns {CombinedDidResolver} To use in fluent interface pattern.
      * @remarks Adds a given object to the resolvers array.
      */
-    addResolver(resolver: any): CombinedDidResolver{
+    addResolver(resolver: any): CombinedDidResolver{        
         this.resolvers.push(resolver);
         return this;
     }
 
-        /**
-     * 
-     * @returns {CombinedDidResolver} To use in fluent interface pattern.
+    /**
+     * @returns {DidResolver[]} returns currently available DidResolver array
      * @remarks Return currently available resolvers array.
      */
-         getResolvers():any[]{
-            return this.resolvers;
-        }
+    getResolvers():any[]{
+        return this.resolvers;
+    }
+
+    /**
+     * @returns {void} 
+     * @remarks Remove all resolvers (mostly used when UnitTesting)
+     */
+    removeAllResolvers(){
+        this.resolvers = [];
+    }
     
     async resolveDidDocumet(did: string): Promise<DidDocument>{
         let doc: DidDocument | undefined;
+        
         if (this.resolvers.length == 0){
-            console.log("No resolvers found, adding uniresolver");
             let uniResolver = new UniversalDidResolver('uniresolver')
             this.addResolver(uniResolver);
         }
@@ -70,10 +76,5 @@ class CombinedDidResolver extends DidResolver{
         return this.resolveDidDocumet(did);
     }
 }
-
-/**
- *  @exports CombinedDidResolver An instance of CombinedResolver with no resolver added.
- */
-export const combinedDidResolver = new CombinedDidResolver('all');
 
 export {CombinedDidResolver,KeyDidResolver, EthrDidResolver,UniversalDidResolver}
