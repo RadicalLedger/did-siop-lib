@@ -1,4 +1,3 @@
-
 const axios = require('axios').default;
 
 import { DidResolver } from "./did_resolver_base";
