@@ -4,7 +4,7 @@ import { jwts, requests, claims } from './request.spec.resources';
 import { SIOP_METADATA_SUPPORTED,SiopMetadataSupported } from '../src/core/globals';
 import nock from 'nock';
 import {DID_TEST_RESOLVER_DATA_NEW as DIDS } from './did_doc.spec.resources'
-import { KeyDidResolver } from '../src/core/Identity/Resolvers';
+import { EthrDidResolver } from '../src/core/Identity/Resolvers';
 
 let userDidDoc  = DIDS[0].resolverReturn.didDocument;
 let userDID     = DIDS[0].did;
@@ -123,9 +123,9 @@ describe("003.03 Request validation/generation", function () {
 describe("003.04 Request validation/generation with specific Resolver", function () {
     test("a. Generate request - expect truthy", async () => {
         jest.setTimeout(17000);
-        let keyResolver = new KeyDidResolver('key');
+        let ethrResolver = new EthrDidResolver('ethr');
         let rqst = await DidSiopRequest.generateRequest(requests.components.rp, requests.components.signingInfo, requests.components.options);
-        let decoded = await DidSiopRequest.validateRequest(rqst,undefined,[keyResolver]);
+        let decoded = await DidSiopRequest.validateRequest(rqst,undefined,[ethrResolver]);
         expect(decoded).toHaveProperty('header');
         expect(decoded).toHaveProperty('payload');
     });

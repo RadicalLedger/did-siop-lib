@@ -389,6 +389,9 @@ Along with __vp_token__, there coudl be a _vp_token attribute inside the __id_to
 - Validation :  look for verifiableCredential attribute within the vp_token
 - Return : Promise.resolve if success, reject otherwise  
 
+### Test Cases ###
+Test cases depend on the availabiltiy of https://dev.uniresolver.io/ (which goes offline time to time). If test cases are failing, check the availabiltiy of Uniresolver before troubshoot.
+
 ### Hot Fix ###
 chaneg following line in node_modules/ethr-did-resolver/lib/index.js (ln1087)
 ```

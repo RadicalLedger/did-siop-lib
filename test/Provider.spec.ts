@@ -46,7 +46,7 @@ let requestObj: JWTObject = {
       }
 }
 
-describe('005 Provider testing with dynamically added resolver', function () {
+describe('006 Provider testing with dynamically added resolver', function () {
     beforeEach(() => {
         nock('https://uniresolver.io/1.0/identifiers').persist().get('/'+rpDID).reply(200, rpDidDoc).get('/'+userDID).reply(200, userDidDoc);
     });
@@ -65,15 +65,14 @@ describe('005 Provider testing with dynamically added resolver', function () {
         expect(kid).toEqual(userKid);
 
         let request =  await rp.generateRequest();
-        let requestJWTDecoded = await provider.validateRequest(request,undefined, [ethrResolver]);
+        let requestJWTDecoded = await provider.validateRequest(request);
         expect(requestJWTDecoded).toMatchObject(requestObj);
 
         let response = await provider.generateResponse(requestJWTDecoded.payload);
         let responseJWTDecoded = await rp.validateResponse(response, {
             redirect_uri: rpRedirectURI,
             isExpirable: true,
-        },
-        [ethrResolver])
+        })
         expect(responseJWTDecoded).toHaveProperty('header');
         expect(responseJWTDecoded).toHaveProperty('payload');
     });
