@@ -33,12 +33,15 @@ export class Provider{
      * doc parameter is optional and if provided it will be used to directly set the identity.
      * Otherwise the DID Document will be resolved over a related network.
      */
-    async setUser(did: string, doc?: DidDocument){
+    async setUser(did: string, doc?: DidDocument, resolvers?:DidResolver[]){
         try {
             if(doc){
                 this.identity.setDocument(doc, did);
             }
             else{
+                if (resolvers && resolvers.length>0){
+                    this.identity.addResolvers(resolvers);
+                }
                 await this.identity.resolve(did);
             }
         } catch (err) {
