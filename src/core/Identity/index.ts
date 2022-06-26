@@ -33,9 +33,27 @@ export class Identity{
      */
     addResolvers(resolvers: DidResolver[]){
         for (let resolver in resolvers) {            
-            Resolvers.combinedDidResolver.addResolver(resolvers[resolver])
+            this.combinedDidResolver.addResolver(resolvers[resolver])
         }
     }
+
+    /**
+     * 
+     * @returns {DidResolver[]} returns currently available DidResolver array
+     * @remarks Return currently available resolvers array.
+     */
+     getResolvers():any[]{
+        return this.combinedDidResolver.getResolvers();
+    }
+
+    /**
+     * @returns {void} 
+     * @remarks Remove all resolvers in combined resolver (mostly used when UnitTesting)
+     */
+    removeAllResolvers(){
+        this.combinedDidResolver.removeAllResolvers();
+    }
+
 
     /**
      * 
