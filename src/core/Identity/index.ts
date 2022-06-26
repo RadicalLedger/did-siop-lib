@@ -11,6 +11,7 @@ import  * as Resolvers from  './Resolvers';
 export class Identity{
     private doc: DidDocument;
     private keySet: DidVerificationKey[];
+    private combinedDidResolver!: Resolvers.CombinedDidResolver;
 
     /**
      * @constructor
@@ -22,6 +23,7 @@ export class Identity{
             authentication: [],
         };
         this.keySet = [];
+        this.combinedDidResolver = new Resolvers.CombinedDidResolver('all');
     }
 
         /**
@@ -44,9 +46,9 @@ export class Identity{
     async resolve(did: string): Promise<string>{
         let result: DidDocument;
         try{
-            result = await Resolvers.combinedDidResolver.resolve(did);
+            result = await this.combinedDidResolver.resolve(did);
         }
-        catch(err){
+        catch(err){           
             throw new Error(ERRORS.DOCUMENT_RESOLUTION_ERROR);
         }
 
