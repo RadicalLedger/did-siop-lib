@@ -67,8 +67,9 @@ export class RP {
                 rp.identity.setDocument(did_doc, did);
             }
             else{
-                if (resolvers && resolvers.length>0)
+                if (resolvers && resolvers.length>0){
                     rp.identity.addResolvers(resolvers);
+                }
                 await rp.identity.resolve(did);
             }
             return rp;
@@ -195,6 +196,15 @@ export class RP {
             throw err;
         }
     }
+
+    /**
+     * @returns {void} 
+     * @remarks Remove all resolvers in Identity (mostly used when UnitTesting)
+     */
+     removeAllResolvers(){
+        this.identity.removeAllResolvers();
+    }
+
 
     /**
      * @param {any} [options = {}] - Any optional field which should be included in the request JWT. Any field which is not supported
