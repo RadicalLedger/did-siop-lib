@@ -67,9 +67,6 @@ export class Provider{
 
     /**
      * @param {string} key - Private part of any cryptographic key listed in the 'authentication' field of the user's DID Document
-     * @param {string} [kid] - kid value of the key. Optional and not used
-     * @param {KEY_FORMATS| string} [format] - Format in which the private key is supplied. Optional and not used
-     * @param {ALGORITHMS} [algorithm] - Algorithm to use the key with. Optional and not used
      * @returns {string} - kid of the added key
      * @remarks This method is used to add signing information to 'signing_info_set'.
      * All optional parameters are not used and only there to make the library backward compatible.
