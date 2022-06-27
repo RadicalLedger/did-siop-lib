@@ -266,6 +266,12 @@ export class RP {
      */
      async validateResponseWithVPData(tokensEncoded: SIOPTokensEcoded, checkParams: CheckParams = {redirect_uri: this.info.redirect_uri},resolvers?:DidResolver[]): Promise<SIOPTokenObjects | SIOPErrorResponse> {
         try {
+            let resolversToValidate:any=undefined;
+            if (resolvers && resolvers.length>0) 
+                resolversToValidate = resolvers;
+            else if (this.resolvers && this.resolvers.length>0)
+                resolversToValidate = this.resolvers;
+
             return await DidSiopResponse.validateResponseWithVPData(tokensEncoded, checkParams,resolvers);
         } catch (err) {
             return Promise.reject(err);
