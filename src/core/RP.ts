@@ -275,7 +275,7 @@ export class RP {
             else if (this.resolvers && this.resolvers.length>0)
                 resolversToValidate = this.resolvers;
 
-            return await DidSiopResponse.validateResponseWithVPData(tokensEncoded, checkParams,resolvers);
+            return await DidSiopResponse.validateResponseWithVPData(tokensEncoded, checkParams,resolversToValidate);
         } catch (err) {
             return Promise.reject(err);
         }
