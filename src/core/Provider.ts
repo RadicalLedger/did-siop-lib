@@ -25,6 +25,21 @@ export const ERRORS= Object.freeze({
 export class Provider{
     private identity: Identity = new Identity();
     private signing_info_set: SigningInfo[] = [];
+    private resolvers : DidResolver[] = [];
+
+    private constructor(){
+
+    }    
+
+    static async getProvider(did: string, doc?: DidDocument, resolvers?:DidResolver[]):Promise<Provider>{
+        try {
+            let provider = new Provider()
+            await provider.setUser(did,doc, resolvers)
+            return provider;
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    }
 
     /**
      * @param {string} did - The DID of the provider (end user)
@@ -41,6 +56,7 @@ export class Provider{
             else{
                 if (resolvers && resolvers.length>0){
                     this.identity.addResolvers(resolvers);
+                    this.resolvers = resolvers;
                 }
                 await this.identity.resolve(did);
             }
@@ -177,7 +193,13 @@ export class Provider{
      */
     async validateRequest(request: string,op_metadata?:any, resolvers?:DidResolver[]): Promise<JWTObject>{
         try {
-            return DidSiopRequest.validateRequest(request,op_metadata,resolvers);
+            let resolversToValidate:any=undefined;
+            if (resolvers && resolvers.length>0) 
+                resolversToValidate = resolvers;
+            else if (this.resolvers && this.resolvers.length>0)
+                resolversToValidate = this.resolvers;
+
+            return DidSiopRequest.validateRequest(request,op_metadata,resolversToValidate);
         } catch (err) {
             return Promise.reject(err);
         }
