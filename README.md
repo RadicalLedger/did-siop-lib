@@ -54,6 +54,16 @@ Version 2 of did-siop provides mechanism to use custom DID Resolvers. Currently 
 
 To build a custom resolver to use with DID-SIOP, derive your custom resolver from [DidResolver](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/Identity/Resolvers/did_resolver_base.ts) and override the __resolveDidDocumet__ appropriately.
 
+#### Working with Resolvers ####
+Default behavior of this library does not need any Resolvers to be specified. In absence of an external Resolver, library uses __UniversalDidResolver__ which relies on https://dev.uniresolver.io/ (Please note, availability of https://dev.uniresolver.io/ is not consistent and do not advise to use it in live applications).
+
+At the time of creating a __RP__ or __Provider__ instance, along with the DID, it is possible to specify an array of Resolvers that should be used to resolve the given DID. These resolvers must be derived from DidResolver baseclass. Once specified a set of resolvers at the time of creating RP or Provider instance, subsequent requirements of DID resolutions in that instance will use the provided resolvers. In addition to this, it is possible to specify an array of resolvers in following methods which overrised the instance level resolver list.
+
+- RP:validateResponse
+- RP:validateResponseWithVPData
+- Provider:validateRequest
+
+
 #### Crypto Suites ####
 When using/building a resolver, the library provide the option of specifying a __Crypto Suite__ to be used in resolving DIDs. Relevant Crypto Suite can be passed as an argument when constructing the DIDResolver.
 ```js
