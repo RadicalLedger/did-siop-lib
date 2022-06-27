@@ -77,12 +77,8 @@ export class Provider{
      * every public key listed in the 'authentication' field of RP's DID Document and every key format
      * until a compatible combination of those information which can be used for the signing process is found.
      */
-    addSigningParams(key: string, kid?: string, format?: KEY_FORMATS | string, algorithm?: ALGORITHMS | string): string{
+    addSigningParams(key: string): string{
         try{
-            if(format){}
-            if(algorithm){}
-            if(kid){}
-
             let didPublicKeySet = this.identity.extractAuthenticationKeys();
 
             if (isMultibasePvtKey(key))
