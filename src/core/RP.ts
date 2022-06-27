@@ -81,9 +81,6 @@ export class RP {
 
     /**
      * @param {string} key - Private part of any cryptographic key listed in the 'authentication' field of RP's DID Document
-     * @param {string} [kid] - kid value of the key. Optional and not used
-     * @param {KEY_FORMATS| string} [format] - Format in which the private key is supplied. Optional and not used
-     * @param {ALGORITHMS} [algorithm] - Algorithm to use the key with. Optional and not used
      * @returns {string} - kid of the added key
      * @remarks This method is used to add signing information to 'signing_info_set'.
      * All optional parameters are not used and only there to make the library backward compatible.
@@ -91,11 +88,8 @@ export class RP {
      * every public key listed in the 'authentication' field of RP's DID Document and every key format
      * until a compatible combination of those information which can be used for the signing process is found. 
      */
-    addSigningParams(key: string, kid?: string, format?: KEY_FORMATS | string, algorithm?: ALGORITHMS | string): string {
+    addSigningParams(key: string): string {        
         try{
-            if(format){}
-            if(algorithm){}
-            if(kid){}
             let didPublicKeySet = this.identity.extractAuthenticationKeys();
             
             if (isMultibasePvtKey(key))
@@ -111,7 +105,7 @@ export class RP {
                     format: didPublicKey.format,
                     isPrivate: false
                 }
-   
+
                 for(let key_format in KEY_FORMATS){                    
                     let privateKeyInfo: KeyInputs.KeyInfo = {
                         key: key,
@@ -127,7 +121,7 @@ export class RP {
                     let publicKey: Key | string;
                     let signer, verifier;
         
-                   try{
+                    try{
                     switch(didPublicKey.kty){
                         case KTYS.RSA: {
                             privateKey = RSAKey.fromKey(privateKeyInfo);
@@ -172,10 +166,10 @@ export class RP {
                         })
                         return didPublicKey.id;
                     }
-                   }
-                   catch(err){
-                       continue;
-                   }
+                    }
+                    catch(err){
+                        continue;
+                    }
                 }
             }
             throw new Error(ERRORS.NO_PUBLIC_KEY);
