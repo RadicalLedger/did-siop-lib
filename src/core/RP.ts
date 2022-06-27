@@ -56,6 +56,8 @@ export class RP {
      * https://openid.net/specs/openid-connect-core-1_0.html#RegistrationParameter
      * @param {DidDocument} [did_doc] - DID Document of the RP. Optional
      * @param {DidResolver[]} [resolvers] - Array of Resolvers (Derived from DidResolver) to be used for DID resolution
+     * @param {any} op_metadata  - SIOP(OpenIdConnect Provider) metadata: refer core/globals/SIOP_METADATA_SUPPORTED
+     * https://openid.net/specs/openid-connect-self-issued-v2-1_0.html#name-static-self-issued-openid-p 
      * @returns {Promise<RP>} - A Promise which resolves to an instance of RP class
      * @remarks Creating RP instances involves some async code and cannot be implemented as a constructor.
      * Hence this static method is used in place of the constructor.
@@ -240,6 +242,7 @@ export class RP {
     /**
      * @param {string} response - A DID SIOP response
      * @param {CheckParams} [checkParams = {redirect_uri: this.info.redirect_uri}] - Parameters against which the response needs to be validated
+     * @param {DidResolver[]} [resolvers] - Array of Resolvers (Derived from DidResolver) to be used for DID resolution
      * @returns {Promise<JWT.JWTObject> | SIOPErrorResponse} - A Promise which resolves either to a decoded response or a SIOPErrorResponse
      * @remarks This method is used to validate responses coming from DID SIOP Providers.
      */
@@ -260,6 +263,7 @@ export class RP {
     /**
      * @param {SIOPTokensEcoded} tokensEncoded - Object with encoded id_token and encoded vp_token
      * @param {CheckParams} [checkParams = {redirect_uri: this.info.redirect_uri}] - Parameters against which the response needs to be validated
+     * @param {DidResolver[]} [resolvers] - Array of Resolvers (Derived from DidResolver) to be used for DID resolution
      * @returns {Promise<SIOPTokenObjects | SIOPErrorResponse>} - A Promise which resolves either to SIOPTokenObjects or a SIOPErrorResponse
      * @remarks This method is used to validate responses coming from DID SIOP Providers.
      */

@@ -225,6 +225,17 @@ Defined in _src/core/globals.ts_
 This class provides primary functionality to for Self Issued OpenIDConnect Provider.
 
 ---
+#### static async getProvider(did: string, doc?: DidDocument, resolvers?:DidResolver[]):Promise<Provider>
+* Parameters
+  * did:string - fully qualified decentralised identity of the relying party
+  * doc?:DidDocument - Complete DID Document for the Relying Party [Optional]
+  * resolvers?:DidResolver[] - Array of resolvers (derived from DidResolver) to be used when resolving DIDs  [optional]
+* Return
+  * Promise\<Provider\>
+
+Create an instance of Provider and internally call setUser method to create an instance of Identity class
+
+---
 #### async setUser(did: string, doc?: DidDocument) ####
 * Parameters
   * did:string - fully qualified decentralised identity of the user
@@ -251,9 +262,11 @@ Removes an already added key information
   * void
 
 ---
-#### async validateRequest(request: string): Promise\<DID_SIOP.JWTObject\> ####
+#### async validateRequest(request: string,op_metadata?:any, resolvers?:DidResolver[]): Promise\<DID_SIOP.JWTObject\> ####
 * Parameters
   * request:string - Authentication request from relying party to sign in
+  * op_metadata  - SIOP(OpenIdConnect Provider) metadata: refer core/globals/SIOP_METADATA_SUPPORTED and [specification](https://openid.net/specs/openid-connect-self-issued-v2-1_0.html#name-static-self-issued-openid-p)
+  * resolvers?:DidResolver[] - Array of resolvers (derived from DidResolver) to be used when resolving DIDs  [optional]
 * Return
   * Promise\<DID_SIOP.JWTObject\>
 
@@ -284,12 +297,14 @@ Removes an already added key information
 ### RP ###
 
 ---
-#### static async getRP(redirect_uri: string, did: string, registration: any, did_doc?: DidDocument): Promise\<RP\> ####
+#### static async getRP(redirect_uri: string, did: string, registration: any, did_doc?: DidDocument, resolvers?:DidResolver[],op_metadata?:any): Promise\<RP\> ####
 * Parameters
   * redirect_uri:string - redirection URL for the RP, this is where the user would be redirected with id_token once authenticated
   * did:string - fully qualified decentralised identity of the relying party
   * registration:any - registration meta data of the RP
   * doc?:DidDocument - Complete DID Document for the Relying Party [Optional]
+  * resolvers?:DidResolver[] - Array of resolvers (derived from DidResolver) to be used when resolving DIDs  [optional]
+  * op_metadata?:any - OpenIDConnect Provider metadata. Can use to override defaults [specified here](https://openid.net/specs/openid-connect-self-issued-v2-1_0.html#name-static-self-issued-openid-p) [optional]
 * Return
   * Promise\<RP\>
 
@@ -325,20 +340,22 @@ Removes an already added key information
   * Promise\<string\>
 
 ---
-#### async validateResponse(response:string, checkParams: CheckParams = {redirect_uri: this.info.redirect_uri}): Promise\<DID_SIOP.JWTObject | DID_SIOP.SIOPErrorResponse\> ####
+#### async validateResponse(response:string, checkParams: CheckParams = {redirect_uri: this.info.redirect_uri},resolvers?:DidResolver[]): Promise\<DID_SIOP.JWTObject | DID_SIOP.SIOPErrorResponse\> ####
 * Parameters
   * response:string - Received response as a string
   * checkParams: DID_SIOP.CheckParams - Parameters against which the response must be validated. redirect_uri is given by default. Other possible values are ***validBefore: number***, ***isExpirable: boolean*** and ***nonce: string***. Several others will be supported in future.
+  * resolvers?:DidResolver[] - Array of resolvers (derived from DidResolver) to be used when resolving DIDs  [optional]
 * Return
   * Promise\<DID_SIOP.JWTObject | DID_SIOP.SIOPErrorResponse\>
 * Notes
   * If you use nonce in the request, you must include the same nonce when validate the response. 
 
 ---
-#### async validateResponseWithVPData(tokensEncoded: SIOPTokensEcoded, checkParams: CheckParams = {redirect_uri: this.info.redirect_uri}): Promise\<SIOPTokenObjects | DID_SIOP.SIOPErrorResponse\> ####
+#### async validateResponseWithVPData(tokensEncoded: SIOPTokensEcoded, checkParams: CheckParams = {redirect_uri: this.info.redirect_uri},resolvers?:DidResolver[]): Promise\<SIOPTokenObjects | DID_SIOP.SIOPErrorResponse\> ####
 * Parameters
   * response:string - Received response as a string
   * checkParams: DID_SIOP.CheckParams - Parameters against which the response must be validated. redirect_uri is given by default. Other possible values are ***validBefore: number***, ***isExpirable: boolean*** and ***nonce: string***. Several others will be supported in future.
+  * resolvers?:DidResolver[] - Array of resolvers (derived from DidResolver) to be used when resolving DIDs  [optional]  
 * Return
   * Promise\<DID_SIOP.SIOPTokenObjects | DID_SIOP.SIOPErrorResponse\>
 * Notes

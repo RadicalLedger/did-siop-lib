@@ -31,6 +31,14 @@ export class Provider{
 
     }    
 
+    /**
+     * @param {string} did - The DID of the provider (end user)
+     * @param {DidDocument} [doc] - DID Document of the provider (end user).
+     * @param {DidResolver[]} [resolvers] - Array of Resolvers (Derived from DidResolver) to be used for DID resolution
+     * @remarks This method is used to set the decentralized identity for the provider (end user).
+     * doc parameter is optional and if provided it will be used to directly set the identity.
+     * Otherwise the DID Document will be resolved over a related network.
+     */
     static async getProvider(did: string, doc?: DidDocument, resolvers?:DidResolver[]):Promise<Provider>{
         try {
             let provider = new Provider()
@@ -180,6 +188,9 @@ export class Provider{
 
     /**
      * @param {string} request - A DID SIOP request
+     * @param {any} op_metadata  - SIOP(OpenIdConnect Provider) metadata: refer core/globals/SIOP_METADATA_SUPPORTED
+     * https://openid.net/specs/openid-connect-self-issued-v2-1_0.html#name-static-self-issued-openid-p
+     * @param {DidResolver[]} [resolvers] - Array of Resolvers (Derived from DidResolver) to be used for DID resolution
      * @returns {Promise<JWT.JWTObject>} - A Promise which resolves to a decoded request JWT
      * @remarks This method is used to validate requests coming from Relying Parties.
      */
