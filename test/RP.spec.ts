@@ -20,7 +20,7 @@ describe("005.01 RP related function with did:ethr ", function() {
     test("a. getRP shoud return a valid RP instance with ", async () => {
         siop_rp = await RP.getRP(
             redirect_uri, // RP's redirect_uri
-            DID_TEST_RESOLVER_DATA_NEW[3].did, // RP's did
+            DID_TEST_RESOLVER_DATA_NEW[0].did, // RP's did
             registration
         )
         expect(siop_rp).not.toBe(null);            

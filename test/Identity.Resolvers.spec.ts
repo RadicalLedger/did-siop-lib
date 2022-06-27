@@ -1,18 +1,18 @@
 import { CombinedDidResolver, EthrDidResolver, KeyDidResolver } from '../src/core/Identity/Resolvers';
 import {DID_TEST_RESOLVER_DATA_NEW } from './did_doc.spec.resources'
 
-describe("001. CombinedDidResolver Functionalities with default resolver", function() {
+describe("001.01 CombinedDidResolver Functionalities with default resolver", function() {
     jest.setTimeout(17000);
     test("a. ability to resolve using default resolver", async () => {
-        let combinedDidResolver = new CombinedDidResolver('')
-        let resolverData = DID_TEST_RESOLVER_DATA_NEW[2]; //did:key
+        let combinedDidResolver = new CombinedDidResolver('all')
+        let resolverData = DID_TEST_RESOLVER_DATA_NEW[0]; //did:ethr
         let resolvedDID = await combinedDidResolver.resolveDidDocumet(resolverData.did);
 
         expect(resolvedDID.id).toEqual(resolverData.did);
     });
 });
 
-describe("002. CombinedDidResolver Functionalities with given Resolver ", function() {
+describe("001.02 CombinedDidResolver Functionalities with given Resolver ", function() {
     jest.setTimeout(17000);
     test("a. ability to add EthrDidResolver and resolve a DID", async () => {
         let combinedDidResolver = new CombinedDidResolver('')        
