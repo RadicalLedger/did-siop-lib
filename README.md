@@ -340,10 +340,118 @@ Removes an already added key information
 ### Request VPs ###
 In the request, __vp_token__ attribute could appear within the claims attribute. This should have have the __presentation_definition__ attribute as a child element.
 
+Sample vp_token (for requesting VPs) :
+```
+    "vp_token": {
+        "presentation_definition": {
+            "id": "vp token example",
+            "input_descriptors": [
+                {
+                    "id": "id card credential",
+                    "format": {
+                        "ldp_vc": {
+                            "proof_type": [
+                                "Ed25519Signature2018"
+                            ]
+                        }
+                    },
+                    "constraints": {
+                        "fields": [
+                            {
+                                "path": [
+                                    "$.type"
+                                ],
+                                "filter": {
+                                    "type": "string",
+                                    "pattern": "IDCardCredential"
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+```
 ### VPs in Response ###
 __vp_token__ will be included in the same response as ID Token and will be a separate element in the same level as ID Token. In this implementation, __vp_token__ is an Base64 encoded JWT.
 Along with __vp_token__, there coudl be a _vp_token attribute inside the __id_token__. Purpose of this is to give an indication about what VPs were requested at the request. 
 
+Sample _vp_token :
+```
+    "_vp_token": {
+        "presentation_submission": {
+            "id": "Selective disclosure example presentation",
+            "definition_id": "Selective disclosure example",
+            "descriptor_map": [
+                {
+                    "id": "ID Card with constraints",
+                    "format": "ldp_vp",
+                    "path": "$",
+                    "path_nested": {
+                        "format": "ldp_vc",
+                        "path": "$.verifiableCredential[0]"
+                    }
+                }
+            ]
+        }
+    }
+```
+
+Sample vp_token (in response) :
+```
+    id_token :{
+      <id_token content>
+    },
+    vp_token : {
+        "@context": [
+            "https://www.w3.org/2018/credentials/v1"
+        ],
+        "type": [
+            "VerifiablePresentation"
+        ],
+        "verifiableCredential": [
+            {
+                "@context": [
+                    "https://www.w3.org/2018/credentials/v1",
+                    "https://www.w3.org/2018/credentials/examples/v1"
+                ],
+                "id": "https://example.com/credentials/1872",
+                "type": [
+                    "VerifiableCredential",
+                    "IDCardCredential"
+                ],
+                "issuer": {
+                    "id": "did:example:issuer"
+                },
+                "issuanceDate": "2010-01-01T19:23:24Z",
+                "credentialSubject": {
+                    "given_name": "Fredrik",
+                    "family_name": "Str&#246;mberg",
+                    "birthdate": "1949-01-22"
+                },
+                "proof": {
+                    "type": "Ed25519Signature2018",
+                    "created": "2021-03-19T15:30:15Z",
+                    "jws": "eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..PT8yCqVjj5ZHD0W36zsBQ47oc3El07WGPWaLUuBTOT48IgKI5HDoiFUt9idChT_Zh5s8cF_2cSRWELuD8JQdBw",
+                    "proofPurpose": "assertionMethod",
+                    "verificationMethod": "did:example:issuer#keys-1"
+                }
+            }
+        ],
+        "id": "ebc6f1c2",
+        "holder": "did:example:holder",
+        "proof": {
+            "type": "Ed25519Signature2018",
+            "created": "2021-03-19T15:30:15Z",
+            "challenge": "n-0S6_WzA2Mj",
+            "domain": "https://client.example.org/cb",
+            "jws": "eyJhbGciOiJFZERTQSIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..GF5Z6TamgNE8QjE3RbiDOj3n_t25_1K7NVWMUASe_OEzQV63GaKdu235MCS3hIYvepcNdQ_ZOKpGNCf0vIAoDA",
+            "proofPurpose": "authentication",
+            "verificationMethod": "did:example:holder#key-1"
+        }
+    }
+```
 ### Helper Functions ###
 
 **validateRequestJWTClaims**
