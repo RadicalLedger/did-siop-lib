@@ -26,7 +26,7 @@ export class RP {
     private info: RPInfo;
     private identity: Identity = new Identity();
     private signing_info_set: SigningInfo[] = [];
-
+    private resolvers : DidResolver[] = [];
     /**
      * @private
      * @constructor 
@@ -69,6 +69,7 @@ export class RP {
             else{
                 if (resolvers && resolvers.length>0){
                     rp.identity.addResolvers(resolvers);
+                    rp.resolvers = resolvers;                    
                 }
                 await rp.identity.resolve(did);
             }
@@ -251,7 +252,13 @@ export class RP {
      */
     async validateResponse(response: string, checkParams: CheckParams = {redirect_uri: this.info.redirect_uri},resolvers?:DidResolver[]): Promise<JWTObject | SIOPErrorResponse> {
         try {
-            return await DidSiopResponse.validateResponse(response, checkParams,resolvers);
+            let resolversToValidate:any=undefined;
+            if (resolvers && resolvers.length>0) 
+                resolversToValidate = resolvers;
+            else if (this.resolvers && this.resolvers.length>0)
+                resolversToValidate = this.resolvers;
+                
+            return await DidSiopResponse.validateResponse(response, checkParams,resolversToValidate);
         } catch (err) {
             return Promise.reject(err);
         }
@@ -263,9 +270,9 @@ export class RP {
      * @returns {Promise<SIOPTokenObjects | SIOPErrorResponse>} - A Promise which resolves either to SIOPTokenObjects or a SIOPErrorResponse
      * @remarks This method is used to validate responses coming from DID SIOP Providers.
      */
-     async validateResponseWithVPData(tokensEncoded: SIOPTokensEcoded, checkParams: CheckParams = {redirect_uri: this.info.redirect_uri}): Promise<SIOPTokenObjects | SIOPErrorResponse> {
+     async validateResponseWithVPData(tokensEncoded: SIOPTokensEcoded, checkParams: CheckParams = {redirect_uri: this.info.redirect_uri},resolvers?:DidResolver[]): Promise<SIOPTokenObjects | SIOPErrorResponse> {
         try {
-            return await DidSiopResponse.validateResponseWithVPData(tokensEncoded, checkParams);
+            return await DidSiopResponse.validateResponseWithVPData(tokensEncoded, checkParams,resolvers);
         } catch (err) {
             return Promise.reject(err);
         }
