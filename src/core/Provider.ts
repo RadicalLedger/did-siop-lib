@@ -69,8 +69,7 @@ export class Provider{
      * @param {string} key - Private part of any cryptographic key listed in the 'authentication' field of the user's DID Document
      * @returns {string} - kid of the added key
      * @remarks This method is used to add signing information to 'signing_info_set'.
-     * All optional parameters are not used and only there to make the library backward compatible.
-     * Instead of using those optional parameters, given key is iteratively tried with 
+     * Given key is iteratively tried with 
      * every public key listed in the 'authentication' field of RP's DID Document and every key format
      * until a compatible combination of those information which can be used for the signing process is found.
      */
