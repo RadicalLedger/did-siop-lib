@@ -65,8 +65,8 @@ describe('007.01 DID SIOP using did:ethr method DIDs', function () {
         let kid = rp.addSigningParams(rpPrivateKey);
         expect(kid).toEqual(rpKid);
 
-        let provider = new Provider();
-        await provider.setUser(userDID);
+        let provider = await Provider.getProvider(userDID);
+        // await provider.setUser(userDID);
         kid = provider.addSigningParams(userPrivateKeyHex);
         expect(kid).toEqual(userKid);
 
@@ -90,8 +90,8 @@ describe('007.01 DID SIOP using did:ethr method DIDs', function () {
         let kid = rp.addSigningParams(rpPrivateKey);
         expect(kid).toEqual(rpKid);
 
-        let provider = new Provider();
-        await provider.setUser(userDID);
+        let provider = await Provider.getProvider(userDID);
+        // await provider.setUser(userDID);
         kid = provider.addSigningParams(userPrivateKeyHex);
         expect(kid).toEqual(userKid);
 
@@ -117,8 +117,8 @@ describe('007.01 DID SIOP using did:ethr method DIDs', function () {
         let kid = rp.addSigningParams(rpPrivateKey);
         expect(kid).toEqual(rpKid);
 
-        let provider = new Provider();
-        await provider.setUser(userDID);
+        let provider = await Provider.getProvider(userDID);
+        // await provider.setUser(userDID);
         kid = provider.addSigningParams(userPrivateKeyHex);
         expect(kid).toEqual(userKid);
 
@@ -147,8 +147,8 @@ describe('007.01 DID SIOP using did:ethr method DIDs', function () {
         let rp = await RP.getRP(rpRedirectURI, rpDID, rpRegistrationMetaData);
         rp.addSigningParams(rpPrivateKey);
 
-        let provider = new Provider();
-        await provider.setUser(userDID);
+        let provider = await Provider.getProvider(userDID);
+        // await provider.setUser(userDID);
         provider.addSigningParams(userPrivateKeyHex);
 
         rp.removeSigningParams(rpKid);
@@ -165,8 +165,8 @@ describe('007.01 DID SIOP using did:ethr method DIDs', function () {
         let rp = await RP.getRP(rpRedirectURI, rpDID, rpRegistrationMetaData);
         rp.addSigningParams(rpPrivateKey);
 
-        let provider = new Provider();
-        await provider.setUser(userDID);
+        let provider = await Provider.getProvider(userDID);
+        // await provider.setUser(userDID);
         provider.addSigningParams(userPrivateKeyHex);
 
         let requestValidationError = new Error('Unknown error');
@@ -190,20 +190,19 @@ describe('007.02 DID SIOP using did:key method DIDs : crypto suite Ed25519Verifi
         let kid = rp.addSigningParams(DIDS[2].keyInfo.privateKey);
         expect(kid).toEqual(DIDS[2].resolverReturn.didDocument.verificationMethod[0].id);
 
-        let provider = new Provider();
-        await provider.setUser(DIDS[3].did,undefined,[keyResolv2018]);
+        let provider = await Provider.getProvider(DIDS[3].did,undefined,[keyResolv2018]);        
         kid = provider.addSigningParams(DIDS[3].keyInfo.privateKey);
         expect(kid).toEqual(DIDS[3].resolverReturn.didDocument.verificationMethod[0].id);
 
         let request =  await rp.generateRequest();
-        let requestJWTDecoded = await provider.validateRequest(request,undefined,[keyResolv2018]);
+        let requestJWTDecoded = await provider.validateRequest(request);
 
         let response = await provider.generateResponse(requestJWTDecoded.payload);
         let responseJWTDecoded = await rp.validateResponse(response, {
             redirect_uri: rpRedirectURI,
             isExpirable: true,
-        },
-        [keyResolv2018])
+        })
+
         expect(responseJWTDecoded).toHaveProperty('header');
         expect(responseJWTDecoded).toHaveProperty('payload');
     });
@@ -212,25 +211,24 @@ describe('007.02 DID SIOP using did:key method DIDs : crypto suite Ed25519Verifi
 describe('007.03 DID SIOP using did:key method DIDs : crypto suite Ed25519VerificationKey2020', function () {
     test('a. end to end functions testing ', async () => {
         jest.setTimeout(30000);
-        let keyResolv2020 = new KeyDidResolver('key', CRYPTO_SUITES.Ed25519VerificationKey2020)
+        let keyResolv2020 = new KeyDidResolver('key', CRYPTO_SUITES.Ed25519VerificationKey2020);
         let rp = await RP.getRP(rpRedirectURI, DIDS[4].did, rpRegistrationMetaData,undefined,[keyResolv2020]);
         let kid = rp.addSigningParams(DIDS[4].keyInfo.privateKey);
         expect(kid).toEqual(DIDS[4].resolverReturn.didDocument.verificationMethod[0].id);
 
-        let provider = new Provider();
-        await provider.setUser(DIDS[4].did,undefined,[keyResolv2020]);
+        let provider = await Provider.getProvider(DIDS[4].did,undefined,[keyResolv2020]);        
         kid = provider.addSigningParams(DIDS[4].keyInfo.privateKey);
         expect(kid).toEqual(DIDS[4].resolverReturn.didDocument.verificationMethod[0].id);
 
         let request =  await rp.generateRequest();
-        let requestJWTDecoded = await provider.validateRequest(request,undefined,[keyResolv2020]);
+        let requestJWTDecoded = await provider.validateRequest(request);
 
         let response = await provider.generateResponse(requestJWTDecoded.payload);
         let responseJWTDecoded = await rp.validateResponse(response, {
             redirect_uri: rpRedirectURI,
             isExpirable: true,
-        },
-        [keyResolv2020])
+        })
+
         expect(responseJWTDecoded).toHaveProperty('header');
         expect(responseJWTDecoded).toHaveProperty('payload');
     });
@@ -249,8 +247,9 @@ describe('007.04 DID SIOP using did:ethr method DIDs and did:ethr resover', func
         let kid = rp.addSigningParams(rpPrivateKey);
         expect(kid).toEqual(rpKid);
 
-        let provider = new Provider();
-        await provider.setUser(userDID);
+        // let provider = new Provider();
+        // await provider.setUser(userDID);        
+        let provider = await Provider.getProvider(userDID);
         kid = provider.addSigningParams(userPrivateKeyHex);
         expect(kid).toEqual(userKid);
 

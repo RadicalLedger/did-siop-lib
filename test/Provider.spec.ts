@@ -1,5 +1,5 @@
 import { JWTObject } from '../src/core/JWT';
-import nock from 'nock';
+// import nock from 'nock';
 import {DID_TEST_RESOLVER_DATA_NEW as DIDS } from './did_doc.spec.resources'
 import { RP} from '../src/core/RP';
 import { Provider} from '../src/core/Provider';
@@ -47,9 +47,6 @@ let requestObj: JWTObject = {
 }
 
 describe('006 Provider testing with dynamically added resolver', function () {
-    beforeEach(() => {
-        nock('https://uniresolver.io/1.0/identifiers').persist().get('/'+rpDID).reply(200, rpDidDoc).get('/'+userDID).reply(200, userDidDoc);
-    });
     test('a. with did:ethr resolver', async () => {
         jest.setTimeout(30000);
 
@@ -59,8 +56,7 @@ describe('006 Provider testing with dynamically added resolver', function () {
         let kid = rp.addSigningParams(rpPrivateKey);
         expect(kid).toEqual(rpKid);
 
-        let provider = new Provider();
-        await provider.setUser(userDID);
+        let provider = await Provider.getProvider(userDID,undefined,[ethrResolver]);
         kid = provider.addSigningParams(userPrivateKeyHex);
         expect(kid).toEqual(userKid);
 
