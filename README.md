@@ -126,12 +126,7 @@ Sample illustrating the usage of basic funcitons of [did-siop](https://github.co
         }
     )
     console.log('Got RP instance ....');
-    siop_rp.addSigningParams(
-        'c4873e901915343baf7302b0b87bae70bf5726e9280d415b3f7fc85908cc9d5a', // Private key
-        'did:ethr:rinkeby:0x02be73dcaa2013a714b6745f54ff8576df151f8226cc3923538bfbfb9a014584fe#controller', // Corresponding authentication method in RP's did document (to be used as kid value for key)
-        DID_SIOP.KEY_FORMATS.HEX, //Format in which the key is supplied. List of values is given below
-        DID_SIOP.ALGORITHMS['ES256K']
-    );
+    siop_rp.addSigningParams('c4873e901915343baf7302b0b87bae70bf5726e9280d415b3f7fc85908cc9d5a');// Private key
 
     console.log('RP SigningParams added ...');
     request = await siop_rp.generateRequest();
@@ -154,10 +149,7 @@ Sample illustrating the usage of basic funcitons of [did-siop](https://github.co
       console.log(siop_rp);
 
       siop_rp.addSigningParams(
-        'zrv1xdp8ZsfXSDh4fQp8sE2VYPmLiCL3RssjKeXW7fYrRkxyWpWR5ugcC36WrCx9FizbJvxdwFmYcq7YxRVC2nVPFp5', // Private key
-        'did:key:z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw#z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw', // Corresponding authentication method in RP's did document (to be used as kid value for key)
-        SIOP.KEY_FORMATS.BASE58, //Format in which the key is supplied. List of values is given below
-        SIOP.ALGORITHMS['EdDSA']);
+        'zrv1xdp8ZsfXSDh4fQp8sE2VYPmLiCL3RssjKeXW7fYrRkxyWpWR5ugcC36WrCx9FizbJvxdwFmYcq7YxRVC2nVPFp5');// Private key
 
         console.log('RP SigningParams added ...');
         let valid = await siop_rp.validateResponse(props.response);
@@ -172,16 +164,10 @@ Sample illustrating the usage of basic funcitons of [did-siop](https://github.co
     const DID_SIOP = require('did-siop');
 
     const generateResponse = async () => {
-      const provider = new SIOP.Provider();          
-      await provider.setUser("did:key:z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw");// User's did
-      console.log('User DID set to Provider ...');
-  
-      provider.addSigningParams(
-        'zrv1xdp8ZsfXSDh4fQp8sE2VYPmLiCL3RssjKeXW7fYrRkxyWpWR5ugcC36WrCx9FizbJvxdwFmYcq7YxRVC2nVPFp5', // User's private key
-        'did:key:z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw#z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw', // Corresponding authentication method in user's did document (to be used as kid value for key)
-        SIOP.KEY_FORMATS.BASE58, //Format in which the key is supplied. List of values is given below
-        SIOP.ALGORITHMS['EdDSA']
-        );// If several keys are provided, one will be selected randomly when generating the request. To remove a key use provider.removeSigningParams(kid)
+    
+    let provider = await Provider.getProvider("did:key:z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw");
+    console.log('Got Provider instance with User DID...');
+      provider.addSigningParams('zrv1xdp8ZsfXSDh4fQp8sE2VYPmLiCL3RssjKeXW7fYrRkxyWpWR5ugcC36WrCx9FizbJvxdwFmYcq7YxRVC2nVPFp5'); // User's private key
       
       console.log('User SigningParams added ...');
 
