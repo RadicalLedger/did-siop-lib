@@ -66,7 +66,6 @@ describe('007.01 DID SIOP using did:ethr method DIDs', function () {
         expect(kid).toEqual(rpKid);
 
         let provider = await Provider.getProvider(userDID);
-        // await provider.setUser(userDID);
         kid = provider.addSigningParams(userPrivateKeyHex);
         expect(kid).toEqual(userKid);
 
@@ -91,7 +90,6 @@ describe('007.01 DID SIOP using did:ethr method DIDs', function () {
         expect(kid).toEqual(rpKid);
 
         let provider = await Provider.getProvider(userDID);
-        // await provider.setUser(userDID);
         kid = provider.addSigningParams(userPrivateKeyHex);
         expect(kid).toEqual(userKid);
 
@@ -118,7 +116,6 @@ describe('007.01 DID SIOP using did:ethr method DIDs', function () {
         expect(kid).toEqual(rpKid);
 
         let provider = await Provider.getProvider(userDID);
-        // await provider.setUser(userDID);
         kid = provider.addSigningParams(userPrivateKeyHex);
         expect(kid).toEqual(userKid);
 
@@ -148,7 +145,6 @@ describe('007.01 DID SIOP using did:ethr method DIDs', function () {
         rp.addSigningParams(rpPrivateKey);
 
         let provider = await Provider.getProvider(userDID);
-        // await provider.setUser(userDID);
         provider.addSigningParams(userPrivateKeyHex);
 
         rp.removeSigningParams(rpKid);
@@ -166,7 +162,6 @@ describe('007.01 DID SIOP using did:ethr method DIDs', function () {
         rp.addSigningParams(rpPrivateKey);
 
         let provider = await Provider.getProvider(userDID);
-        // await provider.setUser(userDID);
         provider.addSigningParams(userPrivateKeyHex);
 
         let requestValidationError = new Error('Unknown error');
@@ -247,8 +242,6 @@ describe('007.04 DID SIOP using did:ethr method DIDs and did:ethr resover', func
         let kid = rp.addSigningParams(rpPrivateKey);
         expect(kid).toEqual(rpKid);
 
-        // let provider = new Provider();
-        // await provider.setUser(userDID);        
         let provider = await Provider.getProvider(userDID);
         kid = provider.addSigningParams(userPrivateKeyHex);
         expect(kid).toEqual(userKid);
