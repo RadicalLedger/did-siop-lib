@@ -1,7 +1,7 @@
 import { DidDocument, DidVerificationKey, ERRORS } from './commons';
-import { DidResolver } from './Resolvers/did_resolver_base';
+import { DidResolver } from './resolvers/did-resolver-base';
 import { DidVerificationKeyExtractor, uniExtractor } from './key-extractors';
-import  * as Resolvers from  './Resolvers';
+import  * as Resolvers from  './resolvers';
 
 /**
  * @classdesc A class to represent a Decentralized Identity.

@@ -1,8 +1,8 @@
-import { Key, RSAKey, ECKey, OKP } from './JWKUtils';
+import { Key, RSAKey, ECKey, OKP } from './jwk-utils';
 import base64url from 'base64url';
 import { ALGORITHMS, RSA_ALGORITHMS, EC_ALGORITHMS, OKP_ALGORITHMS, SPECIAL_ALGORITHMS, KEY_FORMATS } from './globals';
-import { Signer, RSASigner, ECSigner, OKPSigner, ES256KRecoverableSigner } from './Signers';
-import { Verifier, RSAVerifier, ECVerifier, OKPVerifier, ES256KRecoverableVerifier } from './Verifiers';
+import { Signer, RSASigner, ECSigner, OKPSigner, ES256KRecoverableSigner } from './signers';
+import { Verifier, RSAVerifier, ECVerifier, OKPVerifier, ES256KRecoverableVerifier } from './verifiers';
 
 export interface JWTHeader{
     typ: string;

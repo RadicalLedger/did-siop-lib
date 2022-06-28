@@ -1,12 +1,12 @@
 import { ALGORITHMS, KTYS, KEY_FORMATS } from './globals';
-import * as JWT from './JWT';
-import { Identity } from './Identity';
-import { KeyInputs, Key, RSAKey, ECKey, OKP, calculateThumbprint } from './JWKUtils';
+import * as JWT from './jwt';
+import { Identity } from './identity';
+import { KeyInputs, Key, RSAKey, ECKey, OKP, calculateThumbprint } from './jwk-utils';
 import base64url from 'base64url';
-import * as ErrorResponse from './ErrorResponse';
-import {  VPData,SIOPTokensEcoded, SIOPTokenObjects, validateRequestJWTClaims, validateResponseVPToken, validateResponse_VPToken } from './Claims';
-import { ERROR_RESPONSES } from './ErrorResponse';
-import { DidResolver } from './Identity/Resolvers/did_resolver_base';
+import * as ErrorResponse from './error-response';
+import {  VPData,SIOPTokensEcoded, SIOPTokenObjects, validateRequestJWTClaims, validateResponseVPToken, validateResponse_VPToken } from './claims';
+import { ERROR_RESPONSES } from './error-response';
+import { DidResolver } from './identity/resolvers/did-resolver-base';
 
 const ERRORS = Object.freeze({
     UNSUPPORTED_ALGO: 'Algorithm not supported',

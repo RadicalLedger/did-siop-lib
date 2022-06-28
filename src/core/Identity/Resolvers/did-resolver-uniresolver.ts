@@ -1,6 +1,6 @@
 const axios = require('axios').default;
 
-import { DidResolver } from "./did_resolver_base";
+import { DidResolver } from "./did-resolver-base";
 import { DidDocument } from "../commons";
 
 /**

@@ -1,6 +1,6 @@
 import { createHash, createSign, constants as cryptoConstants } from 'crypto';
-import { leftpad } from './Utils';
-import { Key, RSAKey, ECKey, OKP } from './JWKUtils';
+import { leftpad } from './utils';
+import { Key, RSAKey, ECKey, OKP } from './jwk-utils';
 import { ALGORITHMS, KEY_FORMATS } from './globals';
 import { eddsa as EdDSA, ec as EC} from 'elliptic';
 

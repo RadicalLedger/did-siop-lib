@@ -1,10 +1,10 @@
-import { ERROR_RESPONSES } from '../src/core/ErrorResponse';
-import { DidSiopRequest } from '../src/core/Request';
+import { ERROR_RESPONSES } from '../src/core/error-response';
+import { DidSiopRequest } from '../src/core/request';
 import { jwts, requests, claims } from './request.spec.resources';
 import { SIOP_METADATA_SUPPORTED,SiopMetadataSupported } from '../src/core/globals';
 import nock from 'nock';
-import {DID_TEST_RESOLVER_DATA_NEW as DIDS } from './did_doc.spec.resources'
-import { EthrDidResolver } from '../src/core/Identity/Resolvers';
+import {DID_TEST_RESOLVER_DATA_NEW as DIDS } from './did-doc.spec.resources'
+import { EthrDidResolver } from '../src/core/identity/resolvers';
 
 let userDidDoc  = DIDS[0].resolverReturn.didDocument;
 let userDID     = DIDS[0].did;

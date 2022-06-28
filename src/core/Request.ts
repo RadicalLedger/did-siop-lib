@@ -1,13 +1,13 @@
 import { RESOLVER_URL } from './config';
-import { Identity, DidDocument } from './Identity';
+import { Identity, DidDocument } from './identity';
 import * as queryString from 'query-string';
-import { ERROR_RESPONSES } from './ErrorResponse';
+import { ERROR_RESPONSES } from './error-response';
 import base64url from 'base64url';
-import { KeySet, ERRORS } from './JWKUtils';
+import { KeySet, ERRORS } from './jwk-utils';
 import { ALGORITHMS, KTYS, KEY_FORMATS,SiopMetadataSupported, SIOP_METADATA_SUPPORTED } from './globals';
-import * as JWT from './JWT';
-import { validateRequestJWTClaims } from './Claims';
-import { DidResolver } from './Identity/Resolvers/did_resolver_base';
+import * as JWT from './jwt';
+import { validateRequestJWTClaims } from './claims';
+import { DidResolver } from './identity/resolvers/did-resolver-base';
 
 const axios = require('axios').default;
 

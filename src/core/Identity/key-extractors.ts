@@ -1,6 +1,6 @@
 import { DidVerificationKeyMethod, DidVerificationKey, ERRORS } from "./commons";
 import { KEY_FORMATS, KTYS, ALGORITHMS } from "../globals";
-import { getKeyType, getAlgorithm, getBase58fromMultibase } from "../Utils";
+import { getKeyType, getAlgorithm, getBase58fromMultibase } from "../utils";
 const { toChecksumAddress } = require('ethereum-checksum-address');
 
 /**

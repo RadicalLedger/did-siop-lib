@@ -1,4 +1,4 @@
-import { DidResolver } from "./did_resolver_base";
+import { DidResolver } from "./did-resolver-base";
 import { DidDocument } from "../commons";
 import { CRYPTO_SUITES } from "../../globals";
 

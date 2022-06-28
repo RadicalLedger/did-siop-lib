@@ -1,15 +1,15 @@
-import { RSAVerifier, ECVerifier, OKPVerifier, ES256KRecoverableVerifier } from './Verifiers';
-import { RSASigner, ECSigner, OKPSigner, ES256KRecoverableSigner } from './Signers';
-import { Key, RSAKey, OKP, ECKey, KeyInputs } from './JWKUtils';
+import { RSAVerifier, ECVerifier, OKPVerifier, ES256KRecoverableVerifier } from './verifiers';
+import { RSASigner, ECSigner, OKPSigner, ES256KRecoverableSigner } from './signers';
+import { Key, RSAKey, OKP, ECKey, KeyInputs } from './jwk-utils';
 import { KEY_FORMATS, ALGORITHMS, KTYS } from './globals';
-import { DidSiopResponse } from './Response';
-import { SigningInfo, JWTObject } from './JWT';
-import { Identity, DidDocument } from './Identity';
-import { DidSiopRequest } from './Request';
-import { VPData, SIOPTokensEcoded } from './Claims';
-import { checkKeyPair, isMultibasePvtKey ,getBase58fromMultibase} from './Utils';
-import * as ErrorResponse from './ErrorResponse';
-import { DidResolver } from './Identity/Resolvers/did_resolver_base';
+import { DidSiopResponse } from './response';
+import { SigningInfo, JWTObject } from './jwt';
+import { Identity, DidDocument } from './identity';
+import { DidSiopRequest } from './request';
+import { VPData, SIOPTokensEcoded } from './claims';
+import { checkKeyPair, isMultibasePvtKey ,getBase58fromMultibase} from './utils';
+import * as ErrorResponse from './error-response';
+import { DidResolver } from './identity/resolvers/did-resolver-base';
 
 export const ERRORS= Object.freeze({
     NO_SIGNING_INFO: 'At least one public key must be confirmed with related private key',

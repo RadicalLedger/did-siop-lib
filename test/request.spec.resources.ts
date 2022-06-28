@@ -1,7 +1,7 @@
 import { ALGORITHMS, KEY_FORMATS } from './../src/core/globals';
-import { sign } from '../src/core/JWT';
+import { sign } from '../src/core/jwt';
 import { getModifiedJWTSigned } from './common.spec.resources';
-import {DID_TEST_RESOLVER_DATA_NEW as DIDS } from './did_doc.spec.resources'
+import {DID_TEST_RESOLVER_DATA_NEW as DIDS } from './did-doc.spec.resources'
 
 let testDidDoc  = DIDS[0].resolverReturn.didDocument;
 let testDID     = DIDS[0].did;

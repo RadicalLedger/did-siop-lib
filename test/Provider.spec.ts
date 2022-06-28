@@ -1,9 +1,8 @@
-import { JWTObject } from '../src/core/JWT';
-// import nock from 'nock';
-import {DID_TEST_RESOLVER_DATA_NEW as DIDS } from './did_doc.spec.resources'
-import { RP} from '../src/core/RP';
-import { Provider} from '../src/core/Provider';
-import {  EthrDidResolver } from '../src/core/Identity/Resolvers/did_resolver_ethr';
+import { JWTObject } from '../src/core/jwt';
+import {DID_TEST_RESOLVER_DATA_NEW as DIDS } from './did-doc.spec.resources'
+import { RP} from '../src/core/rp';
+import { Provider} from '../src/core/provider';
+import {  EthrDidResolver } from '../src/core/identity/resolvers/did-resolver-ethr';
 
 let userDidDoc  = DIDS[0].resolverReturn.didDocument;
 let userKeyInfo = DIDS[0].keyInfo;

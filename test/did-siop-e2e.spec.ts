@@ -1,15 +1,15 @@
-import { ERROR_RESPONSES } from './../src/core/ErrorResponse';
-import {CRYPTO_SUITES} from '../src/core/globals'
-import {  KeyDidResolver } from '../src/core/Identity/Resolvers/did_resolver_key';
-import {  EthrDidResolver } from '../src/core/Identity/Resolvers/did_resolver_ethr';
-import { JWTObject } from './../src/core/JWT';
-import { Provider, ERRORS as ProviderErrors } from './../src/core/Provider';
-import { RP, ERRORS as RPErrors } from '../src/core/RP';
+import { ERROR_RESPONSES } from '../src/core/error-response';
+import { CRYPTO_SUITES } from '../src/core/globals'
+import {  KeyDidResolver } from '../src/core/identity/resolvers/did-resolver-key';
+import {  EthrDidResolver } from '../src/core/identity/resolvers/did-resolver-ethr';
+import { JWTObject } from '../src/core/jwt';
+import { Provider, ERRORS as ProviderErrors } from '../src/core/provider';
+import { RP, ERRORS as RPErrors } from '../src/core/rp';
 import nock from 'nock';
-import {DID_TEST_RESOLVER_DATA_NEW as DIDS } from './did_doc.spec.resources'
+import { DID_TEST_RESOLVER_DATA_NEW as DIDS } from './did-doc.spec.resources'
 import { requests } from './request.spec.resources';
 import { tokenData } from './common.spec.resources';
-import { VPData } from '../src/core/Claims';
+import { VPData } from '../src/core/claims';
 
 let userDidDoc  = DIDS[0].resolverReturn.didDocument;
 let userKeyInfo = DIDS[0].keyInfo;

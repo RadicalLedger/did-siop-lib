@@ -1,8 +1,8 @@
 import { DidDocument,ERRORS } from "../commons";
-import { DidResolver } from "./did_resolver_base";
-import { EthrDidResolver } from "./did_resolver_ethr";
-import { KeyDidResolver } from "./did_resolver_key";
-import { UniversalDidResolver } from "./did_resolver_uniresolver";
+import { DidResolver } from "./did-resolver-base";
+import { EthrDidResolver } from "./did-resolver-ethr";
+import { KeyDidResolver } from "./did-resolver-key";
+import { UniversalDidResolver } from "./did-resolver-uniresolver";
 
 
 /**

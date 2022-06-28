@@ -1,15 +1,14 @@
-import { ERROR_RESPONSES } from '../src/core/ErrorResponse';
-import { DidSiopResponse } from '../src/core/Response';
-import { Identity } from '../src/core/Identity';
-import { SIOPTokensEcoded, VPData } from '../src/core/Claims';
-import { SigningInfo, toJWTObject } from '../src/core/JWT';
-// import { SigningInfo } from '../src/core/JWT';
+import { ERROR_RESPONSES } from '../src/core/error-response';
+import { DidSiopResponse } from '../src/core/response';
+import { Identity } from '../src/core/identity';
+import { SIOPTokensEcoded, VPData } from '../src/core/claims';
+import { SigningInfo, toJWTObject } from '../src/core/jwt';
 import { ALGORITHMS, KEY_FORMATS } from '../src/core/globals';
 import nock from 'nock';
 import { requestJWT } from './response.spec.resources';
-import {DID_TEST_RESOLVER_DATA_NEW as DIDS } from './did_doc.spec.resources'
+import {DID_TEST_RESOLVER_DATA_NEW as DIDS } from './did-doc.spec.resources'
 import { tokenData } from './common.spec.resources';
-import { EthrDidResolver } from '../src/core/Identity/Resolvers';
+import { EthrDidResolver } from '../src/core/identity/resolvers';
 
 let userDidDoc  = DIDS[0].resolverReturn.didDocument;
 let userDID     = DIDS[0].did;

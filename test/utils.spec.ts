@@ -1,8 +1,8 @@
-import { RSAVerifier, ECVerifier, ES256KRecoverableVerifier, OKPVerifier } from './../src/core/Verifiers';
-import { RSASigner, ECSigner, ES256KRecoverableSigner, OKPSigner } from './../src/core/Signers';
-import { RSAKey, ECKey, OKP } from "../src/core/JWKUtils";
+import { RSAVerifier, ECVerifier, ES256KRecoverableVerifier, OKPVerifier } from './../src/core/verifiers';
+import { RSASigner, ECSigner, ES256KRecoverableSigner, OKPSigner } from './../src/core/signers';
+import { RSAKey, ECKey, OKP } from "../src/core/jwk-utils";
 import { ALGORITHMS } from '../src/core/globals';
-import { checkKeyPair } from '../src/core/Utils';
+import { checkKeyPair } from '../src/core/utils';
 
 describe('Utils', function (){
     test('checkKeyPair function', async ()=>{

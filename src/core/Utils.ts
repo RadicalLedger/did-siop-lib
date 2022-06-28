@@ -1,7 +1,7 @@
-import { Key } from "./JWKUtils";
+import { Key } from "./jwk-utils";
 import { ALGORITHMS, KEY_FORMATS, KTYS } from "./globals";
-import { Signer } from "./Signers";
-import { Verifier } from "./Verifiers";
+import { Signer } from "./signers";
+import { Verifier } from "./verifiers";
 import * as base58 from 'bs58';
 
 

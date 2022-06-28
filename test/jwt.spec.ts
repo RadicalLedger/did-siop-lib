@@ -1,6 +1,6 @@
-import { RSAKey, ECKey, OKP } from './../src/core/JWKUtils';
+import { RSAKey, ECKey, OKP } from './../src/core/jwk-utils';
 import { ALGORITHMS, KEY_FORMATS } from './../src/core/globals';
-import { sign, verify } from '../src/core/JWT';
+import { sign, verify } from '../src/core/jwt';
 
 
 const rs256TestResource = {

@@ -1,4 +1,4 @@
-import { DidResolver } from "./did_resolver_base";
+import { DidResolver } from "./did-resolver-base";
 import { Resolver } from 'did-resolver'
 import { getResolver } from 'ethr-did-resolver';
 

@@ -1,10 +1,10 @@
 import { CRYPTO_SUITES } from '../src/core/globals'
-import { RP } from '../src/core/RP';
-import { ERRORS as ID_ERRORS } from '../src/core/Identity';
-import { KeyDidResolver } from '../src/core/Identity/Resolvers/did_resolver_key';
-import { DID_TEST_RESOLVER_DATA_NEW } from './did_doc.spec.resources'
+import { RP } from '../src/core/rp';
+import { ERRORS as ID_ERRORS } from '../src/core/identity';
+import { KeyDidResolver } from '../src/core/identity/resolvers/did-resolver-key';
+import { DID_TEST_RESOLVER_DATA_NEW } from './did-doc.spec.resources'
 import { ALGORITHMS,KEY_FORMATS } from '../src';
-import { JWTObject, toJWTObject } from '../src/core/JWT';
+import { JWTObject, toJWTObject } from '../src/core/jwt';
 import * as queryString from 'query-string';
 
 let siop_rp:any;

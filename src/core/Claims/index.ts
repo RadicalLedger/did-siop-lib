@@ -1,7 +1,7 @@
 
-import { ERROR_RESPONSES } from '../ErrorResponse';
-import { JWTObject } from '../JWT';
-import { validJsonObject} from '../Utils';
+import { ERROR_RESPONSES } from '../error-response';
+import { JWTObject } from '../jwt';
+import { validJsonObject} from '../utils';
 
 /** @param {any} decodedPayload - Decoded payload of the JWT
  * @returns {boolean>} - true if all optional parameters are valid, false otherwise

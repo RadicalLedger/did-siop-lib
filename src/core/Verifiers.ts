@@ -1,4 +1,4 @@
-import { Key, RSAKey, ECKey, OKP } from "./JWKUtils";
+import { Key, RSAKey, ECKey, OKP } from "./jwk-utils";
 import { ALGORITHMS, KEY_FORMATS } from "./globals";
 import { createHash, createVerify, constants as cryptoConstants } from 'crypto';
 import { eddsa as EdDSA, ec as EC} from 'elliptic';

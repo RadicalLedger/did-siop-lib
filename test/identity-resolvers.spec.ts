@@ -1,5 +1,5 @@
-import { CombinedDidResolver, EthrDidResolver, KeyDidResolver } from '../src/core/Identity/Resolvers';
-import {DID_TEST_RESOLVER_DATA_NEW } from './did_doc.spec.resources'
+import { CombinedDidResolver, EthrDidResolver, KeyDidResolver } from '../src/core/identity/resolvers';
+import {DID_TEST_RESOLVER_DATA_NEW } from './did-doc.spec.resources'
 
 describe("001.01 CombinedDidResolver Functionalities with default resolver", function() {
     jest.setTimeout(17000);

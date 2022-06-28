@@ -1,5 +1,4 @@
-import { KeySet, calculateThumbprint } from './../src/core/JWKUtils';
-import { KeyObjects, RSAKey, ECKey, OKP, ERRORS } from '../src/core/JWKUtils'
+import { KeySet, calculateThumbprint,KeyObjects, RSAKey, ECKey, OKP, ERRORS } from './../src/core/jwk-utils';
 import { KEY_FORMATS, KTYS, ALGORITHMS } from './../src/core/globals';
 import nock from 'nock';
 

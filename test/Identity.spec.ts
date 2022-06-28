@@ -1,6 +1,6 @@
-import { Identity} from '../src/core/Identity';
-import { KeyDidResolver } from '../src/core/Identity/Resolvers';
-import {DID_TEST_RESOLVER_DATA_NEW } from './did_doc.spec.resources'
+import { Identity} from '../src/core/identity';
+import { KeyDidResolver } from '../src/core/identity/resolvers';
+import {DID_TEST_RESOLVER_DATA_NEW } from './did-doc.spec.resources'
 
 describe("002. Identity functions", function() {
     jest.setTimeout(17000);
