@@ -465,6 +465,9 @@ Sample vp_token (in response) :
         }
     }
 ```
+### Code Samples ###
+Find how to use SIOP with VP Data [here](https://github.com/RadicalLedger/siop-auth-sample/blob/main/src/auth_vpdata_method_key.ts)
+
 ### Helper Functions ###
 
 **validateRequestJWTClaims**
