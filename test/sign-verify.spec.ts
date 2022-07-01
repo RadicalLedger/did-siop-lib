@@ -1,22 +1,21 @@
 import {
-  RSAVerifier,
-  ECVerifier,
-  ES256KRecoverableVerifier,
-  OKPVerifier,
-} from "./../src/core/verifiers";
-import {
   RSASigner,
   ECSigner,
   ES256KRecoverableSigner,
   OKPSigner,
-} from "./../src/core/signers";
-import { RSAKey, ECKey, OKP } from "../src/core/jwk-utils";
+} from "../src/core/signers";
+import { KeyObjects, RSAKey, ECKey, OKP } from "../src/core/jwk-utils";
 import { ALGORITHMS } from "../src/core/globals";
-import { checkKeyPair } from "../src/core/utils";
+import {
+  RSAVerifier,
+  ECVerifier,
+  ES256KRecoverableVerifier,
+  OKPVerifier,
+} from "../src/core/verifiers";
 
-describe("Utils", function () {
-  test("checkKeyPair function", async () => {
-    let publicJWK: any = {
+describe("Signing and verifying", function () {
+  test("RSA sign/verify", async () => {
+    let publicJWK: KeyObjects.RSAPublicKeyObject = {
       kty: "RSA",
       e: "AQAB",
       use: "enc",
@@ -24,7 +23,7 @@ describe("Utils", function () {
       alg: "RS256",
       n: "hgU7BWR8A_d5Z4boXZaff3KLte8rEZvA5mGRRF_WMEqp2l9K2dkgT-Z27sSAi-uZrkFKRxtclyW2ZCU4uv5jJH9yWcmksxfV-VYpCFiJVPKiAxTFftUNB0jiFsJDAxgfECorJkYn1s9BbNMzbuiNzUvBqTXKS2Q6rFj0lrCR_mZSwZl1zBW5Rh5c2vK8rWkQ7q2T_Q2eT2QOonzmhfTSZDneqyaOKjom9QRbWgnR6vbVb9beUzZ7W5Y_grdIoQ7VZS5SDdEJrGWrquzmsfigvcuWBbGQw5wnN1cJjWTElITN0FTCJpK2KOuQbQnBtOV9T7hUkGKFmhyDqeclBcDopw",
     };
-    let privateJWK: any = {
+    let privateJWK: KeyObjects.RSAPrivateKeyObject = {
       p: "0riZ2TyPf66nQpV4iuTdHBsVjIqDBeBq17VOhcf2qma1yIhkVKs5xUFUmDHeXHFIJnP6tnlRkxWgQYKJcicFwuoROkZXByN8qxjC5gc_Yt72oV2j_tZti65khLQ9tG6PW31euxniw42ND2rV-hne77uC8QDFVVoDqADwh_nlyTE",
       kty: "RSA",
       q: "otF1yZwtMBLiAWi04UTU9vg_4IDXTpCqGatVyLYoPLAhB5BJ4s41Yfop7bI7AsYP6ZjFQBuC5rjZ6OmItgkFu6Ha5lOPl1C36vr7hC_fqWLkLwL8cNZ8pZ5_RO0XOFtc10Zv5pNZypJjLHgnDjM7oDyV0YqA7dBLoxrcFytP2Vc",
@@ -39,19 +38,22 @@ describe("Utils", function () {
       n: "hgU7BWR8A_d5Z4boXZaff3KLte8rEZvA5mGRRF_WMEqp2l9K2dkgT-Z27sSAi-uZrkFKRxtclyW2ZCU4uv5jJH9yWcmksxfV-VYpCFiJVPKiAxTFftUNB0jiFsJDAxgfECorJkYn1s9BbNMzbuiNzUvBqTXKS2Q6rFj0lrCR_mZSwZl1zBW5Rh5c2vK8rWkQ7q2T_Q2eT2QOonzmhfTSZDneqyaOKjom9QRbWgnR6vbVb9beUzZ7W5Y_grdIoQ7VZS5SDdEJrGWrquzmsfigvcuWBbGQw5wnN1cJjWTElITN0FTCJpK2KOuQbQnBtOV9T7hUkGKFmhyDqeclBcDopw",
     };
 
-    let privateKey: any = RSAKey.fromKey(privateJWK);
-    let publicKey: any = RSAKey.fromKey(publicJWK);
+    let privateKey = RSAKey.fromKey(privateJWK);
+    let publicKey = RSAKey.fromKey(publicJWK);
 
-    let validity = checkKeyPair(
-      privateKey,
+    let message = "RSA test message";
+
+    let signature = new RSASigner().sign(message, privateKey, ALGORITHMS.RS256);
+    let validity = new RSAVerifier().verify(
+      message,
+      Buffer.from(signature),
       publicKey,
-      new RSASigner(),
-      new RSAVerifier(),
       ALGORITHMS.RS256
     );
     expect(validity).toBeTruthy();
-
-    publicJWK = {
+  });
+  test("EC sign/verify", async () => {
+    let publicJWK: KeyObjects.ECPublicKeyObject = {
       kty: "EC",
       use: "enc",
       crv: "secp256k1",
@@ -60,7 +62,7 @@ describe("Utils", function () {
       y: "luHPOmJDwPmr_BzTPN2fifkr6GZ-dmjm5TMrjBUvszQ",
       alg: "ES256K",
     };
-    privateJWK = {
+    let privateJWK: KeyObjects.ECPrivateKeyObject = {
       kty: "EC",
       d: "bnTMs3lArTEVvYUIyHXWbXOk_0GlDG__CkKaB4e-lm0",
       use: "enc",
@@ -71,31 +73,33 @@ describe("Utils", function () {
       alg: "ES256K",
     };
 
-    privateKey = ECKey.fromKey(privateJWK);
-    publicKey = ECKey.fromKey(publicJWK);
+    let privateKey = ECKey.fromKey(privateJWK);
+    let publicKey = ECKey.fromKey(publicJWK);
 
-    validity = checkKeyPair(
-      privateKey,
+    let message = "EC test message";
+
+    let signature = new ECSigner().sign(message, privateKey, ALGORITHMS.ES256K);
+    let validity = new ECVerifier().verify(
+      message,
+      signature,
       publicKey,
-      new ECSigner(),
-      new ECVerifier(),
       ALGORITHMS.ES256K
     );
     expect(validity).toBeTruthy();
 
-    privateKey =
+    let es256kRPrivateKey =
       "CE438802C1F0B6F12BC6E686F372D7D495BC5AA634134B4A7EA4603CB25F0964";
-    publicKey = "0xB07Ead9717b44B6cF439c474362b9B0877CBBF83";
-    validity = checkKeyPair(
-      privateKey,
-      publicKey,
-      new ES256KRecoverableSigner(),
-      new ES256KRecoverableVerifier(),
-      ALGORITHMS["ES256K-R"]
+    let es256kRPublicKey = "0xB07Ead9717b44B6cF439c474362b9B0877CBBF83";
+    signature = new ES256KRecoverableSigner().sign(message, es256kRPrivateKey);
+    validity = new ES256KRecoverableVerifier().verify(
+      message,
+      signature,
+      es256kRPublicKey
     );
     expect(validity).toBeTruthy();
-
-    publicJWK = {
+  });
+  test("OKP sign/verify", async () => {
+    let publicJWK: KeyObjects.OKPPublicKeyObject = {
       kty: "OKP",
       use: "enc",
       crv: "Ed25519",
@@ -103,7 +107,7 @@ describe("Utils", function () {
       x: "5_uoVZOQ--9RfCfwZXV6al-jNyyr9fKJRmt56DEQ8LI",
       alg: "EdDSA",
     };
-    privateJWK = {
+    let privateJWK: KeyObjects.OKPPrivateKeyObject = {
       kty: "OKP",
       d: "5EX3-YZgi5H2T2eLs9ytK0GbFE2Qm4teiAultZxC29U",
       use: "enc",
@@ -113,14 +117,16 @@ describe("Utils", function () {
       alg: "EdDSA",
     };
 
-    privateKey = OKP.fromKey(privateJWK);
-    publicKey = OKP.fromKey(publicJWK);
+    let privateKey = OKP.fromKey(privateJWK);
+    let publicKey = OKP.fromKey(publicJWK);
 
-    validity = checkKeyPair(
-      privateKey,
+    let message = "EdDSA test message";
+
+    let signature = new OKPSigner().sign(message, privateKey, ALGORITHMS.EdDSA);
+    let validity = new OKPVerifier().verify(
+      message,
+      signature,
       publicKey,
-      new OKPSigner(),
-      new OKPVerifier(),
       ALGORITHMS.EdDSA
     );
     expect(validity).toBeTruthy();

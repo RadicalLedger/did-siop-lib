@@ -1,9 +1,19 @@
 require("@babel/polyfill");
-export { Provider } from './core/Provider';
-export { RP } from './core/RP';
-export { DidDocument, Resolvers } from './core/Identity';
-export { ALGORITHMS,KEY_FORMATS,KTYS,SIOP_METADATA_SUPPORTED, CRYPTO_SUITES } from './core/globals';
-export { JWTObject } from './core/JWT';
-export { CheckParams }  from './core/Response';
-export { SIOPError, SIOPErrorResponse, ERROR_RESPONSES } from './core/ErrorResponse';
-export { VPData, SIOPTokensEcoded, SIOPTokenObjects } from './core/Claims';
+export { Provider } from "./core/provider";
+export { RP } from "./core/rp";
+export { DidDocument, Resolvers } from "./core/identity";
+export {
+  ALGORITHMS,
+  KEY_FORMATS,
+  KTYS,
+  SIOP_METADATA_SUPPORTED,
+  CRYPTO_SUITES,
+} from "./core/globals";
+export { JWTObject } from "./core/jwt";
+export { CheckParams } from "./core/response";
+export {
+  SIOPError,
+  SIOPErrorResponse,
+  ERROR_RESPONSES,
+} from "./core/error-response";
+export { VPData, SIOPTokensEcoded, SIOPTokenObjects } from "./core/claims";
