@@ -1,23 +1,19 @@
 {
-    "type": "node",
-    "request": "launch",
-    "name": "Jest Tests",
-    "program": "${workspaceRoot}\\node_modules\\jest\\bin\\jest.js",
-    "args": [
-        "-i", "--no-cache", "--testPathPattern", "${fileBasename}"
-    ],
-    "preLaunchTask": "build",
-    "internalConsoleOptions": "openOnSessionStart",
-    "outFiles": [
-        "${workspaceRoot}/dist/**/*"
-    ],
-    "envFile": "${workspaceRoot}/.env",
-    "configurations": [
+  "type": "node",
+  "request": "launch",
+  "name": "Jest Tests",
+  "program": "${workspaceRoot}\\node_modules\\jest\\bin\\jest.js",
+  "args": ["-i", "--no-cache", "--testPathPattern", "${fileBasename}"],
+  "preLaunchTask": "build",
+  "internalConsoleOptions": "openOnSessionStart",
+  "outFiles": ["${workspaceRoot}/dist/**/*"],
+  "envFile": "${workspaceRoot}/.env",
+  "configurations": [
     {
-        "command": "npm test",
-        "name": "Run npm test",
-        "request": "launch",
-        "type": "node-terminal"
+      "command": "npm test",
+      "name": "Run npm test",
+      "request": "launch",
+      "type": "node-terminal"
     }
-    ]
+  ]
 }
