@@ -1,4 +1,5 @@
-require("@babel/polyfill");
+import "core-js/stable";
+import "regenerator-runtime/runtime";
 export { Provider } from "./core/provider";
 export { RP } from "./core/rp";
 export { DidDocument, Resolvers } from "./core/identity";
