@@ -403,7 +403,7 @@ Removes an already added key information
 
 - Parameters
   - response:string - Received response as a string
-  - checkParams: DID\*SIOP.CheckParams - Parameters against which the response must be validated. redirect*uri is given by default. Other possible values are \*\*\_validBefore: number**\*, **\_isExpirable: boolean*** and **_nonce: string_\*\*. Several others will be supported in future.
+  - checkParams: DID\*SIOP.CheckParams - Parameters against which the response must be validated. redirect\*uri is given by default. Other possible values are \*\*\_validBefore: number**\*, **\_isExpirable: boolean**\* and **_nonce: string_\*\*. Several others will be supported in future.
   - resolvers?:DidResolver[] - Array of resolvers (derived from DidResolver) to be used when resolving DIDs [optional]
 - Return
   - Promise\<DID_SIOP.JWTObject | DID_SIOP.SIOPErrorResponse\>
@@ -416,7 +416,7 @@ Removes an already added key information
 
 - Parameters
   - response:string - Received response as a string
-  - checkParams: DID\*SIOP.CheckParams - Parameters against which the response must be validated. redirect*uri is given by default. Other possible values are \*\*\_validBefore: number**\*, **\_isExpirable: boolean*** and **_nonce: string_\*\*. Several others will be supported in future.
+  - checkParams: DID\*SIOP.CheckParams - Parameters against which the response must be validated. redirect\*uri is given by default. Other possible values are \*\*\_validBefore: number**\*, **\_isExpirable: boolean**\* and **_nonce: string_\*\*. Several others will be supported in future.
   - resolvers?:DidResolver[] - Array of resolvers (derived from DidResolver) to be used when resolving DIDs [optional]
 - Return
   - Promise\<DID_SIOP.SIOPTokenObjects | DID_SIOP.SIOPErrorResponse\>
@@ -607,12 +607,27 @@ Find how to use SIOP with VP Data [here](https://github.com/RadicalLedger/siop-a
 
 Test cases depend on the availabiltiy of https://dev.uniresolver.io/ (which goes offline time to time). If test cases are failing, check the availabiltiy of Uniresolver before troubshoot.
 
+#### Tesing on Browser
+
+`test\browser-app` has html and js files which runs without any other dependencies. These files should refer `dist/browser/did-siop.min.js` when implementing DID-SIOP related functions. [puppeteer](https://pptr.dev/) is used in headless mode with jest to run tests.
+
+Use the following folder structure and naming covention when adding more tests.
+
+```
+test
+|browser-e2e-minimum.spec.ts
+|-- browser-app
+    | e2e-minimum.html
+    | e2e-minimum.js
+```
+
 ### Code Formatting
 
 [prettier](https://prettier.io/) is setup for code foramtting. This has been setup with [husky & pretty-quick](https://prettier.io/docs/en/precommit.html#option-2-pretty-quickhttpsgithubcomazzpretty-quick) to do the formatting at each commit.
 
 ### Hot Fix
 
+**This is necessarry only if you are building custom apps using did-siop-lib with older versions of TypeScript**
 chaneg following line in node_modules/ethr-did-resolver/lib/index.js (ln1087)
 
 ```
