@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SIOP Browser Testing</title>
+    <link rel="stylesheet" type="text/css" href="./test-app-styles.css" />
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+  </head>
+
+  <body>
+    <div class="container-fluid">
+      <div class="w3-container-row">
+        <button class="button" id="btnGenerateRequest">Generate Request</button
+        ><br />
+        <label id="generatedRequset" class="output-label"></label>
+      </div>
+      <div class="w3-container-row">
+        <button class="button" id="btnGenerateResponse">
+          Generate Response</button
+        ><br />
+        <h4>Validated Request</h4>
+        <br />
+        <label id="validatedRequset" class="output-label"></label><br />
+        <h4>Generated Response</h4>
+        <br />
+        <label id="generatedResponse" class="output-label"></label>
+      </div>
+      <div class="w3-container-row">
+        <button class="button" id="btnValidateResponse">
+          Validate Response</button
+        ><br />
+        <label id="validatedResponse" class="output-label"></label>
+      </div>
+    </div>
+    <script src="./e2e-minimum.js" type="text/javascript"></script>
+    <script
+      src="../../dist/browser/did-siop.min.js"
+      type="text/javascript"
+    ></script>
+  </body>
+</html>
