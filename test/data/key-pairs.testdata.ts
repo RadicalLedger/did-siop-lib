@@ -1,4 +1,4 @@
-const KEY_PAIRS = {
+const TD_KEY_PAIRS = {
   rsa_1: {
     publicJWK: {
       kty: "RSA",
@@ -70,4 +70,4 @@ const KEY_PAIRS = {
   },
 };
 
-export { KEY_PAIRS };
+export { TD_KEY_PAIRS };
