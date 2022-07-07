@@ -70,4 +70,25 @@ const TD_KEY_PAIRS = {
   },
 };
 
-export { TD_KEY_PAIRS };
+function getInvalidData(): any {
+  let invlidValue: string = "invalidKey";
+  let invalidData: any = JSON.parse(JSON.stringify(TD_KEY_PAIRS));
+
+  invalidData.rsa_1.publicJWK.n = invlidValue;
+  invalidData.rsa_1.privateJWK.q = invlidValue;
+
+  invalidData.ec_1.publicJWK.x = invlidValue;
+  invalidData.ec_1.privateJWK.d = invlidValue;
+
+  invalidData.es256kr_1.publicKey = invlidValue;
+  invalidData.es256kr_1.privateKey = invlidValue;
+
+  invalidData.okp_1.publicJWK.x = invlidValue;
+  invalidData.okp_1.privateJWK.d = invlidValue;
+
+  return invalidData;
+}
+
+const TD_KEY_PAIRS_INVALID = getInvalidData();
+
+export { TD_KEY_PAIRS, TD_KEY_PAIRS_INVALID };
