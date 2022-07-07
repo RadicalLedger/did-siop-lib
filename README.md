@@ -31,7 +31,7 @@ By defalut, library uses [specified](https://openid.net/specs/openid-connect-sel
 ```js
         // get default set of metadata
         let temp_md:SiopMetadataSupported = {...SIOP_METADATA_SUPPORTED}
-        // set scopes to "openid" only
+        // set scopes to "openid" and "did_authn"
         temp_md.scopes = ["openid" "did_authn"];
 
         let keyResolv2018 = new KeyDidResolver('key', CRYPTO_SUITES.Ed25519VerificationKey2018);
@@ -51,7 +51,7 @@ By defalut, library uses [specified](https://openid.net/specs/openid-connect-sel
         // get default set of metadata
         let temp_md:SiopMetadataSupported = {...SIOP_METADATA_SUPPORTED}
 
-        // set scopes to "openid" only
+        // set scopes supported to "openid" only, so the request validate must have "openid" as scope
         temp_md.scopes = ["openid];
 
         // use the new metadata set to validate the request
