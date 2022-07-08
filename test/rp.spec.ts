@@ -2,7 +2,7 @@ import { CRYPTO_SUITES } from "../src/core/globals";
 import { RP } from "../src/core/rp";
 import { ERRORS as ID_ERRORS } from "../src/core/identity";
 import { KeyDidResolver } from "../src/core/identity/resolvers/did-resolver-key";
-import { DID_TEST_RESOLVER_DATA_NEW } from "./did-doc.spec.resources";
+import { TD_DID_DOCS } from "./data/did-docs.testdata";
 import { ALGORITHMS, KEY_FORMATS } from "../src";
 import { JWTObject, toJWTObject } from "../src/core/jwt";
 import * as queryString from "query-string";
@@ -20,7 +20,7 @@ describe("005.01 RP related function with did:ethr ", function () {
   test("a. getRP shoud return a valid RP instance with ", async () => {
     siop_rp = await RP.getRP(
       redirect_uri, // RP's redirect_uri
-      DID_TEST_RESOLVER_DATA_NEW[0].did, // RP's did
+      TD_DID_DOCS.ethr_rinkeby_1.didDocument.id, // RP's did
       registration
     );
     expect(siop_rp).not.toBe(null);
@@ -47,7 +47,7 @@ describe("005.02 RP related function with did:key crypto suite Ed25519Verificati
     );
     siop_rp = await RP.getRP(
       redirect_uri, // RP's redirect_uri
-      DID_TEST_RESOLVER_DATA_NEW[3].did, // RP's did
+      TD_DID_DOCS.key_2018_2.didDocument.id, // RP's did
       registration,
       undefined,
       [keyResolv2018]
@@ -55,8 +55,8 @@ describe("005.02 RP related function with did:key crypto suite Ed25519Verificati
     expect(siop_rp).not.toBe(null);
 
     siop_rp.addSigningParams(
-      DID_TEST_RESOLVER_DATA_NEW[3].keyInfo.privateKey,
-      DID_TEST_RESOLVER_DATA_NEW[3].keys[0].id,
+      TD_DID_DOCS.key_2018_2.keys[0].privateKey,
+      TD_DID_DOCS.key_2018_2.keys[0].id,
       KEY_FORMATS.BASE58,
       ALGORITHMS["EdDSA"]
     );
@@ -72,7 +72,9 @@ describe("005.02 RP related function with did:key crypto suite Ed25519Verificati
       expect(req_jwt).not.toEqual(undefined);
 
       if (req_jwt != undefined) {
-        expect(req_jwt.payload.iss).toEqual(DID_TEST_RESOLVER_DATA_NEW[3].did);
+        expect(req_jwt.payload.iss).toEqual(
+          TD_DID_DOCS.key_2018_2.didDocument.id
+        );
       }
     }
   });
@@ -87,15 +89,15 @@ describe("005.03 RP related function with did:key crypto suite Ed25519Verificati
     );
     siop_rp = await RP.getRP(
       redirect_uri, // RP's redirect_uri
-      DID_TEST_RESOLVER_DATA_NEW[4].did, // RP's did
+      TD_DID_DOCS.key_2020_1.didDocument.id, // RP's did
       registration,
       undefined,
       [keyResolv2020]
     );
 
     siop_rp.addSigningParams(
-      DID_TEST_RESOLVER_DATA_NEW[4].keyInfo.privateKey,
-      DID_TEST_RESOLVER_DATA_NEW[4].keys[0].id,
+      TD_DID_DOCS.key_2020_1.keys[0].privateKey,
+      TD_DID_DOCS.key_2020_1.keys[0].id,
       KEY_FORMATS.BASE58,
       ALGORITHMS["EdDSA"]
     );
@@ -112,7 +114,9 @@ describe("005.03 RP related function with did:key crypto suite Ed25519Verificati
       expect(req_jwt).not.toEqual(undefined);
 
       if (req_jwt != undefined) {
-        expect(req_jwt.payload.iss).toEqual(DID_TEST_RESOLVER_DATA_NEW[4].did);
+        expect(req_jwt.payload.iss).toEqual(
+          TD_DID_DOCS.key_2020_1.didDocument.id
+        );
       }
     }
   });
