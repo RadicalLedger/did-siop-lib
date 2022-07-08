@@ -1,11 +1,11 @@
 import { ALGORITHMS, KEY_FORMATS } from "./../src/core/globals";
 import { sign } from "../src/core/jwt";
 import { getModifiedJWTSigned } from "./common.spec.resources";
-import { DID_TEST_RESOLVER_DATA_NEW as DIDS } from "./did-doc.spec.resources";
+import { TD_DID_DOCS } from "./data/did-docs.testdata";
 
-let testDidDoc = DIDS[0].resolverReturn.didDocument;
-let testDID = DIDS[0].did;
-let testKeyInfo = DIDS[0].keyInfo;
+let testDidDoc = TD_DID_DOCS.ethr_rinkeby_1.didDocument;
+let testDID = TD_DID_DOCS.ethr_rinkeby_1.didDocument.id;
+let testKeyInfo = TD_DID_DOCS.ethr_rinkeby_1.keys[0];
 
 const jwtGoodDecoded = {
   header: {

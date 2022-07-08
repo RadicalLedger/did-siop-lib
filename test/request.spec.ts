@@ -6,14 +6,14 @@ import {
   SiopMetadataSupported,
 } from "../src/core/globals";
 import nock from "nock";
-import { DID_TEST_RESOLVER_DATA_NEW as DIDS } from "./did-doc.spec.resources";
+import { TD_DID_DOCS } from "./data/did-docs.testdata";
 import { EthrDidResolver } from "../src/core/identity/resolvers";
 
-let userDidDoc = DIDS[0].resolverReturn.didDocument;
-let userDID = DIDS[0].did;
+let userDidDoc = TD_DID_DOCS.ethr_rinkeby_1.didDocument;
+let userDID = TD_DID_DOCS.ethr_rinkeby_1.didDocument.id;
 
-let rpDidDoc = DIDS[1].resolverReturn.didDocument;
-let rpDID = DIDS[1].did;
+let rpDidDoc = TD_DID_DOCS.ethr_rinkeby_1.didDocument;
+let rpDID = TD_DID_DOCS.ethr_rinkeby_2.didDocument.id;
 
 describe("003.01 Modify request object", function () {
   test("a. Include claims - expect truthy", async () => {
