@@ -6,22 +6,20 @@ import { JWTObject } from "../src/core/jwt";
 import { Provider, ERRORS as ProviderErrors } from "../src/core/provider";
 import { RP, ERRORS as RPErrors } from "../src/core/rp";
 import nock from "nock";
-import { DID_TEST_RESOLVER_DATA_NEW as DIDS } from "./did-doc.spec.resources";
+import { TD_DID_DOCS } from "./data/did-docs.testdata";
 import { requests } from "./request.spec.resources";
 import { tokenData } from "./common.spec.resources";
 import { VPData } from "../src/core/claims";
 
-let userDidDoc = DIDS[0].resolverReturn.didDocument;
-let userKeyInfo = DIDS[0].keyInfo;
-let userDID = DIDS[0].did;
-let userPrivateKeyHex = userKeyInfo.privateKey;
-let userKid = userDidDoc.verificationMethod[1].id;
+let userDidDoc = TD_DID_DOCS.ethr_rinkeby_1.didDocument;
+let userDID = TD_DID_DOCS.ethr_rinkeby_1.didDocument.id;
+let userPrivateKeyHex = TD_DID_DOCS.ethr_rinkeby_1.keys[0].privateKey;
+let userKid = TD_DID_DOCS.ethr_rinkeby_1.didDocument.verificationMethod[1].id;
 
-let rpDidDoc = DIDS[1].resolverReturn.didDocument;
-let rpDID = DIDS[1].did;
-let rpKeyInfo = DIDS[1].keyInfo;
-let rpPrivateKey = rpKeyInfo.privateKey;
-let rpKid = rpDidDoc.verificationMethod[1].id;
+let rpDidDoc = TD_DID_DOCS.ethr_rinkeby_2.didDocument;
+let rpDID = TD_DID_DOCS.ethr_rinkeby_2.didDocument.id;
+let rpPrivateKey = TD_DID_DOCS.ethr_rinkeby_2.keys[0].privateKey;
+let rpKid = TD_DID_DOCS.ethr_rinkeby_2.didDocument.verificationMethod[1].id;
 
 let rpRedirectURI = "https://my.rp.com/cb";
 let rpRegistrationMetaData = {
@@ -204,22 +202,24 @@ describe("007.02 DID SIOP using did:key method DIDs : crypto suite Ed25519Verifi
     );
     let rp = await RP.getRP(
       rpRedirectURI,
-      DIDS[2].did,
+      TD_DID_DOCS.key_2018_1.didDocument.id,
       rpRegistrationMetaData,
       undefined,
       [keyResolv2018]
     );
-    let kid = rp.addSigningParams(DIDS[2].keyInfo.privateKey);
+    let kid = rp.addSigningParams(TD_DID_DOCS.key_2018_1.keys[0].privateKey);
     expect(kid).toEqual(
-      DIDS[2].resolverReturn.didDocument.verificationMethod[0].id
+      TD_DID_DOCS.key_2018_1.didDocument.verificationMethod[0].id
     );
 
-    let provider = await Provider.getProvider(DIDS[3].did, undefined, [
-      keyResolv2018,
-    ]);
-    kid = provider.addSigningParams(DIDS[3].keyInfo.privateKey);
+    let provider = await Provider.getProvider(
+      TD_DID_DOCS.key_2018_2.didDocument.id,
+      undefined,
+      [keyResolv2018]
+    );
+    kid = provider.addSigningParams(TD_DID_DOCS.key_2018_2.keys[0].privateKey);
     expect(kid).toEqual(
-      DIDS[3].resolverReturn.didDocument.verificationMethod[0].id
+      TD_DID_DOCS.key_2018_2.didDocument.verificationMethod[0].id
     );
 
     let request = await rp.generateRequest();
@@ -245,22 +245,24 @@ describe("007.03 DID SIOP using did:key method DIDs : crypto suite Ed25519Verifi
     );
     let rp = await RP.getRP(
       rpRedirectURI,
-      DIDS[4].did,
+      TD_DID_DOCS.key_2020_1.didDocument.id,
       rpRegistrationMetaData,
       undefined,
       [keyResolv2020]
     );
-    let kid = rp.addSigningParams(DIDS[4].keyInfo.privateKey);
+    let kid = rp.addSigningParams(TD_DID_DOCS.key_2020_1.keys[0].privateKey);
     expect(kid).toEqual(
-      DIDS[4].resolverReturn.didDocument.verificationMethod[0].id
+      TD_DID_DOCS.key_2020_1.didDocument.verificationMethod[0].id
     );
 
-    let provider = await Provider.getProvider(DIDS[4].did, undefined, [
-      keyResolv2020,
-    ]);
-    kid = provider.addSigningParams(DIDS[4].keyInfo.privateKey);
+    let provider = await Provider.getProvider(
+      TD_DID_DOCS.key_2020_1.didDocument.id,
+      undefined,
+      [keyResolv2020]
+    );
+    kid = provider.addSigningParams(TD_DID_DOCS.key_2020_1.keys[0].privateKey);
     expect(kid).toEqual(
-      DIDS[4].resolverReturn.didDocument.verificationMethod[0].id
+      TD_DID_DOCS.key_2020_1.didDocument.verificationMethod[0].id
     );
 
     let request = await rp.generateRequest();
