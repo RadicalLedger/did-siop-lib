@@ -6,16 +6,16 @@ import { SigningInfo, toJWTObject } from "../src/core/jwt";
 import { ALGORITHMS, KEY_FORMATS } from "../src/core/globals";
 import nock from "nock";
 import { requestJWT } from "./response.spec.resources";
-import { DID_TEST_RESOLVER_DATA_NEW as DIDS } from "./did-doc.spec.resources";
+import { TD_DID_DOCS } from "./data/did-docs.testdata";
 import { tokenData } from "./common.spec.resources";
 import { EthrDidResolver } from "../src/core/identity/resolvers";
 
-let userDidDoc = DIDS[0].resolverReturn.didDocument;
-let userDID = DIDS[0].did;
-let userKeyInfo = DIDS[0].keyInfo;
+let userDidDoc = TD_DID_DOCS.ethr_rinkeby_1.didDocument;
+let userDID = TD_DID_DOCS.ethr_rinkeby_1.didDocument.id;
+let userKeyInfo = TD_DID_DOCS.ethr_rinkeby_1.keys[0];
 
-let rpDidDoc = DIDS[1].resolverReturn.didDocument;
-let rpDID = DIDS[1].did;
+let rpDidDoc = TD_DID_DOCS.ethr_rinkeby_1.didDocument;
+let rpDID = TD_DID_DOCS.ethr_rinkeby_2.didDocument.id;
 
 let signing: SigningInfo = {
   alg: ALGORITHMS["ES256K"],

@@ -1,8 +1,8 @@
 import { getBasicJWT, getModifiedJWT, claims } from "./common.spec.resources";
-import { DID_TEST_RESOLVER_DATA_NEW as DIDS } from "./did-doc.spec.resources";
+import { TD_DID_DOCS } from "./data/did-docs.testdata";
 
-let testDidDoc = DIDS[0].resolverReturn.didDocument;
-let testDID = DIDS[0].did;
+let testDidDoc = TD_DID_DOCS.ethr_rinkeby_1.didDocument;
+let testDID = TD_DID_DOCS.ethr_rinkeby_1.didDocument.id;
 
 const jwtGoodDecoded = getBasicJWT(
   testDidDoc.verificationMethod[1].id,
