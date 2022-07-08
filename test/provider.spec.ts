@@ -1,20 +1,16 @@
 import { JWTObject } from "../src/core/jwt";
-import { DID_TEST_RESOLVER_DATA_NEW as DIDS } from "./did-doc.spec.resources";
+import { TD_DID_DOCS } from "./data/did-docs.testdata";
 import { RP } from "../src/core/rp";
 import { Provider } from "../src/core/provider";
 import { EthrDidResolver } from "../src/core/identity/resolvers/did-resolver-ethr";
 
-let userDidDoc = DIDS[0].resolverReturn.didDocument;
-let userKeyInfo = DIDS[0].keyInfo;
-let userDID = DIDS[0].did;
-let userPrivateKeyHex = userKeyInfo.privateKey;
-let userKid = userDidDoc.verificationMethod[1].id;
+let userDID = TD_DID_DOCS.ethr_rinkeby_1.didDocument.id;
+let userPrivateKeyHex = TD_DID_DOCS.ethr_rinkeby_1.keys[0].privateKey;
+let userKid = TD_DID_DOCS.ethr_rinkeby_1.didDocument.verificationMethod[1].id;
 
-let rpDidDoc = DIDS[1].resolverReturn.didDocument;
-let rpDID = DIDS[1].did;
-let rpKeyInfo = DIDS[1].keyInfo;
-let rpPrivateKey = rpKeyInfo.privateKey;
-let rpKid = rpDidDoc.verificationMethod[1].id;
+let rpDID = TD_DID_DOCS.ethr_rinkeby_2.didDocument.id;
+let rpPrivateKey = TD_DID_DOCS.ethr_rinkeby_2.keys[0].privateKey;
+let rpKid = TD_DID_DOCS.ethr_rinkeby_2.didDocument.verificationMethod[1].id;
 
 let rpRedirectURI = "https://my.rp.com/cb";
 let rpRegistrationMetaData = {
