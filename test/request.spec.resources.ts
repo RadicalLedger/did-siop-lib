@@ -17,7 +17,7 @@ const jwtGoodDecoded = {
     iss: testDID,
     response_type: "id_token",
     client_id: "https://my.rp.com/cb",
-    scope: "openid did_authn",
+    scope: "openid",
     state: "af0ifjsldkj",
     nonce: "n-0S6_WzA2Mj",
     redirect_uri: "https://my.rp.com/cb",
@@ -115,7 +115,7 @@ export const jwts = {
       keyPair.privateKey,
       true,
       "scope",
-      "openid"
+      "xxxxx"
     ),
     jwtBadNoRegistration: getModifiedJWTSigned(
       jwtGoodDecoded,
@@ -151,40 +151,40 @@ export const jwts = {
 export const queryObj = {
   response_type: "id_token",
   client_id: "https://rp.example.com/cb",
-  scope: "openid did_authn",
+  scope: "openid",
   request: jwtGoodEncoded,
 };
 
 export const requests = {
   good: {
     requestGoodEmbeddedJWT:
-      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid did_authn&request=" +
+      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid&request=" +
       jwtGoodEncoded,
     requestGoodUriJWT:
-      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid did_authn&request_uri=" +
+      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid&request_uri=" +
       jwt_uri,
     requestGoodWithClaims:
-      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid did_authn&request=" +
+      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid&request=" +
       jwts.good.jwtWithClaims,
   },
   bad: {
     requestBadProtocol:
-      "opend://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid did_authn&request=" +
+      "opend://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid&request=" +
       jwtGoodEncoded,
     requestBadNoSlashes:
-      "openid:?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid did_authn&request=" +
+      "openid:?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid&request=" +
       jwtGoodEncoded,
     requestBadNoResponseType:
-      "openid://?response_tye=id_token&client_id=https://rp.example.com/cb&scope=openid did_authn&request=" +
+      "openid://?response_tye=id_token&client_id=https://rp.example.com/cb&scope=openid&request=" +
       jwtGoodEncoded,
     requestBadIncorrectResponseType:
-      "openid://?response_type=id_toke&client_id=https://rp.example.com/cb&scope=openid did_authn&request=" +
+      "openid://?response_type=id_toke&client_id=https://rp.example.com/cb&scope=openid&request=" +
       jwtGoodEncoded,
     requestBadNoClientId:
-      "openid://?response_type=id_token&client_i=https://rp.example.com/cb&scope=openid did_authn&request=" +
+      "openid://?response_type=id_token&client_i=https://rp.example.com/cb&scope=openid&request=" +
       jwtGoodEncoded,
     requestBadNoScope:
-      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openi did_authn&request=" +
+      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openi&request=" +
       jwtGoodEncoded,
     requestBadNoScopeOpenId:
       "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=did_authn&request=" +
@@ -193,28 +193,28 @@ export const requests = {
       "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid&request=" +
       jwtGoodEncoded,
     requestBadNoJWT:
-      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid did_authn&request=",
+      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid&request=",
     requestBadNoJWTUri:
-      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid did_authn&request_uri=",
+      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid&request_uri=",
     requestBadIncorrectJWTUri:
-      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid did_authn&request_uri=http://localhost/incorrectRequestJWT",
+      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid&request_uri=http://localhost/incorrectRequestJWT",
     requestBadJWTNoKid:
-      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid did_authn&request=" +
+      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid&request=" +
       jwts.bad.jwtBadNoKid,
     requestBadJWTNoIss:
-      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid did_authn&request=" +
+      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid&request=" +
       jwts.bad.jwtBadNoIss,
     requestBadJWTNoScope:
-      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid did_authn&request=" +
+      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid&request=" +
       jwts.bad.jwtBadNoScope,
     requestBadJWTIncorrectScope:
-      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid did_authn&request=" +
+      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid&request=" +
       jwts.bad.jwtBadIncorrectScope,
     requestBadJWTNoRegistration:
-      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid did_authn&request=" +
+      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid&request=" +
       jwts.bad.jwtBadNoRegistration,
     requestBadJWTClaimsNoVPToken:
-      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid did_authn&request=" +
+      "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid&request=" +
       jwts.bad.jwtBadClaimsNoVPToken,
   },
   components: {

@@ -11,7 +11,7 @@ const jwtGoodDecoded = {
     iss: "",
     response_type: "id_token",
     client_id: "",
-    scope: "openid did_authn",
+    scope: "openid",
     state: "af0ifjsldkj",
     nonce: "n-0S6_WzA2Mj",
     response_mode: "form_post",

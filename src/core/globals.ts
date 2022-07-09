@@ -60,7 +60,7 @@ const SIOP_STATIC_METADATA_SUPPORTED = Object.freeze({
   authorization_endpoint: "openid:",
   issuer: "https://self-issued.me/v2",
   response_types_supported: ["id_token"],
-  scopes_supported: ["openid", "did_authn"],
+  scopes_supported: ["openid"],
   subject_types_supported: ["pairwise"],
   id_token_signing_alg_values_supported: ["ES256"],
   request_object_signing_alg_values_supported: ["ES256"],

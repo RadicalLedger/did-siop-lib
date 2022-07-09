@@ -28,7 +28,7 @@ let requestObj: JWTObject = {
   payload: {
     iss: rpDID,
     response_type: "id_token",
-    scope: "openid did_authn",
+    scope: "openid",
     client_id: rpDID,
     registration: {
       jwks_uri:

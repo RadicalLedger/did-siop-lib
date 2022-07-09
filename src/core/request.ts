@@ -17,9 +17,6 @@ import { DidResolver } from "./identity/resolvers/did-resolver-base";
 
 const axios = require("axios").default;
 
-// const RESPONSE_TYPES = ['id_token',];
-// const SUPPORTED_SCOPES = ['openid', 'did_authn',];
-// const REQUIRED_SCOPES = ['openid', 'did_authn',];
 const REQUIRED_SCOPES = ["openid"];
 
 export interface RPInfo {
@@ -74,7 +71,7 @@ export class DidSiopRequest {
       response_type: "id_token",
       client_id: rp.did, // Changed as per SIOPV2
       redirect_uri: rp.redirect_uri, // Changed as per SIOPV2
-      scope: "openid did_authn",
+      scope: "openid", // Removed did_authn as per SIOPV2
     };
 
     if (rp.request_uri) {
@@ -89,7 +86,7 @@ export class DidSiopRequest {
       let jwtPayload = {
         iss: rp.did,
         response_type: "id_token",
-        scope: "openid did_authn",
+        scope: "openid", // Removed did_authn as per SIOPV2
         client_id: rp.did, // Changed as per SIOPV2
         redirect_uri: rp.redirect_uri, // Changed as per SIOPV2
         registration: rp.registration,
@@ -206,7 +203,7 @@ async function validateRequestJWT(
     decodedPayload.iss &&
     !decodedPayload.iss.match(/^ *$/) &&
     decodedPayload.scope &&
-    decodedPayload.scope.indexOf("did_authn") > -1 &&
+    decodedPayload.scope.indexOf("openid") > -1 &&
     decodedPayload.registration &&
     !JSON.stringify(decodedPayload.registration).match(/^ *$/)
   ) {
