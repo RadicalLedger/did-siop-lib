@@ -5,7 +5,7 @@ import { SIOPTokensEcoded, VPData } from "../src/core/claims";
 import { SigningInfo, toJWTObject } from "../src/core/jwt";
 import { ALGORITHMS, KEY_FORMATS } from "../src/core/globals";
 import nock from "nock";
-import { requestJWT } from "./response.spec.resources";
+import { requestJWT } from "./request.spec.resources";
 import { TD_DID_DOCS } from "./data/did-docs.testdata";
 import { tokenData } from "./common.spec.resources";
 import { EthrDidResolver } from "../src/core/identity/resolvers";

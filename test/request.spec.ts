@@ -1,6 +1,7 @@
 import { ERROR_RESPONSES } from "../src/core/error-response";
 import { DidSiopRequest } from "../src/core/request";
-import { jwts, requests, claims } from "./request.spec.resources";
+import { basicJWT, requests } from "./request.spec.resources";
+import { claims } from "./common.spec.resources";
 import {
   SIOP_METADATA_SUPPORTED,
   SiopMetadataSupported,
@@ -30,7 +31,7 @@ describe("003.02 Request validation/generation", function () {
   beforeEach(() => {
     nock("http://localhost")
       .get("/requestJWT")
-      .reply(200, jwts.jwtGoodEncoded)
+      .reply(200, basicJWT.encoded)
       .get("/incorrectRequestJWT")
       .reply(404, "Not found");
     nock("https://uniresolver.io/1.0/identifiers")
@@ -47,13 +48,13 @@ describe("003.02 Request validation/generation", function () {
       requests.good.requestGoodEmbeddedJWT,
       SIOP_METADATA_SUPPORTED
     );
-    expect(returnedJWT).toEqual(jwts.jwtGoodDecoded);
+    expect(returnedJWT).toEqual(basicJWT.decoded);
 
     returnedJWT = await DidSiopRequest.validateRequest(
       requests.good.requestGoodUriJWT,
       SIOP_METADATA_SUPPORTED
     );
-    expect(returnedJWT).toEqual(jwts.jwtGoodDecoded);
+    expect(returnedJWT).toEqual(basicJWT.decoded);
   });
 
   test("b. Request validation with invalid OP Metadata - expect falsy", async () => {
