@@ -3,40 +3,22 @@ import { TD_DID_DOCS } from "./data/did-docs.testdata";
 import { RP } from "../src/core/rp";
 import { Provider } from "../src/core/provider";
 import { EthrDidResolver } from "../src/core/identity/resolvers/did-resolver-ethr";
+import { TD_BASIC_JWT, TD_REQUESTS } from "./request.spec.resources";
+import { getModifiedJWT } from "./common.spec.resources";
 
-let userDID = TD_DID_DOCS.ethr_rinkeby_1.didDocument.id;
-let userPrivateKeyHex = TD_DID_DOCS.ethr_rinkeby_1.keys[0].privateKey;
-let userKid = TD_DID_DOCS.ethr_rinkeby_1.didDocument.verificationMethod[1].id;
+let rpDID = TD_DID_DOCS.ethr_rinkeby_1.didDocument.id;
+let rpPrivateKey = TD_DID_DOCS.ethr_rinkeby_1.keys[0].privateKey;
+let rpKid = TD_DID_DOCS.ethr_rinkeby_1.didDocument.verificationMethod[1].id;
 
-let rpDID = TD_DID_DOCS.ethr_rinkeby_2.didDocument.id;
-let rpPrivateKey = TD_DID_DOCS.ethr_rinkeby_2.keys[0].privateKey;
-let rpKid = TD_DID_DOCS.ethr_rinkeby_2.didDocument.verificationMethod[1].id;
+let rpRedirectURI = TD_REQUESTS.components.rp.redirect_uri;
+let rpRegistrationMetaData = TD_REQUESTS.components.rp.registration;
+let requestObj: JWTObject = TD_BASIC_JWT.decoded;
 
-let rpRedirectURI = "https://my.rp.com/cb";
-let rpRegistrationMetaData = {
-  jwks_uri:
-    "https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks",
-  id_token_signed_response_alg: ["ES256K", "ES256K-R", "EdDSA", "RS256"],
-};
-
-let requestObj: JWTObject = {
-  header: {
-    alg: "ES256K",
-    typ: "JWT",
-    kid: rpKid,
-  },
-  payload: {
-    iss: rpDID,
-    response_type: "id_token",
-    scope: "openid",
-    client_id: rpDID,
-    registration: {
-      jwks_uri:
-        "https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks",
-      id_token_signed_response_alg: ["ES256K", "ES256K-R", "EdDSA", "RS256"],
-    },
-  },
-};
+// Prepare  the reqiest for RP.generateRequest() without any parameters
+requestObj = getModifiedJWT(TD_BASIC_JWT.decoded, true, "nonce", null); // Remove nonce
+requestObj = getModifiedJWT(requestObj, true, "response_mode", null); // Remove response_mode
+requestObj = getModifiedJWT(requestObj, true, "state", null); // // Remove state
+requestObj = getModifiedJWT(requestObj, true, "redirect_uri", null); // // Remove redirect_uri
 
 describe("006 Provider testing with dynamically added resolver", function () {
   test("a. with did:ethr resolver", async () => {
@@ -54,11 +36,9 @@ describe("006 Provider testing with dynamically added resolver", function () {
     let kid = rp.addSigningParams(rpPrivateKey);
     expect(kid).toEqual(rpKid);
 
-    let provider = await Provider.getProvider(userDID, undefined, [
-      ethrResolver,
-    ]);
-    kid = provider.addSigningParams(userPrivateKeyHex);
-    expect(kid).toEqual(userKid);
+    let provider = await Provider.getProvider(rpDID, undefined, [ethrResolver]);
+    kid = provider.addSigningParams(rpPrivateKey);
+    expect(kid).toEqual(rpKid);
 
     let request = await rp.generateRequest();
     let requestJWTDecoded = await provider.validateRequest(request);

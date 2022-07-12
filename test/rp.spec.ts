@@ -6,18 +6,15 @@ import { TD_DID_DOCS } from "./data/did-docs.testdata";
 import { ALGORITHMS, KEY_FORMATS } from "../src";
 import { JWTObject, toJWTObject } from "../src/core/jwt";
 import * as queryString from "query-string";
+import { TD_REQUESTS } from "./request.spec.resources";
 
 let siop_rp: any;
-let registration = {
-  jwks_uri:
-    "https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks",
-  id_token_signed_response_alg: ["ES256K-R", "EdDSA", "RS256"],
-};
-let redirect_uri: "localhost:4200/home";
+let redirect_uri = TD_REQUESTS.components.rp.redirect_uri;
+let registration = TD_REQUESTS.components.rp.registration;
 
 describe("005.01 RP related function with did:ethr ", function () {
   jest.setTimeout(30000);
-  test("a. getRP shoud return a valid RP instance with ", async () => {
+  test("a. getRP should return a valid RP instance", async () => {
     siop_rp = await RP.getRP(
       redirect_uri, // RP's redirect_uri
       TD_DID_DOCS.ethr_rinkeby_1.didDocument.id, // RP's did
@@ -25,7 +22,7 @@ describe("005.01 RP related function with did:ethr ", function () {
     );
     expect(siop_rp).not.toBe(null);
   });
-  test("b. getRP shoud return an error if the DID is invalid ", async () => {
+  test("b. getRP should return an error if the DID is invalid ", async () => {
     siop_rp = RP.getRP(
       redirect_uri, // RP's redirect_uri
       "not_a_did", // RP's did
@@ -40,7 +37,7 @@ describe("005.01 RP related function with did:ethr ", function () {
 
 describe("005.02 RP related function with did:key crypto suite Ed25519VerificationKey2018", function () {
   jest.setTimeout(30000);
-  test("a. getRP shoud return a valid RP instance with ", async () => {
+  test("a. getRP should return a valid RP instance with ", async () => {
     let keyResolv2018 = new KeyDidResolver(
       "key",
       CRYPTO_SUITES.Ed25519VerificationKey2018
@@ -82,7 +79,7 @@ describe("005.02 RP related function with did:key crypto suite Ed25519Verificati
 
 describe("005.03 RP related function with did:key crypto suite Ed25519VerificationKey2020", function () {
   jest.setTimeout(30000);
-  test("a. getRP shoud return a valid RP instance with ", async () => {
+  test("a. getRP should return a valid RP instance with ", async () => {
     let keyResolv2020 = new KeyDidResolver(
       "key",
       CRYPTO_SUITES.Ed25519VerificationKey2020
