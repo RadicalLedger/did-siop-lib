@@ -7,48 +7,28 @@ import { Provider, ERRORS as ProviderErrors } from "../src/core/provider";
 import { RP, ERRORS as RPErrors } from "../src/core/rp";
 import nock from "nock";
 import { TD_DID_DOCS } from "./data/did-docs.testdata";
-import { requests } from "./request.spec.resources";
-import { tokenData } from "./common.spec.resources";
+import { TD_BASIC_JWT, TD_REQUESTS } from "./request.spec.resources";
+import { tokenData, getModifiedJWT } from "./common.spec.resources";
 import { VPData } from "../src/core/claims";
 
-let userDidDoc = TD_DID_DOCS.ethr_rinkeby_1.didDocument;
-let userDID = TD_DID_DOCS.ethr_rinkeby_1.didDocument.id;
-let userPrivateKeyHex = TD_DID_DOCS.ethr_rinkeby_1.keys[0].privateKey;
-let userKid = TD_DID_DOCS.ethr_rinkeby_1.didDocument.verificationMethod[1].id;
+let userDidDoc = TD_DID_DOCS.ethr_rinkeby_2.didDocument;
+let userDID = TD_DID_DOCS.ethr_rinkeby_2.didDocument.id;
+let userPrivateKeyHex = TD_DID_DOCS.ethr_rinkeby_2.keys[0].privateKey;
+let userKid = TD_DID_DOCS.ethr_rinkeby_2.didDocument.verificationMethod[1].id;
 
-let rpDidDoc = TD_DID_DOCS.ethr_rinkeby_2.didDocument;
-let rpDID = TD_DID_DOCS.ethr_rinkeby_2.didDocument.id;
-let rpPrivateKey = TD_DID_DOCS.ethr_rinkeby_2.keys[0].privateKey;
-let rpKid = TD_DID_DOCS.ethr_rinkeby_2.didDocument.verificationMethod[1].id;
+let rpDidDoc = TD_DID_DOCS.ethr_rinkeby_1.didDocument;
+let rpDID = TD_DID_DOCS.ethr_rinkeby_1.didDocument.id;
+let rpPrivateKey = TD_DID_DOCS.ethr_rinkeby_1.keys[0].privateKey;
+let rpKid = TD_DID_DOCS.ethr_rinkeby_1.didDocument.verificationMethod[1].id;
 
-let rpRedirectURI = "https://my.rp.com/cb";
-let rpRegistrationMetaData = {
-  jwks_uri:
-    "https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks",
-  id_token_signed_response_alg: ["ES256K", "ES256K-R", "EdDSA", "RS256"],
-};
+let rpRedirectURI = TD_REQUESTS.components.rp.redirect_uri;
+let rpRegistrationMetaData = TD_REQUESTS.components.rp.registration;
+let requestObj: JWTObject = TD_BASIC_JWT.decoded;
 
-let requestObj: JWTObject = {
-  header: {
-    alg: "ES256K",
-    typ: "JWT",
-    kid: rpKid,
-  },
-  payload: {
-    iss: rpDID,
-    response_type: "id_token",
-    scope: "openid",
-    client_id: rpDID,
-    registration: {
-      jwks_uri:
-        "https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks",
-      id_token_signed_response_alg: ["ES256K", "ES256K-R", "EdDSA", "RS256"],
-    },
-  },
-};
-
-let badRequest =
-  "openid://?response_type=id_token&client_id=https://rp.example.com/cb&scope=openid&request=eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiIsImtpZCI6ImRpZDpldGhyOjB4QjA3RWFkOTcxN2I0NEI2Y0Y0MzljNDc0MzYyYjlCMDg3N0NCQkY4MyNvd25lciJ9.eyJyZXNwb25zZV90eXBlIjoiaWRfdG9rZW4iLCJjbGllbnRfaWQiOiJodHRwczovL215LnJwLmNvbS9jYiIsInNjb3BlIjoib3BlbmlkIGRpZF9hdXRobiIsInN0YXRlIjoiYWYwaWZqc2xka2oiLCJub25jZSI6Im4tMFM2X1d6QTJNaiIsInJlc3BvbnNlX21vZGUiOiJmb3JtX3Bvc3QiLCJyZWdpc3RyYXRpb24iOnsiandrc191cmkiOiJodHRwczovL3VuaXJlc29sdmVyLmlvLzEuMC9pZGVudGlmaWVycy9kaWQ6ZXhhbXBsZToweGFiO3RyYW5zZm9ybS1rZXlzPWp3a3MiLCJpZF90b2tlbl9zaWduZWRfcmVzcG9uc2VfYWxnIjpbIkVTMjU2SyIsIkVkRFNBIiwiUlMyNTYiXX19.mXh9VLcxzHFt3D1EFRQm0xDfPB7P4YbnZX2u8Lm46mU4TIbBDqx49tyVMeAx2BCRORAN__JXS2U4NpVheAaX2wA";
+// Prepare  the reqiest for RP.generateRequest() without any parameters
+requestObj = getModifiedJWT(TD_BASIC_JWT.decoded, true, "nonce", null); // Remove nonce
+requestObj = getModifiedJWT(requestObj, true, "response_mode", null); // Remove response_mode
+requestObj = getModifiedJWT(requestObj, true, "state", null); // // Remove state
 
 describe("007.01 DID SIOP using did:ethr method DIDs", function () {
   beforeEach(() => {
@@ -95,7 +75,7 @@ describe("007.01 DID SIOP using did:ethr method DIDs", function () {
     expect(kid).toEqual(userKid);
 
     let request = await rp.generateRequest(
-      requests.components.optionsWithClaims
+      TD_REQUESTS.components.optionsWithClaims
     );
     let requestJWTDecoded = await provider.validateRequest(request);
     expect(requestJWTDecoded).toMatchObject(requestObj);
@@ -104,7 +84,7 @@ describe("007.01 DID SIOP using did:ethr method DIDs", function () {
     let responseJWTDecoded = await rp.validateResponse(response, {
       redirect_uri: rpRedirectURI,
       isExpirable: true,
-      nonce: requests.components.optionsWithClaims.nonce,
+      nonce: TD_REQUESTS.components.optionsWithClaims.nonce,
     });
     expect(responseJWTDecoded).toHaveProperty("header");
     expect(responseJWTDecoded).toHaveProperty("payload");
@@ -122,7 +102,7 @@ describe("007.01 DID SIOP using did:ethr method DIDs", function () {
     expect(kid).toEqual(userKid);
 
     let request = await rp.generateRequest(
-      requests.components.optionsWithClaims
+      TD_REQUESTS.components.optionsWithClaims
     );
     let requestJWTDecoded = await provider.validateRequest(request);
     expect(requestJWTDecoded).toMatchObject(requestObj);
@@ -142,7 +122,7 @@ describe("007.01 DID SIOP using did:ethr method DIDs", function () {
       {
         redirect_uri: rpRedirectURI,
         isExpirable: true,
-        nonce: requests.components.optionsWithClaims.nonce,
+        nonce: TD_REQUESTS.components.optionsWithClaims.nonce,
       }
     );
     expect(siopTokenObjects).toHaveProperty("id_token");
@@ -179,7 +159,7 @@ describe("007.01 DID SIOP using did:ethr method DIDs", function () {
 
     let requestValidationError = new Error("Unknown error");
     try {
-      await provider.validateRequest(badRequest);
+      await provider.validateRequest(TD_REQUESTS.bad.requestBadJWTNoIss);
     } catch (err) {
       requestValidationError = err;
     }

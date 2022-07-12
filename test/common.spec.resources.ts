@@ -19,9 +19,16 @@ const jwtGoodDecoded = {
     registration: {
       jwks_uri:
         "https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks",
-      id_token_signed_response_alg: ["ES256K", "EdDSA", "RS256"],
+      id_token_signed_response_alg: ["ES256K", "ES256K-R", "EdDSA", "RS256"],
     },
   },
+};
+
+export const checkParamsOfGoodDecoded = {
+  redirect_uri: "https://my.rp.com/cb",
+  nonce: "n-0S6_WzA2Mj",
+  validBefore: 30000,
+  isExpirable: true,
 };
 
 export const claims = {
@@ -63,6 +70,7 @@ export const claims = {
     vp_token: {},
   },
 };
+
 export const tokenData = {
   good: {
     singleVP: {
@@ -152,14 +160,19 @@ export const tokenData = {
   },
 };
 
-export const vpdata = {
-  good: {
-    singleVP: {},
-  },
-  bad: {
-    singleVP: { vp_token: {} },
-  },
+export const getBasicJWT = function (
+  kid: string,
+  iss: string,
+  did: string
+): JWTObject {
+  let clonedJWT = JSON.parse(JSON.stringify(jwtGoodDecoded)); //To make a deep copy in an ugly way
+  clonedJWT.header["kid"] = kid;
+  clonedJWT.payload["iss"] = iss;
+  clonedJWT.payload["client_id"] = did;
+
+  return clonedJWT;
 };
+
 export const getModifiedJWT = function (
   jwt: JWTObject,
   isPayload: boolean,
@@ -192,16 +205,4 @@ export const getModifiedJWTSigned = function (
 ) {
   let newJwt = getModifiedJWT(jwt, isPayload, property, value);
   return sign(newJwt, privateKey);
-};
-export const getBasicJWT = function (
-  kid: string,
-  iss: string,
-  did: string
-): JWTObject {
-  let clonedJWT = JSON.parse(JSON.stringify(jwtGoodDecoded)); //To make a deep copy in an ugly way
-  clonedJWT.header["kid"] = kid;
-  clonedJWT.payload["iss"] = iss;
-  clonedJWT.payload["client_id"] = did;
-
-  return clonedJWT;
 };

@@ -2,34 +2,18 @@ import { ERROR_RESPONSES } from "../src/core/error-response";
 import { DidSiopResponse } from "../src/core/response";
 import { Identity } from "../src/core/identity";
 import { SIOPTokensEcoded, VPData } from "../src/core/claims";
-import { SigningInfo, toJWTObject } from "../src/core/jwt";
-import { ALGORITHMS, KEY_FORMATS } from "../src/core/globals";
+import { toJWTObject } from "../src/core/jwt";
 import nock from "nock";
-import { requestJWT } from "./request.spec.resources";
+import { siginingInfo, requestJWT } from "./request.spec.resources";
 import { TD_DID_DOCS } from "./data/did-docs.testdata";
-import { tokenData } from "./common.spec.resources";
+import { checkParamsOfGoodDecoded, tokenData } from "./common.spec.resources";
 import { EthrDidResolver } from "../src/core/identity/resolvers";
 
 let userDidDoc = TD_DID_DOCS.ethr_rinkeby_1.didDocument;
 let userDID = TD_DID_DOCS.ethr_rinkeby_1.didDocument.id;
-let userKeyInfo = TD_DID_DOCS.ethr_rinkeby_1.keys[0];
 
-let rpDidDoc = TD_DID_DOCS.ethr_rinkeby_1.didDocument;
+let rpDidDoc = TD_DID_DOCS.ethr_rinkeby_2.didDocument;
 let rpDID = TD_DID_DOCS.ethr_rinkeby_2.didDocument.id;
-
-let signing: SigningInfo = {
-  alg: ALGORITHMS["ES256K"],
-  kid: userDidDoc.verificationMethod[1].id,
-  key: userKeyInfo.privateKey,
-  format: KEY_FORMATS.HEX,
-};
-
-let checkParams = {
-  redirect_uri: "https://my.rp.com/cb",
-  nonce: "n-0S6_WzA2Mj",
-  validBefore: 30000,
-  isExpirable: true,
-};
 
 describe("004.01 Response with the id_token", function () {
   beforeEach(() => {
@@ -47,13 +31,13 @@ describe("004.01 Response with the id_token", function () {
 
     let response = await DidSiopResponse.generateResponse(
       requestJWT.good.basic.payload,
-      signing,
+      siginingInfo,
       user,
       30000
     );
     let validity = await DidSiopResponse.validateResponse(
       response,
-      checkParams
+      checkParamsOfGoodDecoded
     );
     expect(validity).toBeTruthy();
 
@@ -81,13 +65,13 @@ describe("004.02 Response validation for a request with a vp_token", function ()
 
     let response = await DidSiopResponse.generateResponse(
       requestJWT.good.withVPToken.payload,
-      signing,
+      siginingInfo,
       user,
       30000
     );
     let validity = await DidSiopResponse.validateResponse(
       response,
-      checkParams
+      checkParamsOfGoodDecoded
     );
     expect(validity).toBeTruthy();
   });
@@ -98,7 +82,7 @@ describe("004.02 Response validation for a request with a vp_token", function ()
 
     let validityPromise = DidSiopResponse.generateResponse(
       requestJWT.bad.withVPToken.payload,
-      signing,
+      siginingInfo,
       user,
       30000
     );
@@ -122,20 +106,20 @@ describe("004.03 Response generation and validation with vp_token data", functio
     let response: SIOPTokensEcoded =
       await DidSiopResponse.generateResponseWithVPData(
         requestJWT.good.withVPToken.payload,
-        signing,
+        siginingInfo,
         user,
         30000,
         vps
       );
     let validity = await DidSiopResponse.validateResponse(
       response.id_token,
-      checkParams
+      checkParamsOfGoodDecoded
     );
     expect(validity).toBeTruthy();
 
     let validResponse = await DidSiopResponse.validateResponseWithVPData(
       response,
-      checkParams
+      checkParamsOfGoodDecoded
     );
     expect(validResponse).toBeTruthy();
   });
@@ -152,7 +136,7 @@ describe("004.03 Response generation and validation with vp_token data", functio
 
     let response = DidSiopResponse.generateResponseWithVPData(
       requestJWT.good.withVPToken.payload,
-      signing,
+      siginingInfo,
       user,
       30000,
       bad_vp
@@ -181,13 +165,13 @@ describe("004.04 Response Generation/Validation with the id_token using specific
 
     let response = await DidSiopResponse.generateResponse(
       requestJWT.good.basic.payload,
-      signing,
+      siginingInfo,
       user,
       30000
     );
     let validity = await DidSiopResponse.validateResponse(
       response,
-      checkParams,
+      checkParamsOfGoodDecoded,
       [ethrResolver]
     );
     expect(validity).toBeTruthy();
