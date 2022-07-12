@@ -287,17 +287,17 @@ bq58NJ8dT5gttuY3TOFuIb5vkSMjNvlIZC4cGk2YIMewkfspsm8=
 };
 
 function getInvalidData(): any {
-  let invlidValue: string = "invalidKey";
+  let invalidValue: string = "invalidKey";
   let invalidData: any = JSON.parse(JSON.stringify(TD_KEY_PAIRS));
 
-  invalidData.rsa_1.publicJWK.n = invlidValue;
-  invalidData.rsa_1.privateJWK.q = invlidValue;
+  invalidData.rsa_1.publicJWK.n = invalidValue;
+  invalidData.rsa_1.privateJWK.q = invalidValue;
 
   invalidData.rsa_4.publicKey.n =
     "y84D3oGLfX3Lv42800ImyxSlhzIgKkpPTiRebsMoubAVGhHV7INfqpU_Mq05B8kH_QLiRuuKfxGi1NsRyJYYld4CIrSPxCnWEyrL9sVvqOVuHT0nSo-BUcDNbr3GFTI5-7DOovo3n2YGfK208Xii9HUNDAvlTWODeDCbkfD5tsKRI6Hp_WfRCE5YZW4iHCxOlcSxCfEhLOoxomAnaJ_I8pRb2gAHL0jKRpIn8iMDFKhqdCeHkHRmXeiFLkbvTCnuNep0UJWzF0RxgsBNrhCUGtEe4Fw7YpBDCTDZBe7a4XFeUkLvcy5kMzvZyAIWUd1cXA8MtCzsuU7QwYiFQo9Eqw";
 
-  invalidData.ec_1.publicJWK.x = invlidValue;
-  invalidData.ec_1.privateJWK.d = invlidValue;
+  invalidData.ec_1.publicJWK.x = invalidValue;
+  invalidData.ec_1.privateJWK.d = invalidValue;
 
   invalidData.es256k_1.publicKey.x =
     "Y4xeLjurYuJdXvGWegB3KDLmbU2t0yEE6SvyKvtyARU";
@@ -307,11 +307,11 @@ function getInvalidData(): any {
   invalidData.es256kr_1.publicKey =
     "0428c0da3e1c15e84876625d366eab8dd20c84288bcf6a71a0699209fc646dcfeb4633d7eff3dc63be7d7ada54fcb63cd603e5ac0a1382de19a73487dbc8e177e9";
 
-  invalidData.es256kr_1.publicKey = invlidValue;
-  invalidData.es256kr_1.privateKey = invlidValue;
+  invalidData.es256kr_1.publicKey = invalidValue;
+  invalidData.es256kr_1.privateKey = invalidValue;
 
-  invalidData.okp_1.publicJWK.x = invlidValue;
-  invalidData.okp_1.privateJWK.d = invlidValue;
+  invalidData.okp_1.publicJWK.x = invalidValue;
+  invalidData.okp_1.privateJWK.d = invalidValue;
 
   invalidData.okp_4.publicKey.x = "RcPqPlTgM4NdeXCcaSIcZEePIvASAHvXQ6ZEls5rDnA";
 
