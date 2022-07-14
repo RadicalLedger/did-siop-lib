@@ -4,7 +4,7 @@ import { Identity } from "../src/core/identity";
 import { SIOPTokensEcoded, VPData } from "../src/core/claims";
 import { toJWTObject } from "../src/core/jwt";
 import nock from "nock";
-import { siginingInfo, requestJWT } from "./request.spec.resources";
+import { siginingInfo, requestJWT } from "./data/request.testdata";
 import { TD_DID_DOCS } from "./data/did-docs.testdata";
 import { checkParamsOfGoodDecoded, tokenData } from "./common.spec.resources";
 import { EthrDidResolver } from "../src/core/identity/resolvers";

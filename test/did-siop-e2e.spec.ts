@@ -7,7 +7,7 @@ import { Provider, ERRORS as ProviderErrors } from "../src/core/provider";
 import { RP, ERRORS as RPErrors } from "../src/core/rp";
 import nock from "nock";
 import { TD_DID_DOCS } from "./data/did-docs.testdata";
-import { TD_BASIC_JWT, TD_REQUESTS } from "./request.spec.resources";
+import { TD_BASIC_JWT, TD_REQUESTS } from "./data/request.testdata";
 import { tokenData, getModifiedJWT } from "./common.spec.resources";
 import { VPData } from "../src/core/claims";
 

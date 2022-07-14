@@ -1,6 +1,6 @@
 import { ERROR_RESPONSES } from "../src/core/error-response";
 import { DidSiopRequest } from "../src/core/request";
-import { TD_BASIC_JWT, TD_REQUESTS } from "./request.spec.resources";
+import { TD_BASIC_JWT, TD_REQUESTS } from "./data/request.testdata";
 import { claims } from "./common.spec.resources";
 import {
   SIOP_METADATA_SUPPORTED,
@@ -13,7 +13,7 @@ import { EthrDidResolver } from "../src/core/identity/resolvers";
 let userDidDoc = TD_DID_DOCS.ethr_rinkeby_1.didDocument;
 let userDID = TD_DID_DOCS.ethr_rinkeby_1.didDocument.id;
 
-let rpDidDoc = TD_DID_DOCS.ethr_rinkeby_1.didDocument;
+let rpDidDoc = TD_DID_DOCS.ethr_rinkeby_2.didDocument;
 let rpDID = TD_DID_DOCS.ethr_rinkeby_2.didDocument.id;
 
 describe("003.01 Modify request object", function () {

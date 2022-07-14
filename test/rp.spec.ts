@@ -6,7 +6,7 @@ import { TD_DID_DOCS } from "./data/did-docs.testdata";
 import { ALGORITHMS, KEY_FORMATS } from "../src";
 import { JWTObject, toJWTObject } from "../src/core/jwt";
 import * as queryString from "query-string";
-import { TD_REQUESTS } from "./request.spec.resources";
+import { TD_REQUESTS } from "./data/request.testdata";
 
 let siop_rp: any;
 let redirect_uri = TD_REQUESTS.components.rp.redirect_uri;
