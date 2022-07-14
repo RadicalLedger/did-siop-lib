@@ -8,7 +8,7 @@ import { RP, ERRORS as RPErrors } from "../src/core/rp";
 import nock from "nock";
 import { TD_DID_DOCS } from "./data/did-docs.testdata";
 import { TD_BASIC_JWT, TD_REQUESTS } from "./data/request.testdata";
-import { tokenData, getModifiedJWT } from "./common.spec.resources";
+import { tokenData, getModifiedJWT } from "./common.testdata";
 import { VPData } from "../src/core/claims";
 
 let userDidDoc = TD_DID_DOCS.ethr_rinkeby_2.didDocument;

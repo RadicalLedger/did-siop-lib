@@ -5,7 +5,7 @@ import {
   getModifiedJWT,
   getModifiedJWTSigned,
   claims,
-} from "../common.spec.resources";
+} from "../common.testdata";
 import { TD_DID_DOCS } from "./did-docs.testdata";
 
 let testDidDoc = TD_DID_DOCS.ethr_rinkeby_1.didDocument;

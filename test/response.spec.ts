@@ -6,7 +6,7 @@ import { toJWTObject } from "../src/core/jwt";
 import nock from "nock";
 import { siginingInfo, requestJWT } from "./data/request.testdata";
 import { TD_DID_DOCS } from "./data/did-docs.testdata";
-import { checkParamsOfGoodDecoded, tokenData } from "./common.spec.resources";
+import { checkParamsOfGoodDecoded, tokenData } from "./common.testdata";
 import { EthrDidResolver } from "../src/core/identity/resolvers";
 
 let userDidDoc = TD_DID_DOCS.ethr_rinkeby_1.didDocument;
