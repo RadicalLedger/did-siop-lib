@@ -4,7 +4,7 @@ import { RP } from "../src/core/rp";
 import { Provider } from "../src/core/provider";
 import { EthrDidResolver } from "../src/core/identity/resolvers/did-resolver-ethr";
 import { TD_BASIC_JWT, TD_REQUESTS } from "./data/request.testdata";
-import { getModifiedJWT } from "./common.testdata";
+import { getModifiedJWT } from "./data/common.testdata";
 
 let rpDID = TD_DID_DOCS.ethr_rinkeby_1.didDocument.id;
 let rpPrivateKey = TD_DID_DOCS.ethr_rinkeby_1.keys[0].privateKey;

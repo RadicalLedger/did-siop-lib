@@ -1,7 +1,7 @@
 import { ERROR_RESPONSES } from "../src/core/error-response";
 import { DidSiopRequest } from "../src/core/request";
 import { TD_BASIC_JWT, TD_REQUESTS } from "./data/request.testdata";
-import { claims } from "./common.testdata";
+import { claims } from "./data/common.testdata";
 import {
   SIOP_METADATA_SUPPORTED,
   SiopMetadataSupported,

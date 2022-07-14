@@ -1,5 +1,5 @@
-import { sign } from "../src/core/jwt";
-import { JWTObject, SigningInfo } from "../src/core/jwt";
+import { sign } from "../../src/core/jwt";
+import { JWTObject, SigningInfo } from "../../src/core/jwt";
 
 const jwtGoodDecoded = {
   header: {
