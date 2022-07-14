@@ -1,12 +1,12 @@
-import { ALGORITHMS, KEY_FORMATS } from "./../src/core/globals";
-import { sign } from "../src/core/jwt";
+import { ALGORITHMS, KEY_FORMATS } from "../../src/core/globals";
+import { sign } from "../../src/core/jwt";
 import {
   getBasicJWT,
   getModifiedJWT,
   getModifiedJWTSigned,
   claims,
-} from "./common.spec.resources";
-import { TD_DID_DOCS } from "./data/did-docs.testdata";
+} from "../common.spec.resources";
+import { TD_DID_DOCS } from "./did-docs.testdata";
 
 let testDidDoc = TD_DID_DOCS.ethr_rinkeby_1.didDocument;
 let testDID = TD_DID_DOCS.ethr_rinkeby_1.didDocument.id;
