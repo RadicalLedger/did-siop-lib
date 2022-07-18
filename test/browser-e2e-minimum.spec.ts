@@ -5,18 +5,19 @@ let page: puppeteer.Page | undefined;
 
 const sleep = async (ms: number) =>
   await new Promise((res) => setTimeout(res, ms));
+let curDir = process.cwd();
 
-describe("007.01 DID SIOP using did:ethr method DIDs", function () {
+describe.each([
+  { url: `file://${curDir}/test/browser-app/e2e-minimum.html` },
+  { url: `file://${curDir}/test/browser-app/e2e-ethr-method.html` },
+])("007.01 DID SIOP using did:ethr method DIDs", function ({ url }) {
   beforeAll(async () => {
     browser = await puppeteer.launch({
       headless: true,
     });
     page = await browser.newPage();
 
-    let curDir = process.cwd();
-    let targetFile = `file://${curDir}/test/browser-app/e2e-minimum.html`;
-
-    await page.goto(targetFile);
+    await page.goto(url);
   }, 30_000);
 
   test("Browser - Generate Request", async () => {
