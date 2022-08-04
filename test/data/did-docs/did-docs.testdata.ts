@@ -48,7 +48,7 @@ const files = fs
   .readdirSync(__dirname)
   .filter((file) => path.extname(file).toLowerCase() === ".json");
 const didTestDataList: DidTestData[] = [];
-const arg = argv;
+const arg = argv["target"];
 if (arg) {
   files
     .map((filename) => {
