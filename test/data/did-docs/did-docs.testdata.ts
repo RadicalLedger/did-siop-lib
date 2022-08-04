@@ -1,6 +1,6 @@
-import fs from "fs";
+import fs = require("fs");
+import path = require("path");
 import yargs from "yargs";
-import path from "path";
 import { ALGORITHMS, KEY_FORMATS, KTYS } from "../../../src/core/globals";
 
 interface DidKey {
