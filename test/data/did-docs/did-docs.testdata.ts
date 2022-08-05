@@ -14,10 +14,17 @@ interface DidKey {
   identifier: string;
 }
 
+interface VerificationMethod {
+  id: string;
+  type: string;
+  controller: string;
+  blockchainAccountId: string;
+}
+
 interface DidDocument {
   "@context": string[];
   id: string;
-  verficationMethod: string[];
+  verficationMethod: VerificationMethod[];
   authentication: {
     id: string;
     type: string;
@@ -40,7 +47,13 @@ const DEFAULT_TEST_DATA_FILE = "default.json";
 function getDidTestData(filename: string): DidTestData {
   const filepath = path.join(__dirname, filename);
   const json = fs.readFileSync(filepath, { encoding: "utf-8" });
-  return JSON.parse(json) as DidTestData;
+  const testData = JSON.parse(json) as DidTestData;
+  validateDidTestData(testData);
+  return testData;
+}
+
+function validateDidTestData(testData: any): void {
+  console.log(testData);
 }
 
 const argv = yargs(process.argv).argv;
@@ -62,5 +75,7 @@ if (arg) {
   const defaultTestData = getDidTestData(DEFAULT_TEST_DATA_FILE);
   didTestDataList.push(defaultTestData);
 }
+
+console.log(didTestDataList[0].name);
 
 export default didTestDataList;

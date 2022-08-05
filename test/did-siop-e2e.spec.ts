@@ -10,6 +10,8 @@ import { TD_DID_DOCS } from "./data/did-docs.testdata";
 import { TD_BASIC_JWT, TD_REQUESTS } from "./data/request.testdata";
 import { tokenData, getModifiedJWT } from "./data/common.testdata";
 import { VPData } from "../src/core/claims";
+import didTestDataList from "./data/did-docs/did-docs.testdata";
+console.log(didTestDataList[0].name);
 
 let userDidDoc = TD_DID_DOCS.ethr_rinkeby_2.didDocument;
 let userDID = TD_DID_DOCS.ethr_rinkeby_2.didDocument.id;
@@ -29,6 +31,15 @@ let requestObj: JWTObject = TD_BASIC_JWT.decoded;
 requestObj = getModifiedJWT(TD_BASIC_JWT.decoded, true, "nonce", null); // Remove nonce
 requestObj = getModifiedJWT(requestObj, true, "response_mode", null); // Remove response_mode
 requestObj = getModifiedJWT(requestObj, true, "state", null); // // Remove state
+
+describe.each([didTestDataList])("$name", ({ name, data }) => {
+  describe(`007.01 DID SIOP using did:${name} method DIDs`, () => {
+    console.log(data);
+    test("", () => {
+      expect(1).toBe(1);
+    });
+  });
+});
 
 describe("007.01 DID SIOP using did:ethr method DIDs", function () {
   beforeEach(() => {
