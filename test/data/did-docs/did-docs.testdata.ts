@@ -24,21 +24,36 @@ interface VerificationMethod {
 interface DidDocument {
   "@context": string[];
   id: string;
-  verficationMethod: VerificationMethod[];
-  authentication: {
-    id: string;
-    type: string;
-    controller: string;
-    blockchainAccountId: string;
-  }[];
+  verificationMethod: VerificationMethod[];
   assertionMethod: string[];
+  authentication: string[];
+  capabilityDelegation: string[];
+  capabilityInvocation: string[];
+  keyAgreement: [
+    {
+      id: string;
+      type: string;
+      controller: string;
+      publicKeyBase58: string;
+    }
+  ];
 }
 
 interface DidTestData {
   name: string;
   data: {
-    didDocument: DidDocument;
-    keys: DidKey[];
+    user: {
+      didDocument: DidDocument;
+      keys: DidKey[];
+    };
+    rp: {
+      didDocument: DidDocument;
+      keys: DidKey[];
+    };
+    keyResolver: {
+      methodName: string;
+      crypto_suite?: string;
+    };
   };
 }
 
@@ -75,7 +90,5 @@ if (arg) {
   const defaultTestData = getDidTestData(DEFAULT_TEST_DATA_FILE);
   didTestDataList.push(defaultTestData);
 }
-
-console.log(didTestDataList[0].name);
 
 export default didTestDataList;

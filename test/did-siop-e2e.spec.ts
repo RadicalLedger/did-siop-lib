@@ -32,11 +32,57 @@ requestObj = getModifiedJWT(TD_BASIC_JWT.decoded, true, "nonce", null); // Remov
 requestObj = getModifiedJWT(requestObj, true, "response_mode", null); // Remove response_mode
 requestObj = getModifiedJWT(requestObj, true, "state", null); // // Remove state
 
-describe.each([didTestDataList])("$name", ({ name, data }) => {
+describe.each([didTestDataList])("($name)", ({ name, data }) => {
   describe(`007.01 DID SIOP using did:${name} method DIDs`, () => {
-    console.log(data);
-    test("", () => {
-      expect(1).toBe(1);
+    // const userDidDoc = data.user.didDocument;
+    const userDID = data.user.didDocument.id;
+    const userPrivateKeyHex = data.user.keys[0].privateKey;
+    const userKid = data.user.didDocument.verificationMethod[0].id;
+
+    // const rpDidDoc = data.rp.didDocument;
+    const rpDID = data.rp.didDocument.id;
+    const rpPrivateKey = data.rp.keys[0].privateKey;
+    const rpKid = data.rp.didDocument.verificationMethod[0].id;
+
+    const keyResolverMethodName = data.keyResolver.methodName;
+    const keyResolverCryptoSuite = data.keyResolver.crypto_suite;
+
+    test("a. end to end functions testing ", async () => {
+      jest.setTimeout(30000);
+      let keyResolve = new KeyDidResolver(
+        keyResolverMethodName,
+        keyResolverCryptoSuite
+      );
+
+      let rp = await RP.getRP(
+        rpRedirectURI,
+        rpDID,
+        rpRegistrationMetaData,
+        undefined,
+        [keyResolve]
+      );
+      let kid = rp.addSigningParams(rpPrivateKey);
+      expect(kid).toEqual(rpKid);
+
+      const provider = await Provider.getProvider(userDID, undefined, [
+        keyResolve,
+      ]);
+      kid = provider.addSigningParams(userPrivateKeyHex);
+      expect(kid).toEqual(userKid);
+
+      const request = await rp.generateRequest();
+      const requestJWTDecoded = await provider.validateRequest(request);
+
+      const response = await provider.generateResponse(
+        requestJWTDecoded.payload
+      );
+      const responseJWTDecoded = await rp.validateResponse(response, {
+        redirect_uri: rpRedirectURI,
+        isExpirable: true,
+      });
+
+      expect(responseJWTDecoded).toHaveProperty("header");
+      expect(responseJWTDecoded).toHaveProperty("payload");
     });
   });
 });
