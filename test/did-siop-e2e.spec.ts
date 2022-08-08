@@ -11,7 +11,6 @@ import { TD_BASIC_JWT, TD_REQUESTS } from "./data/request.testdata";
 import { tokenData, getModifiedJWT } from "./data/common.testdata";
 import { VPData } from "../src/core/claims";
 import didTestDataList from "./data/did-docs/did-docs.testdata";
-console.log(didTestDataList[0].name);
 
 let userDidDoc = TD_DID_DOCS.ethr_rinkeby_2.didDocument;
 let userDID = TD_DID_DOCS.ethr_rinkeby_2.didDocument.id;
@@ -32,7 +31,7 @@ requestObj = getModifiedJWT(TD_BASIC_JWT.decoded, true, "nonce", null); // Remov
 requestObj = getModifiedJWT(requestObj, true, "response_mode", null); // Remove response_mode
 requestObj = getModifiedJWT(requestObj, true, "state", null); // // Remove state
 
-describe.each([didTestDataList])("($name)", ({ name, data }) => {
+describe.each(didTestDataList)("($name)", ({ name, data }) => {
   describe(`007.01 DID SIOP using did:${name} method DIDs`, () => {
     // const userDidDoc = data.user.didDocument;
     const userDID = data.user.didDocument.id;
