@@ -102,8 +102,8 @@
       ]
     },
     "keyResolver": {
-      "methodName": "test",
-      "crypto_suite": "test"
+      "methodName": "key",
+      "crypto_suite": "@digitalbazaar/ed25519-verification-key-2018"
     }
   }
 }
