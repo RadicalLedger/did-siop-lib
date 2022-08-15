@@ -10,6 +10,7 @@ import { TD_DID_DOCS } from "./data/did-docs.testdata";
 import { TD_BASIC_JWT, TD_REQUESTS } from "./data/request.testdata";
 import { tokenData, getModifiedJWT } from "./data/common.testdata";
 import { VPData } from "../src/core/claims";
+import DidTestData from "./data/did-docs/did-docs.testdata";
 
 let userDidDoc = TD_DID_DOCS.ethr_rinkeby_2.didDocument;
 let userDID = TD_DID_DOCS.ethr_rinkeby_2.didDocument.id;
@@ -32,6 +33,88 @@ requestObj = getModifiedJWT(requestObj, true, "state", null); // // Remove state
 
 //Set the default timeout interval to 30000 ms for all tests and before/after hooks
 jest.setTimeout(30000);
+DidTestData;
+DidTestData;
+
+describe.only.each(DidTestData)("($name)", ({ name, data }) => {
+  describe(`007.01 DID SIOP using did:${name} method DIDs`, () => {
+    // const userDidDoc = data.user.didDocument;
+    const userDID = data.user.didDocument.id;
+    const userPrivateKeyHex = data.user.keys[0].privateKey;
+    const userKid = data.user.didDocument.verificationMethod[0].id;
+
+    // const rpDidDoc = data.rp.didDocument;
+    const rpDID = data.rp.didDocument.id;
+    const rpPrivateKey = data.rp.keys[0].privateKey;
+    const rpKid = data.rp.didDocument.verificationMethod[0].id;
+
+    const keyResolverMethodName = data.keyResolver.methodName;
+    const keyResolverCryptoSuite = data.keyResolver.crypto_suite;
+
+    test("a. end to end functions testing ", async () => {
+      let keyResolve = new KeyDidResolver(
+        keyResolverMethodName,
+        keyResolverCryptoSuite
+      );
+
+      let rp = await RP.getRP(
+        rpRedirectURI,
+        rpDID,
+        rpRegistrationMetaData,
+        undefined,
+        [keyResolve]
+      );
+
+      let kid = rp.addSigningParams(rpPrivateKey);
+      expect(kid).toEqual(rpKid);
+
+      const provider = await Provider.getProvider(userDID, undefined, [
+        keyResolve,
+      ]);
+      kid = provider.addSigningParams(userPrivateKeyHex);
+      expect(kid).toEqual(userKid);
+
+      const request = await rp.generateRequest();
+      const requestJWTDecoded = await provider.validateRequest(request);
+
+      const response = await provider.generateResponse(
+        requestJWTDecoded.payload
+      );
+      const responseJWTDecoded = await rp.validateResponse(response, {
+        redirect_uri: rpRedirectURI,
+        isExpirable: true,
+      });
+
+      expect(responseJWTDecoded).toHaveProperty("header");
+      expect(responseJWTDecoded).toHaveProperty("payload");
+    });
+
+    test("b. DID SIOP e2e functions testing with VPs- expect truthy", async () => {
+      let rp = await RP.getRP(rpRedirectURI, rpDID, rpRegistrationMetaData);
+      let kid = rp.addSigningParams(rpPrivateKey);
+      expect(kid).toEqual(rpKid);
+
+      let provider = await Provider.getProvider(userDID);
+      kid = provider.addSigningParams(userPrivateKeyHex);
+      expect(kid).toEqual(userKid);
+
+      let request = await rp.generateRequest(
+        TD_REQUESTS.components.optionsWithClaims
+      );
+      let requestJWTDecoded = await provider.validateRequest(request);
+      expect(requestJWTDecoded).toMatchObject(requestObj);
+
+      let response = await provider.generateResponse(requestJWTDecoded.payload);
+      let responseJWTDecoded = await rp.validateResponse(response, {
+        redirect_uri: rpRedirectURI,
+        isExpirable: true,
+        nonce: TD_REQUESTS.components.optionsWithClaims.nonce,
+      });
+      expect(responseJWTDecoded).toHaveProperty("header");
+      expect(responseJWTDecoded).toHaveProperty("payload");
+    });
+  });
+});
 
 describe("007.01 DID SIOP using did:ethr method DIDs", function () {
   beforeEach(() => {
@@ -153,7 +236,7 @@ describe("007.01 DID SIOP using did:ethr method DIDs", function () {
     let requestValidationError = new Error("Unknown error");
     try {
       await provider.validateRequest(TD_REQUESTS.bad.requestBadJWTNoIss);
-    } catch (err) {
+    } catch (err: any) {
       requestValidationError = err;
     }
     let errorResponse = provider.generateErrorResponse(
