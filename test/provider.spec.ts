@@ -20,10 +20,11 @@ requestObj = getModifiedJWT(requestObj, true, "response_mode", null); // Remove 
 requestObj = getModifiedJWT(requestObj, true, "state", null); // // Remove state
 requestObj = getModifiedJWT(requestObj, true, "redirect_uri", null); // // Remove redirect_uri
 
+//Set the default timeout interval to 30000 ms for all tests and before/after hooks
+jest.setTimeout(30000);
+
 describe("006 Provider testing with dynamically added resolver", function () {
   test("a. with did:ethr resolver", async () => {
-    jest.setTimeout(30000);
-
     let ethrResolver = new EthrDidResolver("ethr");
 
     let rp = await RP.getRP(

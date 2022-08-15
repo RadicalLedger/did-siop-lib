@@ -15,6 +15,9 @@ let userDID = TD_DID_DOCS.ethr_rinkeby_1.didDocument.id;
 let rpDidDoc = TD_DID_DOCS.ethr_rinkeby_2.didDocument;
 let rpDID = TD_DID_DOCS.ethr_rinkeby_2.didDocument.id;
 
+//Set the default timeout interval to 30000 ms for all tests and before/after hooks
+jest.setTimeout(30000);
+
 describe("004.01 Response with the id_token", function () {
   beforeEach(() => {
     nock("https://uniresolver.io/1.0/identifiers")
@@ -25,7 +28,6 @@ describe("004.01 Response with the id_token", function () {
       .reply(200, userDidDoc);
   });
   test("a. with basic info : generation and validation", async () => {
-    jest.setTimeout(30000);
     let user = new Identity();
     await user.resolve(userDID);
 
@@ -59,7 +61,6 @@ describe("004.02 Response validation for a request with a vp_token", function ()
       .reply(200, userDidDoc);
   });
   test("a. Valid token : generation and validation", async () => {
-    jest.setTimeout(30000);
     let user = new Identity();
     await user.resolve(userDID);
 
@@ -76,7 +77,6 @@ describe("004.02 Response validation for a request with a vp_token", function ()
     expect(validity).toBeTruthy();
   });
   test("b. Invalid token : generation", async () => {
-    jest.setTimeout(30000);
     let user = new Identity();
     await user.resolve(userDID);
 
@@ -94,7 +94,6 @@ describe("004.02 Response validation for a request with a vp_token", function ()
 
 describe("004.03 Response generation and validation with vp_token data", function () {
   test("a. Valid vp_token & _vp_token should generate a valid response", async () => {
-    jest.setTimeout(30000);
     let user = new Identity();
     await user.resolve(userDID);
 
@@ -125,7 +124,6 @@ describe("004.03 Response generation and validation with vp_token data", functio
   });
 
   test("b. Invalid vp_token : generation should raise an exception", async () => {
-    jest.setTimeout(30000);
     let user = new Identity();
     await user.resolve(userDID);
 
@@ -157,7 +155,6 @@ describe("004.04 Response Generation/Validation with the id_token using specific
       .reply(200, userDidDoc);
   });
   test("a. with basic info : generation and validation", async () => {
-    jest.setTimeout(30000);
     let user = new Identity();
 
     let ethrResolver = new EthrDidResolver("ethr");

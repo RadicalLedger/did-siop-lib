@@ -5,8 +5,10 @@ import {
 } from "../src/core/identity/resolvers";
 import { TD_DID_DOCS } from "./data/did-docs.testdata";
 
+//Set the default timeout interval to 17000 ms for all tests and before/after hooks
+jest.setTimeout(17000);
+
 describe("001.01 CombinedDidResolver Functionalities with default resolver", function () {
-  jest.setTimeout(17000);
   test("a. ability to resolve using default resolver", async () => {
     let did = TD_DID_DOCS.ethr_rinkeby_1.didDocument.id;
     let combinedDidResolver = new CombinedDidResolver("all");
@@ -17,7 +19,6 @@ describe("001.01 CombinedDidResolver Functionalities with default resolver", fun
 });
 
 describe("001.02 CombinedDidResolver Functionalities with given Resolver ", function () {
-  jest.setTimeout(17000);
   test("a. ability to add EthrDidResolver and resolve a DID", async () => {
     let did = TD_DID_DOCS.ethr_rinkeby_1.didDocument.id;
     let combinedDidResolver = new CombinedDidResolver("");

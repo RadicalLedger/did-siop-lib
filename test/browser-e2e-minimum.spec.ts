@@ -7,6 +7,9 @@ const sleep = async (ms: number) =>
   await new Promise((res) => setTimeout(res, ms));
 let curDir = process.cwd();
 
+//Set the default timeout interval to 30000 ms for all tests and before/after hooks
+jest.setTimeout(30000);
+
 describe.each([
   { url: `file://${curDir}/test/browser-app/e2e-minimum.html` },
   { url: `file://${curDir}/test/browser-app/e2e-ethr-method.html` },
@@ -18,7 +21,7 @@ describe.each([
     page = await browser.newPage();
 
     await page.goto(url);
-  }, 30_000);
+  });
 
   test("Browser - Generate Request", async () => {
     await sleep(1_000);
@@ -40,7 +43,7 @@ describe.each([
     } catch (err) {
       console.log(err);
     }
-  }, 30_000);
+  });
 
   test("Browser - Generate Response", async () => {
     await sleep(1_000);
@@ -66,7 +69,7 @@ describe.each([
     } catch (err) {
       console.log(err);
     }
-  }, 30_000);
+  });
 
   test("Browser - Validate Response", async () => {
     await sleep(1_000);
@@ -88,7 +91,7 @@ describe.each([
     } catch (err) {
       console.log(err);
     }
-  }, 30_000);
+  });
 
   afterAll(async () => await browser?.close?.());
 });
