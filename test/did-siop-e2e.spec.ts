@@ -10,7 +10,6 @@ import { TD_DID_DOCS } from "./data/did-docs.testdata";
 import { TD_BASIC_JWT, TD_REQUESTS } from "./data/request.testdata";
 import { tokenData, getModifiedJWT } from "./data/common.testdata";
 import { VPData } from "../src/core/claims";
-import didTestDataList from "./data/did-docs/did-docs.testdata";
 
 let userDidDoc = TD_DID_DOCS.ethr_rinkeby_2.didDocument;
 let userDID = TD_DID_DOCS.ethr_rinkeby_2.didDocument.id;
@@ -31,60 +30,8 @@ requestObj = getModifiedJWT(TD_BASIC_JWT.decoded, true, "nonce", null); // Remov
 requestObj = getModifiedJWT(requestObj, true, "response_mode", null); // Remove response_mode
 requestObj = getModifiedJWT(requestObj, true, "state", null); // // Remove state
 
-describe.each(didTestDataList)("($name)", ({ name, data }) => {
-  describe(`007.01 DID SIOP using did:${name} method DIDs`, () => {
-    // const userDidDoc = data.user.didDocument;
-    const userDID = data.user.didDocument.id;
-    const userPrivateKeyHex = data.user.keys[0].privateKey;
-    const userKid = data.user.didDocument.verificationMethod[0].id;
-
-    // const rpDidDoc = data.rp.didDocument;
-    const rpDID = data.rp.didDocument.id;
-    const rpPrivateKey = data.rp.keys[0].privateKey;
-    const rpKid = data.rp.didDocument.verificationMethod[0].id;
-
-    const keyResolverMethodName = data.keyResolver.methodName;
-    const keyResolverCryptoSuite = data.keyResolver.crypto_suite;
-
-    test("a. end to end functions testing ", async () => {
-      jest.setTimeout(30000);
-      let keyResolve = new KeyDidResolver(
-        keyResolverMethodName,
-        keyResolverCryptoSuite
-      );
-
-      let rp = await RP.getRP(
-        rpRedirectURI,
-        rpDID,
-        rpRegistrationMetaData,
-        undefined,
-        [keyResolve]
-      );
-      let kid = rp.addSigningParams(rpPrivateKey);
-      expect(kid).toEqual(rpKid);
-
-      const provider = await Provider.getProvider(userDID, undefined, [
-        keyResolve,
-      ]);
-      kid = provider.addSigningParams(userPrivateKeyHex);
-      expect(kid).toEqual(userKid);
-
-      const request = await rp.generateRequest();
-      const requestJWTDecoded = await provider.validateRequest(request);
-
-      const response = await provider.generateResponse(
-        requestJWTDecoded.payload
-      );
-      const responseJWTDecoded = await rp.validateResponse(response, {
-        redirect_uri: rpRedirectURI,
-        isExpirable: true,
-      });
-
-      expect(responseJWTDecoded).toHaveProperty("header");
-      expect(responseJWTDecoded).toHaveProperty("payload");
-    });
-  });
-});
+//Set the default timeout interval to 30000 ms for all tests and before/after hooks
+jest.setTimeout(30000);
 
 describe("007.01 DID SIOP using did:ethr method DIDs", function () {
   beforeEach(() => {
@@ -96,8 +43,6 @@ describe("007.01 DID SIOP using did:ethr method DIDs", function () {
       .reply(200, userDidDoc);
   });
   test("a. DID SIOP end to end functions testing - expect truthy", async () => {
-    jest.setTimeout(30000);
-
     let rp = await RP.getRP(rpRedirectURI, rpDID, rpRegistrationMetaData);
     let kid = rp.addSigningParams(rpPrivateKey);
     expect(kid).toEqual(rpKid);
@@ -120,8 +65,6 @@ describe("007.01 DID SIOP using did:ethr method DIDs", function () {
   });
 
   test("b. DID SIOP e2e functions testing with VPs- expect truthy", async () => {
-    jest.setTimeout(30000);
-
     let rp = await RP.getRP(rpRedirectURI, rpDID, rpRegistrationMetaData);
     let kid = rp.addSigningParams(rpPrivateKey);
     expect(kid).toEqual(rpKid);
@@ -147,8 +90,6 @@ describe("007.01 DID SIOP using did:ethr method DIDs", function () {
   });
 
   test("c. DID SIOP e2e functions testing with VPs and Validate VPs- expect truthy", async () => {
-    jest.setTimeout(30000);
-
     let rp = await RP.getRP(rpRedirectURI, rpDID, rpRegistrationMetaData);
     let kid = rp.addSigningParams(rpPrivateKey);
     expect(kid).toEqual(rpKid);
@@ -186,8 +127,6 @@ describe("007.01 DID SIOP using did:ethr method DIDs", function () {
   });
 
   test("d. DID SIOP end to end functions testing - expect falsy", async () => {
-    jest.setTimeout(30000);
-
     let rp = await RP.getRP(rpRedirectURI, rpDID, rpRegistrationMetaData);
     rp.addSigningParams(rpPrivateKey);
 
@@ -205,8 +144,6 @@ describe("007.01 DID SIOP using did:ethr method DIDs", function () {
     );
   });
   test("e. DID SIOP end to end functions testing - Error Response", async () => {
-    jest.setTimeout(30000);
-
     let rp = await RP.getRP(rpRedirectURI, rpDID, rpRegistrationMetaData);
     rp.addSigningParams(rpPrivateKey);
 
@@ -231,7 +168,6 @@ describe("007.01 DID SIOP using did:ethr method DIDs", function () {
 
 describe("007.02 DID SIOP using did:key method DIDs : crypto suite Ed25519VerificationKey2018", function () {
   test("a. end to end functions testing ", async () => {
-    jest.setTimeout(30000);
     let keyResolv2018 = new KeyDidResolver(
       "key",
       CRYPTO_SUITES.Ed25519VerificationKey2018
@@ -274,7 +210,6 @@ describe("007.02 DID SIOP using did:key method DIDs : crypto suite Ed25519Verifi
 
 describe("007.03 DID SIOP using did:key method DIDs : crypto suite Ed25519VerificationKey2020", function () {
   test("a. end to end functions testing ", async () => {
-    jest.setTimeout(30000);
     let keyResolv2020 = new KeyDidResolver(
       "key",
       CRYPTO_SUITES.Ed25519VerificationKey2020
@@ -325,8 +260,6 @@ describe("007.04 DID SIOP using did:ethr method DIDs and did:ethr resover", func
       .reply(200, userDidDoc);
   });
   test("a. DID SIOP end to end functions testing - expect truthy", async () => {
-    jest.setTimeout(30000);
-
     let ethrResolver = new EthrDidResolver("ethr");
 
     let rp = await RP.getRP(

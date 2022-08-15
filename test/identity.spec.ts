@@ -2,8 +2,10 @@ import { Identity } from "../src/core/identity";
 import { KeyDidResolver } from "../src/core/identity/resolvers";
 import { TD_DID_DOCS } from "./data/did-docs.testdata";
 
+//Set the default timeout interval to 17000 ms for all tests and before/after hooks
+jest.setTimeout(17000);
+
 describe("002. Identity functions", function () {
-  jest.setTimeout(17000);
   test("a. Using default resolver", async () => {
     let identity = new Identity();
     let did1 = TD_DID_DOCS.ethr_rinkeby_1.didDocument.id;

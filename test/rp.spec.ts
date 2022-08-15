@@ -12,8 +12,10 @@ let siop_rp: any;
 let redirect_uri = TD_REQUESTS.components.rp.redirect_uri;
 let registration = TD_REQUESTS.components.rp.registration;
 
+//Set the default timeout interval to 30000 ms for all tests and before/after hooks
+jest.setTimeout(30000);
+
 describe("005.01 RP related function with did:ethr ", function () {
-  jest.setTimeout(30000);
   test("a. getRP should return a valid RP instance", async () => {
     siop_rp = await RP.getRP(
       redirect_uri, // RP's redirect_uri
@@ -36,7 +38,6 @@ describe("005.01 RP related function with did:ethr ", function () {
 });
 
 describe("005.02 RP related function with did:key crypto suite Ed25519VerificationKey2018", function () {
-  jest.setTimeout(30000);
   test("a. getRP should return a valid RP instance with ", async () => {
     let keyResolv2018 = new KeyDidResolver(
       "key",
@@ -78,7 +79,6 @@ describe("005.02 RP related function with did:key crypto suite Ed25519Verificati
 });
 
 describe("005.03 RP related function with did:key crypto suite Ed25519VerificationKey2020", function () {
-  jest.setTimeout(30000);
   test("a. getRP should return a valid RP instance with ", async () => {
     let keyResolv2020 = new KeyDidResolver(
       "key",
