@@ -12,7 +12,6 @@ import { getModifiedJWT, tokenData } from "./data/common.testdata";
 import { VPData } from "../src/core/claims";
 import DidTestData from "./data/did-docs/did-docs.testdata";
 import { DidResolvers } from "../src/core/identity/resolvers";
-import { DidResolverT } from "../src/core/Identity/Resolvers/did-resolvers";
 
 let userDidDoc = TD_DID_DOCS.ethr_rinkeby_2.didDocument;
 let userDID = TD_DID_DOCS.ethr_rinkeby_2.didDocument.id;
