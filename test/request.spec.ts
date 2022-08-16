@@ -16,9 +16,11 @@ let userDID = TD_DID_DOCS.ethr_rinkeby_1.didDocument.id;
 let rpDidDoc = TD_DID_DOCS.ethr_rinkeby_2.didDocument;
 let rpDID = TD_DID_DOCS.ethr_rinkeby_2.didDocument.id;
 
+//Set the default timeout interval to 17000 ms for all tests and before/after hooks
+jest.setTimeout(17000);
+
 describe("003.01 Modify request object", function () {
   test("a. Include claims - expect truthy", async () => {
-    jest.setTimeout(17000);
     let returnedJWT = await DidSiopRequest.validateRequest(
       TD_REQUESTS.good.requestGoodWithClaims,
       SIOP_METADATA_SUPPORTED
@@ -43,7 +45,6 @@ describe("003.02 Request validation/generation", function () {
   });
 
   test("a. Request validation - expect truthy", async () => {
-    jest.setTimeout(17000);
     let returnedJWT = await DidSiopRequest.validateRequest(
       TD_REQUESTS.good.requestGoodEmbeddedJWT,
       SIOP_METADATA_SUPPORTED
@@ -58,7 +59,6 @@ describe("003.02 Request validation/generation", function () {
   });
 
   test("b. Request validation with invalid OP Metadata - expect falsy", async () => {
-    jest.setTimeout(17000);
     let temp_md: SiopMetadataSupported = { ...SIOP_METADATA_SUPPORTED };
     temp_md.scopes = [];
     let validityPromise = DidSiopRequest.validateRequest(
@@ -81,7 +81,6 @@ describe("003.02 Request validation/generation", function () {
   });
 
   test("c. Request validation - expect falsy", async () => {
-    jest.setTimeout(17000);
     let validityPromise = DidSiopRequest.validateRequest(
       TD_REQUESTS.bad.requestBadProtocol
     );
@@ -191,7 +190,6 @@ describe("003.02 Request validation/generation", function () {
 
 describe("003.03 Request validation/generation", function () {
   test("a. Generate request - expect truthy", async () => {
-    jest.setTimeout(17000);
     let rqst = await DidSiopRequest.generateRequest(
       TD_REQUESTS.components.rp,
       TD_REQUESTS.components.signingInfo,
@@ -202,7 +200,6 @@ describe("003.03 Request validation/generation", function () {
     expect(decoded).toHaveProperty("payload");
   });
   test("b. Generate request with vp_token and validate - expect truthy", async () => {
-    jest.setTimeout(17000);
     let rqst = await DidSiopRequest.generateRequest(
       TD_REQUESTS.components.rp,
       TD_REQUESTS.components.signingInfo,
@@ -212,7 +209,6 @@ describe("003.03 Request validation/generation", function () {
     expect(decoded.payload.claims).toHaveProperty("vp_token");
   });
   test("c. Generate request with claim but no vp_token - expect reject", async () => {
-    jest.setTimeout(17000);
     let validityPromise = DidSiopRequest.validateRequest(
       TD_REQUESTS.bad.requestBadJWTClaimsNoVPToken
     );
@@ -224,7 +220,6 @@ describe("003.03 Request validation/generation", function () {
 
 describe("003.04 Request validation/generation with specific Resolver", function () {
   test("a. Generate request - expect truthy", async () => {
-    jest.setTimeout(17000);
     let ethrResolver = new EthrDidResolver("ethr");
     let rqst = await DidSiopRequest.generateRequest(
       TD_REQUESTS.components.rp,
