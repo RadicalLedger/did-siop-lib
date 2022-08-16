@@ -1,8 +1,8 @@
+import { DidResolverType } from "../../../src/core/Identity/Resolvers/did-resolvers";
+
 const fs = require("fs");
 const path = require("path");
-import yargs from "yargs";
 import { DidDocument } from "../../../src";
-import { ALGORITHMS, KEY_FORMATS, KTYS } from "../../../src/core/globals";
 import { DidVerificationKey } from "../../../src/core/identity";
 
 interface DidTestData {
@@ -11,14 +11,20 @@ interface DidTestData {
     user: {
       didDocument: DidDocument;
       keys: DidVerificationKey[];
+      resolvers: {
+        type: DidResolverType;
+        methodName: string;
+        crypto_suite?: string;
+      }[];
     };
     rp: {
       didDocument: DidDocument;
       keys: DidVerificationKey[];
-    };
-    keyResolver: {
-      methodName: string;
-      crypto_suite?: string;
+      resolvers: {
+        type: DidResolverType;
+        methodName: string;
+        crypto_suite?: string;
+      }[];
     };
   };
 }
@@ -32,9 +38,7 @@ class DidTestData {
   public static get testData(): DidTestData[] {
     if (this.didTestDataList.length === 0) {
       this.loadDidTestData();
-      console.log("loading");
     }
-    console.log("Sdfsf");
     return this.didTestDataList;
   }
 

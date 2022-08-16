@@ -49,6 +49,13 @@
           "address": "",
           "identifier": "did:key:z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw#z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw"
         }
+      ],
+      "resolvers": [
+        {
+          "type": "key",
+          "methodName": "key",
+          "crypto_suite": "@digitalbazaar/ed25519-verification-key-2020"
+        }
       ]
     },
     "rp": {
@@ -99,11 +106,14 @@
           "address": "",
           "identifier": "did:key:z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw#z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw"
         }
+      ],
+      "resolvers": [
+        {
+          "type": "key",
+          "methodName": "key",
+          "crypto_suite": "@digitalbazaar/ed25519-verification-key-2020"
+        }
       ]
-    },
-    "keyResolver": {
-      "methodName": "key",
-      "crypto_suite": "@digitalbazaar/ed25519-verification-key-2020"
     }
   }
 }

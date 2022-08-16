@@ -3,14 +3,16 @@ import { CRYPTO_SUITES } from "../src/core/globals";
 import { KeyDidResolver } from "../src/core/identity/resolvers/did-resolver-key";
 import { EthrDidResolver } from "../src/core/identity/resolvers/did-resolver-ethr";
 import { JWTObject } from "../src/core/jwt";
-import { Provider, ERRORS as ProviderErrors } from "../src/core/provider";
-import { RP, ERRORS as RPErrors } from "../src/core/rp";
+import { ERRORS as ProviderErrors, Provider } from "../src/core/provider";
+import { ERRORS as RPErrors, RP } from "../src/core/rp";
 import nock from "nock";
 import { TD_DID_DOCS } from "./data/did-docs.testdata";
 import { TD_BASIC_JWT, TD_REQUESTS } from "./data/request.testdata";
-import { tokenData, getModifiedJWT } from "./data/common.testdata";
+import { getModifiedJWT, tokenData } from "./data/common.testdata";
 import { VPData } from "../src/core/claims";
 import DidTestData from "./data/did-docs/did-docs.testdata";
+import { DidResolvers } from "../src/core/identity/resolvers";
+import { DidResolverT } from "../src/core/Identity/Resolvers/did-resolvers";
 
 let userDidDoc = TD_DID_DOCS.ethr_rinkeby_2.didDocument;
 let userDID = TD_DID_DOCS.ethr_rinkeby_2.didDocument.id;
@@ -33,8 +35,6 @@ requestObj = getModifiedJWT(requestObj, true, "state", null); // // Remove state
 
 //Set the default timeout interval to 30000 ms for all tests and before/after hooks
 jest.setTimeout(30000);
-DidTestData;
-DidTestData;
 
 describe.only.each(DidTestData)("($name)", ({ name, data }) => {
   describe(`007.01 DID SIOP using did:${name} method DIDs`, () => {
@@ -48,29 +48,35 @@ describe.only.each(DidTestData)("($name)", ({ name, data }) => {
     const rpPrivateKey = data.rp.keys[0].privateKey;
     const rpKid = data.rp.didDocument.verificationMethod[0].id;
 
-    const keyResolverMethodName = data.keyResolver.methodName;
-    const keyResolverCryptoSuite = data.keyResolver.crypto_suite;
+    const rpResolvers = DidResolvers.getDidResolvers(data.rp.resolvers);
+    const userResolvers = DidResolvers.getDidResolvers(data.user.resolvers);
+
+    beforeEach(() => {
+      nock("https://uniresolver.io/1.0/identifiers")
+        .persist()
+        .get("/" + rpDID)
+        .reply(200, rpDidDoc)
+        .get("/" + userDID)
+        .reply(200, userDidDoc);
+    });
 
     test("a. end to end functions testing ", async () => {
-      let keyResolve = new KeyDidResolver(
-        keyResolverMethodName,
-        keyResolverCryptoSuite
-      );
-
       let rp = await RP.getRP(
         rpRedirectURI,
         rpDID,
         rpRegistrationMetaData,
         undefined,
-        [keyResolve]
+        rpResolvers
       );
 
       let kid = rp.addSigningParams(rpPrivateKey);
       expect(kid).toEqual(rpKid);
 
-      const provider = await Provider.getProvider(userDID, undefined, [
-        keyResolve,
-      ]);
+      const provider = await Provider.getProvider(
+        userDID,
+        undefined,
+        userResolvers
+      );
       kid = provider.addSigningParams(userPrivateKeyHex);
       expect(kid).toEqual(userKid);
 
@@ -89,29 +95,34 @@ describe.only.each(DidTestData)("($name)", ({ name, data }) => {
       expect(responseJWTDecoded).toHaveProperty("payload");
     });
 
-    test("b. DID SIOP e2e functions testing with VPs- expect truthy", async () => {
-      let rp = await RP.getRP(rpRedirectURI, rpDID, rpRegistrationMetaData);
-      let kid = rp.addSigningParams(rpPrivateKey);
-      expect(kid).toEqual(rpKid);
-
-      let provider = await Provider.getProvider(userDID);
-      kid = provider.addSigningParams(userPrivateKeyHex);
-      expect(kid).toEqual(userKid);
-
-      let request = await rp.generateRequest(
-        TD_REQUESTS.components.optionsWithClaims
+    test("d. DID SIOP end to end functions testing - expect falsy", async () => {
+      const rp = await RP.getRP(
+        rpRedirectURI,
+        rpDID,
+        rpRegistrationMetaData,
+        undefined,
+        rpResolvers
       );
-      let requestJWTDecoded = await provider.validateRequest(request);
-      expect(requestJWTDecoded).toMatchObject(requestObj);
+      rp.addSigningParams(rpPrivateKey);
 
-      let response = await provider.generateResponse(requestJWTDecoded.payload);
-      let responseJWTDecoded = await rp.validateResponse(response, {
-        redirect_uri: rpRedirectURI,
-        isExpirable: true,
-        nonce: TD_REQUESTS.components.optionsWithClaims.nonce,
-      });
-      expect(responseJWTDecoded).toHaveProperty("header");
-      expect(responseJWTDecoded).toHaveProperty("payload");
+      const provider = await Provider.getProvider(
+        userDID,
+        undefined,
+        userResolvers
+      );
+      provider.addSigningParams(userPrivateKeyHex);
+
+      rp.removeSigningParams(rpKid);
+      let requestPromise = rp.generateRequest();
+      await expect(requestPromise).rejects.toEqual(
+        new Error(RPErrors.NO_SIGNING_INFO)
+      );
+
+      provider.removeSigningParams(userKid);
+      let responsePromise = provider.generateResponse(requestObj.payload);
+      await expect(responsePromise).rejects.toEqual(
+        new Error(ProviderErrors.NO_SIGNING_INFO)
+      );
     });
   });
 });

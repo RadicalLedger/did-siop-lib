@@ -49,6 +49,13 @@
           "address": "",
           "identifier": "did:key:z6MkpVCWpibzht7gFFkBsnNigRvXiQWQgV2vqq8eN8zGkGGN#z6MkpVCWpibzht7gFFkBsnNigRvXiQWQgV2vqq8eN8zGkGGN"
         }
+      ],
+      "resolvers": [
+        {
+          "type": "key",
+          "methodName": "key",
+          "crypto_suite": "@digitalbazaar/ed25519-verification-key-2018"
+        }
       ]
     },
     "rp": {
@@ -99,11 +106,14 @@
           "address": "",
           "identifier": "did:key:z6Mkr4zjFPqDsoQPo9t17N7pXo5oQXfjCFJ2bFDqpKnf9rBv#z6Mkr4zjFPqDsoQPo9t17N7pXo5oQXfjCFJ2bFDqpKnf9rBv"
         }
+      ],
+      "resolvers": [
+        {
+          "type": "key",
+          "methodName": "key",
+          "crypto_suite": "@digitalbazaar/ed25519-verification-key-2018"
+        }
       ]
-    },
-    "keyResolver": {
-      "methodName": "key",
-      "crypto_suite": "@digitalbazaar/ed25519-verification-key-2018"
     }
   }
 }
