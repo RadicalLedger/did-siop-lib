@@ -28,6 +28,7 @@ export interface DidVerificationKey {
   alg: ALGORITHMS;
   format: KEY_FORMATS;
   publicKey: any;
+  privateKey?: any;
 }
 
 export const ERRORS = Object.freeze({
