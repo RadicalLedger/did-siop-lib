@@ -7,6 +7,8 @@ import { ALGORITHMS, KEY_FORMATS } from "../src";
 import { JWTObject, toJWTObject } from "../src/core/jwt";
 import * as queryString from "query-string";
 import { TD_REQUESTS } from "./data/request.testdata";
+import { DidResolvers } from "../src/core/identity/resolvers/did-resolvers";
+import DidTestData from "./data/did-docs/did-docs.testdata";
 
 let siop_rp: any;
 let redirect_uri = TD_REQUESTS.components.rp.redirect_uri;
@@ -14,6 +16,45 @@ let registration = TD_REQUESTS.components.rp.registration;
 
 //Set the default timeout interval to 30000 ms for all tests and before/after hooks
 jest.setTimeout(30000);
+
+describe.only.each(DidTestData)("($name)", ({ name, data }) => {
+  describe(`005.01 RP related function with did ${name} method DIDs`, () => {
+    // const rpDidDoc = data.rp.didDocument;
+    const rpDID = data.rp.didDocument.id;
+    const rpPrivateKey = data.rp.keys[0].privateKey;
+    const rpKeyFormat = data.rp.keys[0].format;
+    const rpKeyAlg = data.rp.keys[0].alg;
+    const rpResolvers = DidResolvers.getDidResolvers(data.rp.resolvers);
+
+    test("a. getRP should return a valid RP instance with ", async () => {
+      siop_rp = await RP.getRP(
+        redirect_uri, // RP's redirect_uri
+        rpDID, // RP's did
+        registration,
+        undefined,
+        rpResolvers
+      );
+      expect(siop_rp).not.toBe(null);
+
+      siop_rp.addSigningParams(rpPrivateKey, rpDID, rpKeyFormat, rpKeyAlg);
+
+      let request = await siop_rp.generateRequest();
+      expect(request).not.toBe(null);
+
+      let parsed = queryString.parseUrl(request);
+      if (parsed.query.request && parsed.query.request !== undefined) {
+        let req_jwt: JWTObject | undefined = toJWTObject(
+          parsed.query.request.toString()
+        );
+        expect(req_jwt).not.toEqual(undefined);
+
+        if (req_jwt != undefined) {
+          expect(req_jwt.payload.iss).toEqual(rpDID);
+        }
+      }
+    });
+  });
+});
 
 describe("005.01 RP related function with did:ethr ", function () {
   test("a. getRP should return a valid RP instance", async () => {
