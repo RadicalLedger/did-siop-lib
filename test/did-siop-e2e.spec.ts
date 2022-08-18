@@ -12,6 +12,7 @@ import { getModifiedJWT, tokenData } from "./data/common.testdata";
 import { VPData } from "../src/core/claims";
 import DidTestData from "./data/did-docs/did-docs.testdata";
 import { DidResolvers } from "../src/core/identity/resolvers";
+import { multipleTD } from "./data/did-siop-e2e.testdata";
 
 let userDidDoc = TD_DID_DOCS.ethr_rinkeby_2.didDocument;
 let userDID = TD_DID_DOCS.ethr_rinkeby_2.didDocument.id;
@@ -35,20 +36,20 @@ requestObj = getModifiedJWT(requestObj, true, "state", null); // // Remove state
 //Set the default timeout interval to 30000 ms for all tests and before/after hooks
 jest.setTimeout(30000);
 
-describe.only.each(DidTestData)("($name)", ({ name, data }) => {
-  describe(`007.01 DID SIOP using did:${name} method DIDs`, () => {
+describe.only.each(multipleTD)("($tag)", ({ tag, rp, user }) => {
+  describe(`007.01 DID SIOP using did:${tag} method DIDs`, () => {
     // const userDidDoc = data.user.didDocument;
-    const userDID = data.user.didDocument.id;
-    const userPrivateKeyHex = data.user.keys[0].privateKey;
-    const userKid = data.user.didDocument.verificationMethod[0].id;
+    const userDID = user.didDocument.id;
+    const userPrivateKeyHex = user.keys[0].privateKey;
+    const userKid = user.didDocument.verificationMethod[0].id;
 
     // const rpDidDoc = data.rp.didDocument;
-    const rpDID = data.rp.didDocument.id;
-    const rpPrivateKey = data.rp.keys[0].privateKey;
-    const rpKid = data.rp.didDocument.verificationMethod[0].id;
+    const rpDID = rp.didDocument.id;
+    const rpPrivateKey = rp.keys[0].privateKey;
+    const rpKid = rp.didDocument.verificationMethod[0].id;
 
-    const rpResolvers = DidResolvers.getDidResolvers(data.rp.resolvers);
-    const userResolvers = DidResolvers.getDidResolvers(data.user.resolvers);
+    const rpResolver = rp.resolver;
+    const userResolver = user.resolver;
 
     beforeEach(() => {
       nock("https://uniresolver.io/1.0/identifiers")
@@ -65,17 +66,15 @@ describe.only.each(DidTestData)("($name)", ({ name, data }) => {
         rpDID,
         rpRegistrationMetaData,
         undefined,
-        rpResolvers
+        [rpResolver]
       );
 
       let kid = rp.addSigningParams(rpPrivateKey);
       expect(kid).toEqual(rpKid);
 
-      const provider = await Provider.getProvider(
-        userDID,
-        undefined,
-        userResolvers
-      );
+      const provider = await Provider.getProvider(userDID, undefined, [
+        userResolver,
+      ]);
       kid = provider.addSigningParams(userPrivateKeyHex);
       expect(kid).toEqual(userKid);
 
@@ -100,15 +99,13 @@ describe.only.each(DidTestData)("($name)", ({ name, data }) => {
         rpDID,
         rpRegistrationMetaData,
         undefined,
-        rpResolvers
+        [rpResolver]
       );
       rp.addSigningParams(rpPrivateKey);
 
-      const provider = await Provider.getProvider(
-        userDID,
-        undefined,
-        userResolvers
-      );
+      const provider = await Provider.getProvider(userDID, undefined, [
+        userResolver,
+      ]);
       provider.addSigningParams(userPrivateKeyHex);
 
       rp.removeSigningParams(rpKid);
