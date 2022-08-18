@@ -8,12 +8,14 @@ import { siginingInfo, requestJWT } from "./data/request.testdata";
 import { TD_DID_DOCS } from "./data/did-docs.testdata";
 import { checkParamsOfGoodDecoded, tokenData } from "./data/common.testdata";
 import { EthrDidResolver } from "../src/core/identity/resolvers";
+import { rp, user } from "./data/response.testdata";
 
-let userDidDoc = TD_DID_DOCS.ethr_rinkeby_1.didDocument;
-let userDID = TD_DID_DOCS.ethr_rinkeby_1.didDocument.id;
+let userDidDoc = user.didDocument;
+let userDID = userDidDoc.id;
+const userResolver = user.resolver;
 
-let rpDidDoc = TD_DID_DOCS.ethr_rinkeby_2.didDocument;
-let rpDID = TD_DID_DOCS.ethr_rinkeby_2.didDocument.id;
+let rpDidDoc = rp.didDocument;
+let rpDID = rpDidDoc.id;
 
 //Set the default timeout interval to 30000 ms for all tests and before/after hooks
 jest.setTimeout(30000);
@@ -157,7 +159,6 @@ describe("004.04 Response Generation/Validation with the id_token using specific
   test("a. with basic info : generation and validation", async () => {
     let user = new Identity();
 
-    let ethrResolver = new EthrDidResolver("ethr");
     await user.resolve(userDID);
 
     let response = await DidSiopResponse.generateResponse(
@@ -169,7 +170,7 @@ describe("004.04 Response Generation/Validation with the id_token using specific
     let validity = await DidSiopResponse.validateResponse(
       response,
       checkParamsOfGoodDecoded,
-      [ethrResolver]
+      [userResolver]
     );
     expect(validity).toBeTruthy();
 

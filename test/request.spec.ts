@@ -1,20 +1,19 @@
 import { ERROR_RESPONSES } from "../src/core/error-response";
 import { DidSiopRequest } from "../src/core/request";
-import { TD_BASIC_JWT, TD_REQUESTS } from "./data/request.testdata";
+import { rp, TD_BASIC_JWT, TD_REQUESTS, user } from "./data/request.testdata";
 import { claims } from "./data/common.testdata";
 import {
   SIOP_METADATA_SUPPORTED,
   SiopMetadataSupported,
 } from "../src/core/globals";
 import nock from "nock";
-import { TD_DID_DOCS } from "./data/did-docs.testdata";
 import { EthrDidResolver } from "../src/core/identity/resolvers";
 
-let userDidDoc = TD_DID_DOCS.ethr_rinkeby_1.didDocument;
-let userDID = TD_DID_DOCS.ethr_rinkeby_1.didDocument.id;
+let userDidDoc = user.didDocument;
+let userDID = userDidDoc.id;
 
-let rpDidDoc = TD_DID_DOCS.ethr_rinkeby_2.didDocument;
-let rpDID = TD_DID_DOCS.ethr_rinkeby_2.didDocument.id;
+let rpDidDoc = rp.didDocument;
+let rpDID = rpDidDoc.id;
 
 //Set the default timeout interval to 17000 ms for all tests and before/after hooks
 jest.setTimeout(17000);

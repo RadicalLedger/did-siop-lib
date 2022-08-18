@@ -5,10 +5,12 @@ import { Provider } from "../src/core/provider";
 import { EthrDidResolver } from "../src/core/identity/resolvers/did-resolver-ethr";
 import { TD_BASIC_JWT, TD_REQUESTS } from "./data/request.testdata";
 import { getModifiedJWT } from "./data/common.testdata";
+import { rp } from "./data/provider.testdata";
 
-let rpDID = TD_DID_DOCS.ethr_rinkeby_1.didDocument.id;
-let rpPrivateKey = TD_DID_DOCS.ethr_rinkeby_1.keys[0].privateKey;
-let rpKid = TD_DID_DOCS.ethr_rinkeby_1.didDocument.verificationMethod[1].id;
+const rpDID = rp.didDocument.id;
+const rpPrivateKey = rp.keys[0].privateKey;
+const rpKid = rp.didDocument.verificationMethod[1].id;
+const rpResolver = rp.resolver;
 
 let rpRedirectURI = TD_REQUESTS.components.rp.redirect_uri;
 let rpRegistrationMetaData = TD_REQUESTS.components.rp.registration;
@@ -25,19 +27,17 @@ jest.setTimeout(30000);
 
 describe("006 Provider testing with dynamically added resolver", function () {
   test("a. with did:ethr resolver", async () => {
-    let ethrResolver = new EthrDidResolver("ethr");
-
     let rp = await RP.getRP(
       rpRedirectURI,
       rpDID,
       rpRegistrationMetaData,
       undefined,
-      [ethrResolver]
+      [rpResolver]
     );
     let kid = rp.addSigningParams(rpPrivateKey);
     expect(kid).toEqual(rpKid);
 
-    let provider = await Provider.getProvider(rpDID, undefined, [ethrResolver]);
+    let provider = await Provider.getProvider(rpDID, undefined, [rpResolver]);
     kid = provider.addSigningParams(rpPrivateKey);
     expect(kid).toEqual(rpKid);
 

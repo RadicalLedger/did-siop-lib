@@ -8,7 +8,7 @@ import { JWTObject, toJWTObject } from "../src/core/jwt";
 import * as queryString from "query-string";
 import { TD_REQUESTS } from "./data/request.testdata";
 import { DidResolvers } from "../src/core/identity/resolvers/did-resolvers";
-import DidTestData from "./data/did-docs/did-docs.testdata";
+import { rp } from "./data/rp.testdata";
 
 let siop_rp: any;
 let redirect_uri = TD_REQUESTS.components.rp.redirect_uri;
@@ -17,14 +17,13 @@ let registration = TD_REQUESTS.components.rp.registration;
 //Set the default timeout interval to 30000 ms for all tests and before/after hooks
 jest.setTimeout(30000);
 
-describe.only.each(DidTestData)("($name)", ({ name, data }) => {
-  describe(`005.01 RP related function with did ${name} method DIDs`, () => {
+describe.only.each(rp)("($tag)", ({ tag, resolver, didDocument, keys }) => {
+  describe(`005.01 RP related function with ${tag}`, () => {
     // const rpDidDoc = data.rp.didDocument;
-    const rpDID = data.rp.didDocument.id;
-    const rpPrivateKey = data.rp.keys[0].privateKey;
-    const rpKeyFormat = data.rp.keys[0].format;
-    const rpKeyAlg = data.rp.keys[0].alg;
-    const rpResolvers = DidResolvers.getDidResolvers(data.rp.resolvers);
+    const rpDID = didDocument.id;
+    const rpPrivateKey = keys[0].privateKey;
+    const rpKeyFormat = keys[0].format;
+    const rpKeyAlg = keys[0].alg;
 
     test("a. getRP should return a valid RP instance with ", async () => {
       siop_rp = await RP.getRP(
@@ -32,7 +31,7 @@ describe.only.each(DidTestData)("($name)", ({ name, data }) => {
         rpDID, // RP's did
         registration,
         undefined,
-        rpResolvers
+        [resolver]
       );
       expect(siop_rp).not.toBe(null);
 
