@@ -4,26 +4,28 @@ import {
 } from "../../src/core/identity/resolvers";
 import { TD_DID_DOCS } from "./did-docs.testdata";
 
-export const didDocs = {
-  all: [
-    {
-      tag: "ethr",
-      ...TD_DID_DOCS.ethr_rinkeby_1,
-    },
-    {
-      tag: "key_2018",
-      ...TD_DID_DOCS.key_2018_1,
-    },
-    {
-      tag: "key_2020",
-      ...TD_DID_DOCS.key_2020_1,
-    },
-  ],
-  ethrDidDoc: {
+export const didDocs = [
+  {
+    tag: "ethr",
     ...TD_DID_DOCS.ethr_rinkeby_1,
   },
-  keyDidDoc: {
+  {
+    tag: "key_2018",
     ...TD_DID_DOCS.key_2018_1,
   },
-  resolvers: [new EthrDidResolver("ethr"), new KeyDidResolver("key")],
-};
+  {
+    tag: "key_2020",
+    ...TD_DID_DOCS.key_2020_1,
+  },
+];
+
+export const resolvers = [
+  {
+    didDoc: TD_DID_DOCS.ethr_rinkeby_1,
+    resolver: new EthrDidResolver("ethr"),
+  },
+  {
+    didDoc: TD_DID_DOCS.key_2018_1,
+    resolver: new KeyDidResolver("key"),
+  },
+];
