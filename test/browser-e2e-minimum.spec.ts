@@ -1,7 +1,4 @@
 import puppeteer from "puppeteer";
-import DidTestData from "./data/did-docs/did-docs.testdata";
-
-DidTestData.testData;
 
 let browser: puppeteer.Browser | undefined;
 let page: puppeteer.Page | undefined;
