@@ -3,7 +3,6 @@ import { DidResolver } from "./did-resolver-base";
 import { EthrDidResolver } from "./did-resolver-ethr";
 import { KeyDidResolver } from "./did-resolver-key";
 import { UniversalDidResolver } from "./did-resolver-uniresolver";
-import { DidResolvers } from "./did-resolvers";
 
 /**
  * @classdesc A Resolver class which combines several other Resolvers in chain.
@@ -80,5 +79,4 @@ export {
   KeyDidResolver,
   EthrDidResolver,
   UniversalDidResolver,
-  DidResolvers,
 };

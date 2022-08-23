@@ -1,5 +1,3 @@
-import { DidResolverType } from "../../../src/core/Identity/Resolvers/did-resolvers";
-
 const fs = require("fs");
 const path = require("path");
 import { DidDocument } from "../../../src";
@@ -12,7 +10,7 @@ interface DidTestData {
       didDocument: DidDocument;
       keys: DidVerificationKey[];
       resolvers: {
-        type: DidResolverType;
+        type: any;
         methodName: string;
         crypto_suite?: string;
       }[];
@@ -21,7 +19,7 @@ interface DidTestData {
       didDocument: DidDocument;
       keys: DidVerificationKey[];
       resolvers: {
-        type: DidResolverType;
+        type: any;
         methodName: string;
         crypto_suite?: string;
       }[];
