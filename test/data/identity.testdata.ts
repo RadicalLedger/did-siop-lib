@@ -4,8 +4,8 @@ import {
 } from "../../src/core/identity/resolvers";
 import { TD_DID_DOCS } from "./did-docs.testdata";
 
-export const defaultResolver = TD_DID_DOCS.ethr_rinkeby_1;
-export const specificResolvers = [
+const defaultResolver = TD_DID_DOCS.ethr_rinkeby_1;
+const specificResolvers = [
   {
     tag: "ethr did resolver",
     ...TD_DID_DOCS.ethr_rinkeby_1,
@@ -28,3 +28,8 @@ export const specificResolvers = [
     ),
   },
 ];
+
+export const IDENTITY_TD = {
+  defaultResolver,
+  specificResolvers,
+};

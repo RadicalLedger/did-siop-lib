@@ -1,16 +1,14 @@
 import { JWTObject } from "../src/core/jwt";
-import { TD_DID_DOCS } from "./data/did-docs.testdata";
 import { RP } from "../src/core/rp";
 import { Provider } from "../src/core/provider";
-import { EthrDidResolver } from "../src/core/identity/resolvers/did-resolver-ethr";
 import { TD_BASIC_JWT, TD_REQUESTS } from "./data/request.testdata";
 import { getModifiedJWT } from "./data/common.testdata";
-import { rp } from "./data/provider.testdata";
+import { PROVIDER_TD } from "./data/provider.testdata";
 
-const rpDID = rp.didDocument.id;
-const rpPrivateKey = rp.keys[0].privateKey;
-const rpKid = rp.didDocument.verificationMethod[1].id;
-const rpResolver = rp.resolver;
+const rpDID = PROVIDER_TD.rp.didDocument.id;
+const rpPrivateKey = PROVIDER_TD.rp.keys[0].privateKey;
+const rpKid = PROVIDER_TD.rp.didDocument.verificationMethod[1].id;
+const rpResolver = PROVIDER_TD.rp.resolver;
 
 let rpRedirectURI = TD_REQUESTS.components.rp.redirect_uri;
 let rpRegistrationMetaData = TD_REQUESTS.components.rp.registration;

@@ -7,7 +7,6 @@ import {
   claims,
 } from "./common.testdata";
 import { TD_DID_DOCS } from "./did-docs.testdata";
-import { EthrDidResolver } from "../../src/core/identity/resolvers";
 
 let testDidDoc = TD_DID_DOCS.ethr_rinkeby_1.didDocument;
 let testDID = TD_DID_DOCS.ethr_rinkeby_1.didDocument.id;
@@ -197,12 +196,8 @@ export const TD_REQUESTS = {
       claims: claims.good,
     },
   },
-};
-
-export const rp = {
-  ...TD_DID_DOCS.ethr_rinkeby_2,
-};
-
-export const user = {
-  ...TD_DID_DOCS.ethr_rinkeby_1,
+  didDocs: {
+    user: TD_DID_DOCS.ethr_rinkeby_2,
+    rp: TD_DID_DOCS.ethr_rinkeby_1,
+  },
 };

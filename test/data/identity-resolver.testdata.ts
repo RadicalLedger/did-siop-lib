@@ -4,7 +4,7 @@ import {
 } from "../../src/core/identity/resolvers";
 import { TD_DID_DOCS } from "./did-docs.testdata";
 
-export const didDocs = [
+export const dids = [
   {
     tag: "ethr",
     ...TD_DID_DOCS.ethr_rinkeby_1,
@@ -21,11 +21,18 @@ export const didDocs = [
 
 export const resolvers = [
   {
-    didDoc: TD_DID_DOCS.ethr_rinkeby_1,
+    tag: "ethr",
+    ...TD_DID_DOCS.ethr_rinkeby_1,
     resolver: new EthrDidResolver("ethr"),
   },
   {
-    didDoc: TD_DID_DOCS.key_2018_1,
+    tag: "key",
+    ...TD_DID_DOCS.key_2018_1,
     resolver: new KeyDidResolver("key"),
   },
 ];
+
+export const IDENTITY_RESOLVER_TD = {
+  resolvers,
+  dids,
+};

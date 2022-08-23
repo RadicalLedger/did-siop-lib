@@ -5,17 +5,15 @@ import { SIOPTokensEcoded, VPData } from "../src/core/claims";
 import { toJWTObject } from "../src/core/jwt";
 import nock from "nock";
 import { siginingInfo, requestJWT } from "./data/request.testdata";
-import { TD_DID_DOCS } from "./data/did-docs.testdata";
 import { checkParamsOfGoodDecoded, tokenData } from "./data/common.testdata";
-import { EthrDidResolver } from "../src/core/identity/resolvers";
-import { rp, user } from "./data/response.testdata";
+import { RESPONSE_TD } from "./data/response.testdata";
 
-let userDidDoc = user.didDocument;
-let userDID = userDidDoc.id;
-const userResolver = user.resolver;
+const userDidDoc = RESPONSE_TD.user.didDocument;
+const userDID = userDidDoc.id;
+const userResolver = RESPONSE_TD.user.resolver;
 
-let rpDidDoc = rp.didDocument;
-let rpDID = rpDidDoc.id;
+const rpDidDoc = RESPONSE_TD.rp.didDocument;
+const rpDID = rpDidDoc.id;
 
 //Set the default timeout interval to 30000 ms for all tests and before/after hooks
 jest.setTimeout(30000);
