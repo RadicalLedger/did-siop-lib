@@ -1,26 +1,12 @@
 import { ERROR_RESPONSES } from "../src/core/error-response";
-import { CRYPTO_SUITES } from "../src/core/globals";
-import { KeyDidResolver } from "../src/core/identity/resolvers/did-resolver-key";
-import { EthrDidResolver } from "../src/core/identity/resolvers/did-resolver-ethr";
 import { JWTObject } from "../src/core/jwt";
 import { ERRORS as ProviderErrors, Provider } from "../src/core/provider";
 import { ERRORS as RPErrors, RP } from "../src/core/rp";
 import nock from "nock";
-import { TD_DID_DOCS } from "./data/did-docs.testdata";
 import { TD_BASIC_JWT, TD_REQUESTS } from "./data/request.testdata";
 import { getModifiedJWT, tokenData } from "./data/common.testdata";
 import { VPData } from "../src/core/claims";
 import { DID_SIOP_E2E_TD } from "./data/did-siop-e2e.testdata";
-
-let userDidDoc = TD_DID_DOCS.ethr_rinkeby_2.didDocument;
-let userDID = TD_DID_DOCS.ethr_rinkeby_2.didDocument.id;
-let userPrivateKeyHex = TD_DID_DOCS.ethr_rinkeby_2.keys[0].privateKey;
-let userKid = TD_DID_DOCS.ethr_rinkeby_2.didDocument.verificationMethod[1].id;
-
-let rpDidDoc = TD_DID_DOCS.ethr_rinkeby_1.didDocument;
-let rpDID = TD_DID_DOCS.ethr_rinkeby_1.didDocument.id;
-let rpPrivateKey = TD_DID_DOCS.ethr_rinkeby_1.keys[0].privateKey;
-let rpKid = TD_DID_DOCS.ethr_rinkeby_1.didDocument.verificationMethod[1].id;
 
 let rpRedirectURI = TD_REQUESTS.components.rp.redirect_uri;
 let rpRegistrationMetaData = TD_REQUESTS.components.rp.registration;
@@ -34,97 +20,110 @@ requestObj = getModifiedJWT(requestObj, true, "state", null); // // Remove state
 //Set the default timeout interval to 30000 ms for all tests and before/after hooks
 jest.setTimeout(30000);
 
-describe.only.each(DID_SIOP_E2E_TD.multipleTD)(
-  "($tag)",
-  ({ tag, rp, user }) => {
-    describe(`007.01 DID SIOP using did:${tag} method DIDs`, () => {
-      // const userDidDoc = data.user.didDocument;
-      const userDID = user.didDocument.id;
-      const userPrivateKeyHex = user.keys[0].privateKey;
-      const userKid = user.didDocument.verificationMethod[0].id;
+describe.each(DID_SIOP_E2E_TD.MULTIPLE_DIDS_TD)(
+  "007.01 DID SIOP using did ($tag)",
+  ({ rp, user }) => {
+    // const userDidDoc = data.user.didDocument;
+    const userDID = user.didDocument.id;
+    const userPrivateKeyHex = user.keys[0].privateKey;
+    const userKid = user.didDocument.verificationMethod[0].id;
+    const userDidDoc = user.didDocument;
 
-      // const rpDidDoc = data.rp.didDocument;
-      const rpDID = rp.didDocument.id;
-      const rpPrivateKey = rp.keys[0].privateKey;
-      const rpKid = rp.didDocument.verificationMethod[0].id;
+    // const rpDidDoc = data.rp.didDocument;
+    const rpDID = rp.didDocument.id;
+    const rpPrivateKey = rp.keys[0].privateKey;
+    const rpKid = rp.didDocument.verificationMethod[0].id;
+    const rpDidDoc = rp.didDocument;
 
-      const rpResolver = rp.resolver;
-      const userResolver = user.resolver;
+    const rpResolver = rp.resolver;
+    const userResolver = user.resolver;
 
-      beforeEach(() => {
-        nock("https://uniresolver.io/1.0/identifiers")
-          .persist()
-          .get("/" + rpDID)
-          .reply(200, rpDidDoc)
-          .get("/" + userDID)
-          .reply(200, userDidDoc);
+    beforeEach(() => {
+      nock("https://uniresolver.io/1.0/identifiers")
+        .persist()
+        .get("/" + rpDID)
+        .reply(200, rpDidDoc)
+        .get("/" + userDID)
+        .reply(200, userDidDoc);
+    });
+
+    test("a. DID SIOP end to end functions testing - expect truthy ", async () => {
+      let rp = await RP.getRP(
+        rpRedirectURI,
+        rpDID,
+        rpRegistrationMetaData,
+        undefined,
+        [rpResolver]
+      );
+
+      let kid = rp.addSigningParams(rpPrivateKey);
+      expect(kid).toEqual(rpKid);
+
+      const provider = await Provider.getProvider(userDID, undefined, [
+        userResolver,
+      ]);
+      kid = provider.addSigningParams(userPrivateKeyHex);
+      expect(kid).toEqual(userKid);
+
+      const request = await rp.generateRequest();
+      const requestJWTDecoded = await provider.validateRequest(request);
+
+      const response = await provider.generateResponse(
+        requestJWTDecoded.payload
+      );
+      const responseJWTDecoded = await rp.validateResponse(response, {
+        redirect_uri: rpRedirectURI,
+        isExpirable: true,
       });
 
-      test("a. end to end functions testing ", async () => {
-        let rp = await RP.getRP(
-          rpRedirectURI,
-          rpDID,
-          rpRegistrationMetaData,
-          undefined,
-          [rpResolver]
-        );
+      expect(responseJWTDecoded).toHaveProperty("header");
+      expect(responseJWTDecoded).toHaveProperty("payload");
+    });
 
-        let kid = rp.addSigningParams(rpPrivateKey);
-        expect(kid).toEqual(rpKid);
+    test("d. DID SIOP end to end functions testing - expect falsy", async () => {
+      const rp = await RP.getRP(
+        rpRedirectURI,
+        rpDID,
+        rpRegistrationMetaData,
+        undefined,
+        [rpResolver]
+      );
+      rp.addSigningParams(rpPrivateKey);
 
-        const provider = await Provider.getProvider(userDID, undefined, [
-          userResolver,
-        ]);
-        kid = provider.addSigningParams(userPrivateKeyHex);
-        expect(kid).toEqual(userKid);
+      const provider = await Provider.getProvider(userDID, undefined, [
+        userResolver,
+      ]);
+      provider.addSigningParams(userPrivateKeyHex);
 
-        const request = await rp.generateRequest();
-        const requestJWTDecoded = await provider.validateRequest(request);
+      rp.removeSigningParams(rpKid);
+      let requestPromise = rp.generateRequest();
+      await expect(requestPromise).rejects.toEqual(
+        new Error(RPErrors.NO_SIGNING_INFO)
+      );
 
-        const response = await provider.generateResponse(
-          requestJWTDecoded.payload
-        );
-        const responseJWTDecoded = await rp.validateResponse(response, {
-          redirect_uri: rpRedirectURI,
-          isExpirable: true,
-        });
-
-        expect(responseJWTDecoded).toHaveProperty("header");
-        expect(responseJWTDecoded).toHaveProperty("payload");
-      });
-
-      test("d. DID SIOP end to end functions testing - expect falsy", async () => {
-        const rp = await RP.getRP(
-          rpRedirectURI,
-          rpDID,
-          rpRegistrationMetaData,
-          undefined,
-          [rpResolver]
-        );
-        rp.addSigningParams(rpPrivateKey);
-
-        const provider = await Provider.getProvider(userDID, undefined, [
-          userResolver,
-        ]);
-        provider.addSigningParams(userPrivateKeyHex);
-
-        rp.removeSigningParams(rpKid);
-        let requestPromise = rp.generateRequest();
-        await expect(requestPromise).rejects.toEqual(
-          new Error(RPErrors.NO_SIGNING_INFO)
-        );
-
-        provider.removeSigningParams(userKid);
-        let responsePromise = provider.generateResponse(requestObj.payload);
-        await expect(responsePromise).rejects.toEqual(
-          new Error(ProviderErrors.NO_SIGNING_INFO)
-        );
-      });
+      provider.removeSigningParams(userKid);
+      let responsePromise = provider.generateResponse(requestObj.payload);
+      await expect(responsePromise).rejects.toEqual(
+        new Error(ProviderErrors.NO_SIGNING_INFO)
+      );
     });
   }
 );
 
 describe("007.01 DID SIOP using did:ethr method DIDs", function () {
+  const userDidDoc = DID_SIOP_E2E_TD.SINGLE_DID_TD.user.didDocument;
+  const userDID = DID_SIOP_E2E_TD.SINGLE_DID_TD.user.didDocument.id;
+  const userPrivateKeyHex =
+    DID_SIOP_E2E_TD.SINGLE_DID_TD.user.keys[0].privateKey;
+  const userKid =
+    DID_SIOP_E2E_TD.SINGLE_DID_TD.user.didDocument.verificationMethod[1].id;
+
+  const rpDidDoc = DID_SIOP_E2E_TD.SINGLE_DID_TD.rp.didDocument;
+  const rpDID = DID_SIOP_E2E_TD.SINGLE_DID_TD.rp.didDocument.id;
+  const rpPrivateKey = DID_SIOP_E2E_TD.SINGLE_DID_TD.rp.keys[0].privateKey;
+  const rpKid =
+    DID_SIOP_E2E_TD.SINGLE_DID_TD.rp.didDocument.verificationMethod[1].id;
+
   beforeEach(() => {
     nock("https://uniresolver.io/1.0/identifiers")
       .persist()
@@ -234,6 +233,7 @@ describe("007.01 DID SIOP using did:ethr method DIDs", function () {
       new Error(ProviderErrors.NO_SIGNING_INFO)
     );
   });
+
   test("e. DID SIOP end to end functions testing - Error Response", async () => {
     let rp = await RP.getRP(rpRedirectURI, rpDID, rpRegistrationMetaData);
     rp.addSigningParams(rpPrivateKey);
@@ -254,129 +254,5 @@ describe("007.01 DID SIOP using did:ethr method DIDs", function () {
     expect(errorResponseDecoded).toEqual(
       ERROR_RESPONSES.invalid_request_object.response
     );
-  });
-});
-
-describe("007.02 DID SIOP using did:key method DIDs : crypto suite Ed25519VerificationKey2018", function () {
-  test("a. end to end functions testing ", async () => {
-    let keyResolv2018 = new KeyDidResolver(
-      "key",
-      CRYPTO_SUITES.Ed25519VerificationKey2018
-    );
-    let rp = await RP.getRP(
-      rpRedirectURI,
-      TD_DID_DOCS.key_2018_1.didDocument.id,
-      rpRegistrationMetaData,
-      undefined,
-      [keyResolv2018]
-    );
-    let kid = rp.addSigningParams(TD_DID_DOCS.key_2018_1.keys[0].privateKey);
-    expect(kid).toEqual(
-      TD_DID_DOCS.key_2018_1.didDocument.verificationMethod[0].id
-    );
-
-    let provider = await Provider.getProvider(
-      TD_DID_DOCS.key_2018_2.didDocument.id,
-      undefined,
-      [keyResolv2018]
-    );
-    kid = provider.addSigningParams(TD_DID_DOCS.key_2018_2.keys[0].privateKey);
-    expect(kid).toEqual(
-      TD_DID_DOCS.key_2018_2.didDocument.verificationMethod[0].id
-    );
-
-    let request = await rp.generateRequest();
-    let requestJWTDecoded = await provider.validateRequest(request);
-
-    let response = await provider.generateResponse(requestJWTDecoded.payload);
-    let responseJWTDecoded = await rp.validateResponse(response, {
-      redirect_uri: rpRedirectURI,
-      isExpirable: true,
-    });
-
-    expect(responseJWTDecoded).toHaveProperty("header");
-    expect(responseJWTDecoded).toHaveProperty("payload");
-  });
-});
-
-describe("007.03 DID SIOP using did:key method DIDs : crypto suite Ed25519VerificationKey2020", function () {
-  test("a. end to end functions testing ", async () => {
-    let keyResolv2020 = new KeyDidResolver(
-      "key",
-      CRYPTO_SUITES.Ed25519VerificationKey2020
-    );
-    let rp = await RP.getRP(
-      rpRedirectURI,
-      TD_DID_DOCS.key_2020_1.didDocument.id,
-      rpRegistrationMetaData,
-      undefined,
-      [keyResolv2020]
-    );
-    let kid = rp.addSigningParams(TD_DID_DOCS.key_2020_1.keys[0].privateKey);
-    expect(kid).toEqual(
-      TD_DID_DOCS.key_2020_1.didDocument.verificationMethod[0].id
-    );
-
-    let provider = await Provider.getProvider(
-      TD_DID_DOCS.key_2020_1.didDocument.id,
-      undefined,
-      [keyResolv2020]
-    );
-    kid = provider.addSigningParams(TD_DID_DOCS.key_2020_1.keys[0].privateKey);
-    expect(kid).toEqual(
-      TD_DID_DOCS.key_2020_1.didDocument.verificationMethod[0].id
-    );
-
-    let request = await rp.generateRequest();
-    let requestJWTDecoded = await provider.validateRequest(request);
-
-    let response = await provider.generateResponse(requestJWTDecoded.payload);
-    let responseJWTDecoded = await rp.validateResponse(response, {
-      redirect_uri: rpRedirectURI,
-      isExpirable: true,
-    });
-
-    expect(responseJWTDecoded).toHaveProperty("header");
-    expect(responseJWTDecoded).toHaveProperty("payload");
-  });
-});
-
-describe("007.04 DID SIOP using did:ethr method DIDs and did:ethr resover", function () {
-  beforeEach(() => {
-    nock("https://uniresolver.io/1.0/identifiers")
-      .persist()
-      .get("/" + rpDID)
-      .reply(200, rpDidDoc)
-      .get("/" + userDID)
-      .reply(200, userDidDoc);
-  });
-  test("a. DID SIOP end to end functions testing - expect truthy", async () => {
-    let ethrResolver = new EthrDidResolver("ethr");
-
-    let rp = await RP.getRP(
-      rpRedirectURI,
-      rpDID,
-      rpRegistrationMetaData,
-      undefined,
-      [ethrResolver]
-    );
-    let kid = rp.addSigningParams(rpPrivateKey);
-    expect(kid).toEqual(rpKid);
-
-    let provider = await Provider.getProvider(userDID);
-    kid = provider.addSigningParams(userPrivateKeyHex);
-    expect(kid).toEqual(userKid);
-
-    let request = await rp.generateRequest();
-    let requestJWTDecoded = await provider.validateRequest(request);
-    expect(requestJWTDecoded).toMatchObject(requestObj);
-
-    let response = await provider.generateResponse(requestJWTDecoded.payload);
-    let responseJWTDecoded = await rp.validateResponse(response, {
-      redirect_uri: rpRedirectURI,
-      isExpirable: true,
-    });
-    expect(responseJWTDecoded).toHaveProperty("header");
-    expect(responseJWTDecoded).toHaveProperty("payload");
   });
 });

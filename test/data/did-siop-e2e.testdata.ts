@@ -4,26 +4,38 @@ import {
 } from "../../src/core/identity/resolvers";
 import { TD_DID_DOCS } from "./did-docs.testdata";
 
-export const singleTD = {
+export const SINGLE_DID_TD = {
   user: {
-    ...TD_DID_DOCS.ethr_rinkeby_1,
+    ...TD_DID_DOCS.ethr_rinkeby_2,
     resolver: new EthrDidResolver("ethr"),
   },
   rp: {
-    ...TD_DID_DOCS.ethr_rinkeby_2,
+    ...TD_DID_DOCS.ethr_rinkeby_1,
     resolver: new EthrDidResolver("ethr"),
   },
 };
 
-export const multipleTD = [
+export const MULTIPLE_DIDS_TD = [
   {
     tag: "ethr",
     user: {
-      ...TD_DID_DOCS.ethr_rinkeby_1,
+      didDocument: {
+        ...TD_DID_DOCS.ethr_rinkeby_1.didDocument,
+        verificationMethod: [
+          TD_DID_DOCS.ethr_rinkeby_1.didDocument.verificationMethod[1],
+        ],
+      },
+      keys: TD_DID_DOCS.ethr_rinkeby_1.keys,
       resolver: new EthrDidResolver("ethr"),
     },
     rp: {
-      ...TD_DID_DOCS.ethr_rinkeby_2,
+      didDocument: {
+        ...TD_DID_DOCS.ethr_rinkeby_2.didDocument,
+        verificationMethod: [
+          TD_DID_DOCS.ethr_rinkeby_2.didDocument.verificationMethod[1],
+        ],
+      },
+      keys: TD_DID_DOCS.ethr_rinkeby_2.keys,
       resolver: new EthrDidResolver("ethr"),
     },
   },
@@ -62,3 +74,8 @@ export const multipleTD = [
     },
   },
 ];
+
+export const DID_SIOP_E2E_TD = {
+  SINGLE_DID_TD,
+  MULTIPLE_DIDS_TD,
+};
