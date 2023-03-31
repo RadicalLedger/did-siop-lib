@@ -8,17 +8,17 @@ Following are the primary specifications followed by this implementation.
 
 ### Specifications
 
-- [Self-Issued OpenID Provider v2](https://openid.net/specs/openid-connect-self-issued-v2-1_0.html)
-- [OpenID Connect for Verifiable Presentations](https://openid.net/specs/openid-connect-4-verifiable-presentations-1_0.html)
+-   [Self-Issued OpenID Provider v2](https://openid.net/specs/openid-connect-self-issued-v2-1_0.html)
+-   [OpenID Connect for Verifiable Presentations](https://openid.net/specs/openid-connect-4-verifiable-presentations-1_0.html)
 
 ### Availability
 
-- [For Node](https://www.npmjs.com/package/did-siop)
-- [For Browser](https://cdn.jsdelivr.net/npm/did-siop@2.0.3/dist/browser/did-siop.min.js)
+-   [For Node](https://www.npmjs.com/package/did-siop)
+-   [For Browser](https://cdn.jsdelivr.net/npm/did-siop@2.0.3/dist/browser/did-siop.min.js)
 
 ## Documentation
 
-- [API Documentation](./docs/api-documentation.md)
+-   [API Documentation](./docs/api-documentation.md)
 
 ## Capabiltities
 
@@ -63,9 +63,9 @@ By defalut, library uses [specified](https://openid.net/specs/openid-connect-sel
 
 Version 2 of did-siop provides mechanism to use custom DID Resolvers. Currently resolvers for following DID Methods are built in, but developers have the option to write thier own resolvers.
 
-- EthrDidResolver [did:ethr](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/identity/resolvers/did_resolver_ethr.ts)
-- KeyDidResolver [did:key](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/identity/resolvers/did_resolver_key.ts)
-- UniversalDidResolver [did:\*](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/identity/resolvers/did_resolver_uniresolver.ts) - DID Methods supported by https://dev.uniresolver.io/
+-   EthrDidResolver [did:ethr](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/identity/resolvers/did_resolver_ethr.ts)
+-   KeyDidResolver [did:key](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/identity/resolvers/did_resolver_key.ts)
+-   UniversalDidResolver [did:\*](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/identity/resolvers/did_resolver_uniresolver.ts) - DID Methods supported by https://dev.uniresolver.io/
 
 To build a custom resolver to use with DID-SIOP, derive your custom resolver from [DidResolver](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/identity/resolvers/did_resolver_base.ts) and override the **resolveDidDocumet** appropriately.
 
@@ -75,32 +75,29 @@ Default behavior of this library does not need any Resolvers to be specified. In
 
 At the time of creating a **RP** or **Provider** instance, along with the DID, it is possible to specify an array of Resolvers that should be used to resolve the given DID. These resolvers must be derived from DidResolver baseclass. Once specified a set of resolvers at the time of creating RP or Provider instance, subsequent requirements of DID resolutions in that instance will use the provided resolvers. In addition to this, it is possible to specify an array of resolvers in following methods which overrised the instance level resolver list.
 
-- RP:validateResponse
-- RP:validateResponseWithVPData
-- Provider:validateRequest
+-   RP:validateResponse
+-   RP:validateResponseWithVPData
+-   Provider:validateRequest
 
 #### Crypto Suites
 
 When using/building a resolver, the library provide the option of specifying a **Crypto Suite** to be used in resolving DIDs. Relevant Crypto Suite can be passed as an argument when constructing the DIDResolver.
 
 ```js
-let keyResolv2018 = new KeyDidResolver(
-  "key",
-  CRYPTO_SUITES.Ed25519VerificationKey2018
-);
+let keyResolv2018 = new KeyDidResolver('key', CRYPTO_SUITES.Ed25519VerificationKey2018);
 let siop_rp = await RP.getRP(
-  redirect_uri, // RP's redirect_uri
-  DID_TEST_RESOLVER_DATA_NEW[3].did, // RP's did
-  registration,
-  undefined,
-  [keyResolv2018]
+    redirect_uri, // RP's redirect_uri
+    DID_TEST_RESOLVER_DATA_NEW[3].did, // RP's did
+    registration,
+    undefined,
+    [keyResolv2018]
 );
 ```
 
 DID-SIOP has been tested the KeyDidResolver using following Crypto-Suites.
 
-- @digitalbazaar/ed25519-verification-key-2018
-- @digitalbazaar/ed25519-verification-key-2020
+-   @digitalbazaar/ed25519-verification-key-2018
+-   @digitalbazaar/ed25519-verification-key-2020
 
 ## Special Data Structures
 
@@ -110,8 +107,8 @@ When generating a response with **Provider.generateResponseWithVPData**, matchin
 
 ```js
 export interface VPData {
-  vp_token: any; // JSON object with VP related data
-  _vp_token: any; // JSON object wit VP request related info
+    vp_token: any; // JSON object with VP related data
+    _vp_token: any; // JSON object wit VP request related info
 }
 ```
 
@@ -121,8 +118,8 @@ When generating a response with **Provider.generateResponseWithVPData** , data i
 
 ```js
 export interface SIOPTokensEcoded {
-  id_token: string; // Base64 encoded JWT
-  vp_token: string; // Base64 encoded JWT
+    id_token: string; // Base64 encoded JWT
+    vp_token: string; // Base64 encoded JWT
 }
 ```
 
@@ -132,8 +129,8 @@ When validating a response with **Provider.validateResponseWithVPData** , method
 
 ```js
 export interface SIOPTokenObjects {
-  id_token: any; // Decoded Object
-  vp_token: any; // Decoded Object
+    id_token: any; // Decoded Object
+    vp_token: any; // Decoded Object
 }
 ```
 
@@ -147,51 +144,48 @@ Sample illustrating the usage of basic funcitons of [did-siop](https://github.co
 //Request Generation
 var request;
 siop_rp = await DID_SIOP.RP.getRP(
-  "localhost:5001/home", // RP's redirect_uri
-  "did:ethr:rinkeby:0x02be73dcaa2013a714b6745f54ff8576df151f8226cc3923538bfbfb9a014584fe", // RP's did
-  {
-    jwks_uri:
-      "https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks",
-    id_token_signed_response_alg: ["ES256K", "EdDSA", "RS256"],
-  }
+    'localhost:5001/home', // RP's redirect_uri
+    'did:ethr:rinkeby:0x02be73dcaa2013a714b6745f54ff8576df151f8226cc3923538bfbfb9a014584fe', // RP's did
+    {
+        jwks_uri: 'https://uniresolver.io/1.0/identifiers/did:example:0xab;transform-keys=jwks',
+        id_token_signed_response_alg: ['ES256K', 'EdDSA', 'RS256']
+    }
 );
-console.log("Got RP instance ....");
-siop_rp.addSigningParams(
-  "c4873e901915343baf7302b0b87bae70bf5726e9280d415b3f7fc85908cc9d5a"
-); // Private key
+console.log('Got RP instance ....');
+siop_rp.addSigningParams('c4873e901915343baf7302b0b87bae70bf5726e9280d415b3f7fc85908cc9d5a'); // Private key
 
-console.log("RP SigningParams added ...");
+console.log('RP SigningParams added ...');
 request = await siop_rp.generateRequest();
 
-console.log("Request generated ...", request);
+console.log('Request generated ...', request);
 
 //Response validation
 const validateResponse = async () => {
-  console.log("onRP");
-  let keyResolv2020 = new SIOP.Resolvers.KeyDidResolver(
-    "key",
-    "@digitalbazaar/x25519-key-agreement-key-2018"
-  );
-  let siop_rp = await SIOP.RP.getRP(
-    "localhost:4200/home", // RP's redirect_uri
-    "did:key:z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw", // RP's did
-    {
-      id_token_signed_response_alg: ["ES256K", "ES256K-R", "EdDSA", "RS256"],
-    },
-    undefined,
-    [keyResolv2020]
-  );
+    console.log('onRP');
+    let keyResolv2020 = new SIOP.Resolvers.KeyDidResolver(
+        'key',
+        '@digitalbazaar/x25519-key-agreement-key-2018'
+    );
+    let siop_rp = await SIOP.RP.getRP(
+        'localhost:4200/home', // RP's redirect_uri
+        'did:key:z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw', // RP's did
+        {
+            id_token_signed_response_alg: ['ES256K', 'ES256K-R', 'EdDSA', 'RS256']
+        },
+        undefined,
+        [keyResolv2020]
+    );
 
-  console.log(siop_rp);
+    console.log(siop_rp);
 
-  siop_rp.addSigningParams(
-    "zrv1xdp8ZsfXSDh4fQp8sE2VYPmLiCL3RssjKeXW7fYrRkxyWpWR5ugcC36WrCx9FizbJvxdwFmYcq7YxRVC2nVPFp5"
-  ); // Private key
+    siop_rp.addSigningParams(
+        'zrv1xdp8ZsfXSDh4fQp8sE2VYPmLiCL3RssjKeXW7fYrRkxyWpWR5ugcC36WrCx9FizbJvxdwFmYcq7YxRVC2nVPFp5'
+    ); // Private key
 
-  console.log("RP SigningParams added ...");
-  let valid = await siop_rp.validateResponse(props.response);
-  console.log("Response validated ...", valid);
-  setResponse(valid);
+    console.log('RP SigningParams added ...');
+    let valid = await siop_rp.validateResponse(props.response);
+    console.log('Response validated ...', valid);
+    setResponse(valid);
 };
 ```
 
@@ -199,41 +193,41 @@ const validateResponse = async () => {
 
 ```js
 // Response Generation
-const DID_SIOP = require("did-siop");
+const DID_SIOP = require('did-siop');
 
 const generateResponse = async () => {
-  let provider = await Provider.getProvider(
-    "did:key:z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw"
-  );
-  console.log("Got Provider instance with User DID...");
-  provider.addSigningParams(
-    "zrv1xdp8ZsfXSDh4fQp8sE2VYPmLiCL3RssjKeXW7fYrRkxyWpWR5ugcC36WrCx9FizbJvxdwFmYcq7YxRVC2nVPFp5"
-  ); // User's private key
+    let provider = await Provider.getProvider(
+        'did:key:z6MkvEoFWxZ9B5RDGSTLo2MqE3YJTxrDfLLZyZKjFRtcUSyw'
+    );
+    console.log('Got Provider instance with User DID...');
+    provider.addSigningParams(
+        'zrv1xdp8ZsfXSDh4fQp8sE2VYPmLiCL3RssjKeXW7fYrRkxyWpWR5ugcC36WrCx9FizbJvxdwFmYcq7YxRVC2nVPFp5'
+    ); // User's private key
 
-  console.log("User SigningParams added ...");
+    console.log('User SigningParams added ...');
 
-  // Request validation and response generation
-  console.log("props.request=>>", props.request);
-  provider
-    .validateRequest(props.request)
-    .then(async (decodedRequest) => {
-      console.log("Request validation completed ...");
-      console.log("decodedRequest", decodedRequest);
-      let jwtExpiration = 5000;
-      try {
-        await provider
-          .generateResponse(decodedRequest.payload, jwtExpiration)
-          .then((responseJWT) => {
-            console.log("Response generated ...");
-            console.log("responseJWT", responseJWT);
-          });
-      } catch (err) {
-        console.log("ERROR provider.generateResponse  ", err);
-      }
-    })
-    .catch((err) => {
-      console.log("ERROR invalid request", err);
-    });
+    // Request validation and response generation
+    console.log('props.request=>>', props.request);
+    provider
+        .validateRequest(props.request)
+        .then(async (decodedRequest) => {
+            console.log('Request validation completed ...');
+            console.log('decodedRequest', decodedRequest);
+            let jwtExpiration = 5000;
+            try {
+                await provider
+                    .generateResponse(decodedRequest.payload, jwtExpiration)
+                    .then((responseJWT) => {
+                        console.log('Response generated ...');
+                        console.log('responseJWT', responseJWT);
+                    });
+            } catch (err) {
+                console.log('ERROR provider.generateResponse  ', err);
+            }
+        })
+        .catch((err) => {
+            console.log('ERROR invalid request', err);
+        });
 };
 ```
 
@@ -241,16 +235,16 @@ const generateResponse = async () => {
 
 Defined in _src/core/globals.ts_
 
-- RS256, RS384, RS512
-- PS256, PS384, PS512
-- ES256, ES384, ES512, ES256K, ES256K-R, EdDSA
+-   RS256, RS384, RS512
+-   PS256, PS384, PS512
+-   ES256, ES384, ES512, ES256K, ES256K-R, EdDSA
 
 ### Supported Key Formats
 
 Defined in _src/core/globals.ts_
 
-- PKCS8_PEM, PKCS1_PEM
-- HEX, BASE58, BASE64
+-   PKCS8_PEM, PKCS1_PEM
+-   HEX, BASE58, BASE64
 
 ## Verifiable Presentations (VP)
 
