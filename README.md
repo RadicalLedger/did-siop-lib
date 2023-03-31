@@ -63,11 +63,11 @@ By defalut, library uses [specified](https://openid.net/specs/openid-connect-sel
 
 Version 2 of did-siop provides mechanism to use custom DID Resolvers. Currently resolvers for following DID Methods are built in, but developers have the option to write thier own resolvers.
 
-- EthrDidResolver [did:ethr](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/Identity/Resolvers/did_resolver_ethr.ts)
-- KeyDidResolver [did:key](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/Identity/Resolvers/did_resolver_key.ts)
-- UniversalDidResolver [did:\*](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/Identity/Resolvers/did_resolver_uniresolver.ts) - DID Methods supported by https://dev.uniresolver.io/
+- EthrDidResolver [did:ethr](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/identity/resolvers/did_resolver_ethr.ts)
+- KeyDidResolver [did:key](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/identity/resolvers/did_resolver_key.ts)
+- UniversalDidResolver [did:\*](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/identity/resolvers/did_resolver_uniresolver.ts) - DID Methods supported by https://dev.uniresolver.io/
 
-To build a custom resolver to use with DID-SIOP, derive your custom resolver from [DidResolver](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/Identity/Resolvers/did_resolver_base.ts) and override the **resolveDidDocumet** appropriately.
+To build a custom resolver to use with DID-SIOP, derive your custom resolver from [DidResolver](https://github.com/RadicalLedger/did-siop-lib/blob/dev/src/core/identity/resolvers/did_resolver_base.ts) and override the **resolveDidDocumet** appropriately.
 
 #### Working with Resolvers
 
