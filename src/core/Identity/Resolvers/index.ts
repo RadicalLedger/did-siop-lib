@@ -1,8 +1,8 @@
-import { DidDocument, ERRORS } from "../commons";
-import { DidResolver } from "./did-resolver-base";
-import { EthrDidResolver } from "./did-resolver-ethr";
-import { KeyDidResolver } from "./did-resolver-key";
-import { UniversalDidResolver } from "./did-resolver-uniresolver";
+import { DidDocument, ERRORS } from '../commons';
+import { DidResolver } from './did-resolver-base';
+import { EthrDidResolver } from './did-resolver-ethr';
+import { KeyDidResolver } from './did-resolver-key';
+import { UniversalDidResolver } from './did-resolver-uniresolver';
 
 /**
  * @classdesc A Resolver class which combines several other Resolvers in chain.
@@ -11,72 +11,67 @@ import { UniversalDidResolver } from "./did-resolver-uniresolver";
  * @extends {DidResolver}
  */
 class CombinedDidResolver extends DidResolver {
-  private resolvers: any[] = [];
+    private resolvers: any[] = [];
 
-  /**
-   * @param {any} resolver - A resolver instance to add to the chain.
-   * @returns {CombinedDidResolver} To use in fluent interface pattern.
-   * @remarks Adds a given object to the resolvers array.
-   */
-  addResolver(resolver: any): CombinedDidResolver {
-    this.resolvers.push(resolver);
-    return this;
-  }
-
-  /**
-   * @returns {DidResolver[]} returns currently available DidResolver array
-   * @remarks Return currently available resolvers array.
-   */
-  getResolvers(): any[] {
-    return this.resolvers;
-  }
-
-  /**
-   * @returns {void}
-   * @remarks Remove all resolvers (mostly used when UnitTesting)
-   */
-  removeAllResolvers() {
-    this.resolvers = [];
-  }
-
-  async resolveDidDocumet(did: string): Promise<DidDocument> {
-    let doc: DidDocument | undefined;
-
-    if (this.resolvers.length == 0) {
-      let uniResolver = new UniversalDidResolver("uniresolver");
-      this.addResolver(uniResolver);
+    /**
+     * @param {any} resolver - A resolver instance to add to the chain.
+     * @returns {CombinedDidResolver} To use in fluent interface pattern.
+     * @remarks Adds a given object to the resolvers array.
+     */
+    addResolver(resolver: any): CombinedDidResolver {
+        this.resolvers.push(resolver);
+        return this;
     }
-    for (let resolver of this.resolvers) {
-      try {
-        doc = await resolver.resolve(did);
-        if (!doc) {
-          continue;
-        } else {
-          return doc;
+
+    /**
+     * @returns {DidResolver[]} returns currently available DidResolver array
+     * @remarks Return currently available resolvers array.
+     */
+    getResolvers(): any[] {
+        return this.resolvers;
+    }
+
+    /**
+     * @returns {void}
+     * @remarks Remove all resolvers (mostly used when UnitTesting)
+     */
+    removeAllResolvers() {
+        this.resolvers = [];
+    }
+
+    async resolveDidDocumet(did: string): Promise<DidDocument> {
+        let doc: DidDocument | undefined;
+
+        if (this.resolvers.length == 0) {
+            let uniResolver = new UniversalDidResolver('uniresolver');
+            this.addResolver(uniResolver);
         }
-      } catch (err) {
-        continue;
-      }
+        for (let resolver of this.resolvers) {
+            try {
+                doc = await resolver.resolve(did);
+                if (!doc) {
+                    continue;
+                } else {
+                    return doc;
+                }
+            } catch (err) {
+                continue;
+            }
+        }
+        throw new Error(ERRORS.DOCUMENT_RESOLUTION_ERROR);
     }
-    throw new Error(ERRORS.DOCUMENT_RESOLUTION_ERROR);
-  }
 
-  /**
-   *
-   * @param {string} did - DID to resolve the DID Document for.
-   * @returns A promise which resolves to a {DidDocument}
-   * @override resolve(did) method of the {DidResolver}
-   * @remarks Unlike other resolvers this class can resolve Documents for many DID Methods.
-   * Therefore the check in the parent class needs to be overridden.
-   */
-  resolve(did: string): Promise<DidDocument> {
-    return this.resolveDidDocumet(did);
-  }
+    /**
+     *
+     * @param {string} did - DID to resolve the DID Document for.
+     * @returns A promise which resolves to a {DidDocument}
+     * @override resolve(did) method of the {DidResolver}
+     * @remarks Unlike other resolvers this class can resolve Documents for many DID Methods.
+     * Therefore the check in the parent class needs to be overridden.
+     */
+    resolve(did: string): Promise<DidDocument> {
+        return this.resolveDidDocumet(did);
+    }
 }
 
-export {
-  CombinedDidResolver,
-  KeyDidResolver,
-  EthrDidResolver,
-  UniversalDidResolver,
-};
+export { CombinedDidResolver, KeyDidResolver, EthrDidResolver, UniversalDidResolver };
