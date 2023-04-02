@@ -1,1 +1,1 @@
-export const RESOLVER_URL = "https://uniresolver.io/1.0/identifiers/";
+export const RESOLVER_URL = 'https://uniresolver.io/1.0/identifiers/';
